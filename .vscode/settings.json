@@ -1,0 +1,15 @@
+{
+    "python.formatting.provider": "autopep8",
+    "python.formatting.autopep8Args": [
+        "--aggressive",
+        "--aggressive",
+        "--experimental"
+    ],
+    "editor.formatOnSave": true,
+    "search.exclude": {
+        "**/.vscode": true,
+    },
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    }
+}
