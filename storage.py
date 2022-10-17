@@ -1,17 +1,11 @@
-import json
-from ctypes import sizeof
-from ensurepip import version
-from enum import Enum
-from importlib.metadata import metadata
-from io import BytesIO
-from typing import Any, Dict, Iterable, List, Mapping, Union
 
-from minio import Minio
+from enum import Enum
+from typing import Any, Dict, Iterable, List, Mapping
+
 from pydantic import Protocol
 
 from clients.local_client import LocalCLient
 from clients.minio_client import MinioClient
-from exceptions import StorageError
 
 from .env import env
 from .logger import log
@@ -21,7 +15,7 @@ from .validation import JSONish, Key, MergeIndex, MergeStrategy, PrefixPath
 class Capability(str, Enum):
     BASIC = 'BASIC'
     STREAMS = 'STREAMS'
-    APPENDS = 'APPENDS'
+    INSERT = 'INSERT'
 
 
 class MergeMode(str, Enum):
@@ -29,54 +23,6 @@ class MergeMode(str, Enum):
     ADDITIVE = 'ADDITIVE'
     SUBTRACT = 'SUBTRACT'
     INTERSECT = 'INTERSECT'  # If value in both sides
-
-
-class ObjectType(str, Enum):
-    DIRECTORY = 'DIRECTORY'
-    FILE = "FILE"
-
-
-class Owner:
-    def __init__(self, name: str, identifier: str) -> None:
-        self.name = name
-        self.identifier = identifier
-
-
-class Version:
-    def __init__(self, hashed: str, is_latest: bool, version: str) -> None:
-        self.hashed = hashed
-        self.is_latest = is_latest
-        self.version = version
-
-
-class Metadata:
-    def __init__(self, object_type: ObjectType, metadata, size) -> None:
-        self.object_type = object_type
-        self.metadata = metadata
-        self.size = size
-
-
-class ObjectInfo:
-    def __init__(
-            self,
-            container: str,
-            content_type: str,
-            object_type: ObjectType,
-            hashed: str,
-            deleted: bool,
-            is_latest: bool,
-            last_modified: str,
-            size: str,
-            version: str,
-            storage_class: str = None,
-    ) -> None:
-        self.container = container
-        self.content_type = content_type
-        self.object_type = object_type
-        self.hashed = hashed
-        self.deleted = deleted
-        self.latest = is_latest
-        self.last_modified = last_modified
 
 
 # Handling singular and multiple object operations is done by calling the singular function multiple times by default
