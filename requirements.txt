@@ -1,5 +1,6 @@
 minio
 zeroconf
-pysyncobj
 fusepy
 pysyncobj
+pydantic
+PyYAML

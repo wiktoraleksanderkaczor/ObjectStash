@@ -12,7 +12,7 @@ setuptools.setup(
     long_description=open('DESCRIPTION.rst').read(),
     packages=find_packages,
     package_data={'': ['*.yaml']},
-    install_requires=['minio', 'zeroconf', 'pysyncobj', 'pyfuse'],
+    install_requires=['minio', 'zeroconf', 'pysyncobj', 'pyfuse', 'pydantic', 'PyYAML'],
     classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
