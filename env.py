@@ -6,8 +6,6 @@ from typing import IO, Any, Dict, List
 import pkg_resources
 from yaml import load  # ,dump
 
-from .partition import Distributed
-
 try:
     from yaml import CLoader as Loader
 except ImportError:

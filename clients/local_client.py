@@ -1,8 +1,8 @@
-from copy import deepcopy
 import os
 
-from ..storage import Capability, ObjectInfo, ObjectType, StorageClient
-from ..validation import Key, JSONish
+from ..storage import Capability, StorageClient
+from ..validation import JSONish, Key
+
 
 class LocalCLient(StorageClient):
     def __init__(

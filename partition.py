@@ -12,7 +12,7 @@ from pysyncobj.batteries import (ReplCounter, ReplDict, ReplList,
 from .distribution import Distributed
 from .env import env
 from .storage import storage
-from .validation import ISOTimeStr, JSONish, Key, PrefixPath, normalize_path
+from .validation import JSONish, Key
 
 
 class ObjectLock(Distributed):
@@ -23,11 +23,6 @@ class ObjectLock(Distributed):
 
 
 class PartitionLock(Distributed):
-    # class LockState(BaseModel):
-    #     isotime: ISOTimeStr
-    #     obtained: bool
-    #     instance: str
-
     def __init__(self, partition, fname='.lock'):
         self.partition = partition
         self.fname = self.partition + fname
@@ -109,7 +104,7 @@ class PartitionLock(Distributed):
 
 
 class Cache(Distributed):
-    def __init__(self, partition: PrefixPath) -> None:
+    def __init__(self, partition: Key) -> None:
         self.partition = partition
         Distributed.__init__(self, self.partition)
         self.cached: Dict[str, Any] = {}
@@ -124,7 +119,7 @@ class Cache(Distributed):
 
 
 class PartitionMeta(Distributed):
-    def __init__(self, partition: PrefixPath) -> None:
+    def __init__(self, partition: Key) -> None:
         self.partition = partition
         Distributed.__init__(self, self.partition)
         self.records: List[str] = []
@@ -172,7 +167,7 @@ class Partition():
                 self.meta.add_record(obj)
         return self.meta.records
 
-    def __init__(self, name: PrefixPath, cached: bool = False):
+    def __init__(self, name: Key, cached: bool = False):
         self.prefix = f'partitions/{name}'
         self.cached = cached
         self.lock = PartitionLock(self.prefix, '.lock')

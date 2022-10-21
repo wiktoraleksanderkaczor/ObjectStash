@@ -1,12 +1,8 @@
 import json
-import re
-from ast import Bytes
 #from collections.abc import Iterable
-from datetime import datetime
 from io import BytesIO, StringIO
+from pathlib import PurePosixPath as Key
 from typing import Any, Dict, Union, overload
-
-from pydantic import BaseModel, validator
 
 from storage import MergeMode  # , List, Union
 
@@ -36,26 +32,6 @@ from .env import env
 #                 raise StorageError(f'Arguments are not JSON serializable')
 #         return wrapper
 #     return decorator
-
-
-def normalize_path(path: str) -> str:
-    return path if path.endswith('/') else f'{path}/'
-
-
-class Key(str):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if not isinstance(v, str):
-            raise TypeError(f'Expected a string, not {type(v)}')
-        if '/' in v:
-            raise ValueError('Keys must not contain forward-slashes')
-        if '.' in v:
-            raise ValueError('Keys must not contain dots')
-        return v
 
 
 class MergeStrategy(dict):
@@ -97,74 +73,6 @@ class MergeIndex(dict):
                 MergeIndex.validate(val)
             elif not isinstance(val, int):
                 raise ValueError("Index value is not of integer type")
-        return v
-
-
-class ISOTimeStr(str):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        try:
-            datetime.fromisoformat(v)
-        except Exception:
-            raise ValueError(
-                'String is not parsable as datetime from ISO format')
-        return v
-
-
-class PrefixPath(str):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if not isinstance(v, str):
-            raise TypeError(f'Expected a string, not {type(v)}')
-        if not v.endswith('/'):
-            v = f'{v}/'
-        return v
-
-
-class Filename(str):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if not isinstance(v, str):
-            raise TypeError(f'Expected a string, not {type(v)}')
-        valid_filename = r'^\w+(\.\w+)+$'
-        if not re.match(valid_filename, v):
-            raise ValueError(
-                f'Filenames is not valid according to "{valid_filename}" regex')
-        return v
-
-
-class ObjectPath(str):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if not isinstance(v, str):
-            raise TypeError(f'Expected a string, not {type(v)}')
-        try:
-            prefix, fname = v.rsplit("/", 1)
-            if not prefix or not fname:
-                raise ValueError(
-                    f'Could not split "{v}" into prefix and filename')
-            prefix = PrefixPath(prefix)
-            prefix = prefix.validate()
-            fname = Filename(fname)
-            fname = fname.validate()
-        except ValueError as e:
-            raise e
         return v
 
 
@@ -219,16 +127,4 @@ class JSONish(dict):
             v.as_json()
         except Exception:
             raise ValueError(f'Data is not JSON serializable')
-        return v
-
-
-class Object(BaseModel):
-    key: str
-
-    @validator('key')
-    def valid_key(cls, v: str):
-        if '.' in v:
-            raise ValueError('Key cannot contain dots')
-        if v.endswith('/'):
-            raise ValueError('Object path cannot end with a forward-slash')
         return v

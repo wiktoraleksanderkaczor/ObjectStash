@@ -9,7 +9,7 @@ from clients.minio_client import MinioClient
 
 from .env import env
 from .logger import log
-from .validation import JSONish, Key, MergeIndex, MergeStrategy, PrefixPath
+from .validation import JSONish, Key, MergeIndex, MergeStrategy
 
 
 class Capability(str, Enum):
@@ -58,8 +58,9 @@ class StorageClient(Protocol):
 
     def list_objects(
             self,
-            prefix: str = PrefixPath,
+            prefix: Key,
             recursive: bool = None) -> List[Key]:
+        prefix = prefix
         ...
 
     def get_object(self, key: Key) -> JSONish:
