@@ -6,8 +6,7 @@ from pydantic import Protocol
 from clients.local_client import LocalCLient
 from clients.minio_client import MinioClient
 
-from .env import env
-from .logger import log
+from ..utils.env import env
 from .validation import JSONish, Key, MergeIndex, MergeStrategy
 
 
@@ -74,9 +73,6 @@ class StorageClient(Protocol):
 
     def put_objects(self, keys: List[Key], data: List[JSONish]) -> List[Key]:
         return [self.put_object(key, item) for key, item in zip(keys, data)]
-
-    def get_objects(self, keys: List[Key]) -> List[JSONish]:
-        return [self.get_object(key) for key in keys]
 
     def stat_objects(self, keys: List[Key]) -> List[Dict[str, Any]]:
         return [self.stat_object(key) for key in keys]

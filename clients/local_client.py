@@ -1,8 +1,8 @@
 import os
 from typing import List
 
-from ..storage import Capability, StorageClient
-from ..validation import JSONish, Key
+from ..models.storage import Capability, StorageClient
+from ..models.validation import JSONish, Key
 
 
 class LocalCLient(StorageClient):

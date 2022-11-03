@@ -2,8 +2,8 @@ from typing import Any, Callable, Dict, List
 
 from pysyncobj import replicated
 
-from distribution import Distributed
-from validation import JSONish
+from models.validation import JSONish
+from utils.distribution import Distributed
 
 
 class Messaging(Distributed):

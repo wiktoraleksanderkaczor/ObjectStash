@@ -1,7 +1,7 @@
 import os
 from collections.abc import Mapping
 from pprint import pprint
-from typing import IO, Any, Dict, List
+from typing import IO, Any, Dict
 
 import pkg_resources
 from yaml import load  # ,dump

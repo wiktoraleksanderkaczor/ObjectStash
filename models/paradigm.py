@@ -2,7 +2,7 @@ from typing import Dict, List
 
 from pysyncobj.batteries import ReplDict
 
-from .distribution import Distributed
+from ..utils.distribution import Distributed
 from .partition import Partition
 from .storage import storage
 

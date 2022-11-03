@@ -1,15 +1,15 @@
 from io import BytesIO
 from pathlib import PurePath as Path
-from typing import Any, Dict, List
+from typing import List
 
 from minio import Minio
 
-from ..env import env
-from ..exceptions import StorageError
-from ..logger import log
-from ..objects import ObjectInfo
-from ..storage import Capability, StorageClient
-from ..validation import JSONish, Key
+from ..models.exceptions import StorageError
+from ..models.objects import ObjectInfo
+from ..models.storage import Capability, StorageClient
+from ..models.validation import JSONish, Key
+from ..utils.env import env
+from ..utils.logger import log
 
 
 class MinioClient(StorageClient):
@@ -49,17 +49,5 @@ class MinioClient(StorageClient):
     # compatible with JSONish
     def stat_object(self, key: str) -> ObjectInfo:
         data = self.client.stat_object(self.container, key)
-        # object_type = ObjectType.DIRECTORY if data.is_dir else ObjectType.FILE
-        # info = ObjectInfo(
-        #     data.bucket_name,
-        #     data.content_type,
-        #     object_type,
-        #     data.etag,
-        #     data.is_delete_marker,
-        #     data.is_latest,
-        #     data.last_modified,
-        #     data.metadata)
-        # info.container = data.bucket_name
-        # info.content_type = data.content_type
 
         return self.client.stat_object(self.container, key).__dict__

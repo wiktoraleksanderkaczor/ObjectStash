@@ -1,23 +1,11 @@
-import json
 from copy import deepcopy
 from datetime import datetime
-from io import BytesIO
-from typing import Any, Dict, List, Union
+from typing import List, Union
 
-from pydantic import BaseModel
-from pysyncobj.batteries import (
-    ReplCounter,
-    ReplDict,
-    ReplList,
-    ReplLockManager,
-    ReplPriorityQueue,
-    ReplQueue,
-    ReplSet,
-    replicated,
-)
+from pysyncobj.batteries import ReplDict, ReplLockManager, replicated
 
-from .distribution import Distributed
-from .env import env
+from ..utils.distribution import Distributed
+from ..utils.env import env
 from .storage import storage
 from .validation import JSONish, Key
 
@@ -68,7 +56,7 @@ class PartitionLock(Distributed):
         # Handling if there is already a lock
         elif state["obtained"] and state["instance"] != Distributed.cluster_name:
             if not override:
-                raise Exception(f"Partition is already locked by another client")
+                raise Exception("Partition is already locked by another client")
             # If override option is set
             state["obtained"] = True
             lockfile = storage.put_object(self.fname, state)
@@ -101,21 +89,6 @@ class PartitionLock(Distributed):
         is_last_node = len(self.otherNodes) == 0 and self.isReady()
         if self.state["obtained"] and is_last_node:  # and is last node
             self.unlock(env["ACTIVITY"]["LOCK_LEAVE"])
-
-
-class Cache(Distributed):
-    def __init__(self, partition: Key) -> None:
-        self.partition = partition
-        Distributed.__init__(self, self.partition)
-        self.cached: Dict[str, Any] = {}
-
-    @replicated(sync=True)
-    def cache(self, key: Key, value: JSONish) -> None:
-        self.cached[key] = value
-
-    @replicated(sync=True)
-    def uncache(self, key: Key) -> None:
-        del self.cached[key]
 
 
 class PartitionMeta(Distributed):
@@ -169,4 +142,3 @@ class Partition:
         self.cached = cached
         self.lock = PartitionLock(self.prefix, ".lock")
         self.meta: PartitionMeta = PartitionMeta(self.prefix)
-        self.cache: Cache = Cache(self.prefix) if cached else None

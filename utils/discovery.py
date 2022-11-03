@@ -1,13 +1,15 @@
 import logging
 import socket
 
-# Find all services
-# print('\n'.join(ZeroconfServiceTypes.find()))
-from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf, ZeroconfServiceTypes
+from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf  # , ZeroconfServiceTypes
 
 from .distribution import Distributed
 from .env import env
 from .logger import level
+
+# Find all services
+# print('\n'.join(ZeroconfServiceTypes.find()))
+
 
 # Set logging
 logging.getLogger("zeroconf").setLevel(level)
