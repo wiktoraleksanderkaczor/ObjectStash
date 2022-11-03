@@ -1,5 +1,12 @@
 {
-    "python.formatting.provider": "autopep8",
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length=120"
+    ],
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--max-line-length=120"
+    ],
     "python.formatting.autopep8Args": [
         "--aggressive",
         "--aggressive",
@@ -11,5 +18,8 @@
     },
     "editor.codeActionsOnSave": {
         "source.organizeImports": true
-    }
+    },
+    "editor.rulers": [
+        120
+    ]
 }
