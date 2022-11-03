@@ -1,15 +1,15 @@
 import os
+from typing import List
 
 from ..storage import Capability, StorageClient
 from ..validation import JSONish, Key
 
 
 class LocalCLient(StorageClient):
-    def __init__(
-            self,
-            container: str,
-            region: str = None,
-            secure: bool = True):
+    client_name: str = "Local"
+    capabilities: List[Capability] = [Capability.BASIC]
+
+    def __init__(self, container: str, region: str = None, secure: bool = True):
         super().__init__(container, region, secure)
 
     def create_container(self) -> bool:
@@ -23,5 +23,5 @@ class LocalCLient(StorageClient):
         return os.path.isfile(key)
 
     def get_object(self, key: Key) -> JSONish:
-        with open(key, 'r') as infile:
+        with open(key, "r") as infile:
             return JSONish(infile)

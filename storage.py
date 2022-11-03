@@ -1,4 +1,3 @@
-
 from enum import Enum
 from typing import Any, Dict, Iterable, List, Mapping
 
@@ -13,16 +12,16 @@ from .validation import JSONish, Key, MergeIndex, MergeStrategy
 
 
 class Capability(str, Enum):
-    BASIC = 'BASIC'
-    STREAMS = 'STREAMS'
-    INSERT = 'INSERT'
+    BASIC = "BASIC"
+    STREAMS = "STREAMS"
+    INSERT = "INSERT"
 
 
 class MergeMode(str, Enum):
-    UPDATE = 'UPDATE'
-    ADDITIVE = 'ADDITIVE'
-    SUBTRACT = 'SUBTRACT'
-    INTERSECT = 'INTERSECT'  # If value in both sides
+    UPDATE = "UPDATE"
+    ADDITIVE = "ADDITIVE"
+    SUBTRACT = "SUBTRACT"
+    INTERSECT = "INTERSECT"  # If value in both sides
 
 
 # Handling singular and multiple object operations is done by calling the singular function multiple times by default
@@ -36,17 +35,13 @@ class StorageClient(Protocol):
     client_name: str
     capabilities: List[Capability]
 
-    def __init__(
-            self,
-            container: str,
-            region: str = None,
-            secure: bool = True):
+    def __init__(self, container: str, region: str = None, secure: bool = True):
         self.client = None
         self.container = container
         self.region = region
         self.secure = secure
-        self.access_key: str = env['STORAGE']['ACCESS_KEY']
-        self.secret_key: str = env['STORAGE']['SECRET_KEY']
+        self.access_key: str = env["STORAGE"]["ACCESS_KEY"]
+        self.secret_key: str = env["STORAGE"]["SECRET_KEY"]
 
     # REQUIRED:
 
@@ -56,10 +51,7 @@ class StorageClient(Protocol):
     def create_container(self) -> bool:
         ...
 
-    def list_objects(
-            self,
-            prefix: Key,
-            recursive: bool = None) -> List[Key]:
+    def list_objects(self, prefix: Key, recursive: bool = None) -> List[Key]:
         prefix = prefix
         ...
 
@@ -80,9 +72,7 @@ class StorageClient(Protocol):
     def get_objects(self, keys: List[Key]) -> List[JSONish]:
         return [self.get_object(key) for key in keys]
 
-    def put_objects(
-            self, keys: List[Key],
-            data: List[JSONish]) -> List[Key]:
+    def put_objects(self, keys: List[Key], data: List[JSONish]) -> List[Key]:
         return [self.put_object(key, item) for key, item in zip(keys, data)]
 
     def get_objects(self, keys: List[Key]) -> List[JSONish]:
@@ -95,24 +85,24 @@ class StorageClient(Protocol):
         return [self.remove_object(key) for key in keys]
 
     def object_exists(self, key: Key) -> bool:
-        prefix, key = key.rsplit('/', 1) if '/' in key else None, key
+        prefix, key = key.rsplit("/", 1) if "/" in key else None, key
         return key in self.list_objects(prefix)
 
     def merge_object(
-            self, key: Key, data: JSONish,
-            index: MergeIndex = None, merge: MergeStrategy = None,
-            mode: MergeMode = MergeMode.UPDATE) -> str:
+        self,
+        key: Key,
+        data: JSONish,
+        index: MergeIndex = None,
+        merge: MergeStrategy = None,
+        mode: MergeMode = MergeMode.UPDATE,
+    ) -> str:
         old = self.get_object(key)
         new = self._merge_mapping(old, data, index, merge, mode)
         return self.put_object(key, new)
 
     # INTERNAL:
 
-    def _merge_value(
-            self,
-            old: Any,
-            new: Any,
-            mode: MergeMode = MergeMode.UPDATE) -> Any:
+    def _merge_value(self, old: Any, new: Any, mode: MergeMode = MergeMode.UPDATE) -> Any:
         if new is None:
             return old
 
@@ -126,11 +116,8 @@ class StorageClient(Protocol):
     # TODO: Merging for iterables and with indexes, also strings
     # Might need option for multiple indexes...?
     def _merge_iterable(
-            self,
-            old: Iterable,
-            new: Iterable,
-            index: int,
-            mode: MergeMode = MergeMode.UPDATE) -> List[Any]:
+        self, old: Iterable, new: Iterable, index: int, mode: MergeMode = MergeMode.UPDATE
+    ) -> List[Any]:
         if new is None:
             return old
 
@@ -141,11 +128,9 @@ class StorageClient(Protocol):
         elif mode == MergeMode.UPDATE:
             return new
 
-    def _merge_mapping(self, old: JSONish,
-                       new: JSONish,
-                       index: MergeIndex = None,
-                       merge: MergeStrategy = None,
-                       mode=MergeMode.UPDATE) -> JSONish:
+    def _merge_mapping(
+        self, old: JSONish, new: JSONish, index: MergeIndex = None, merge: MergeStrategy = None, mode=MergeMode.UPDATE
+    ) -> JSONish:
         if not new:
             return old
         if not index:
@@ -155,29 +140,13 @@ class StorageClient(Protocol):
 
         for k, v in old.items():
             if isinstance(v, Mapping):
-                new[k] = self._merge_mapping(
-                    v,
-                    new.get(k, {}),
-                    index.get(k, {}),
-                    merge.get(k, {}),
-                    merge.get(k, mode))
+                new[k] = self._merge_mapping(v, new.get(k, {}), index.get(k, {}), merge.get(k, {}), merge.get(k, mode))
             elif isinstance(v, Iterable):
-                new[k] = self._merge_iterable(
-                    v,
-                    new.get(k, []),
-                    index.get(k, len(v)),
-                    merge.get(k, mode))
+                new[k] = self._merge_iterable(v, new.get(k, []), index.get(k, len(v)), merge.get(k, mode))
             else:
-                new[k] = self._merge_value(
-                    new.get(k, None),
-                    v,
-                    merge.get(k, mode))
+                new[k] = self._merge_value(new.get(k, None), v, merge.get(k, mode))
         return new
 
 
-STORAGE_CLIENTS = {
-    'Local': LocalCLient,
-    'MinIO': MinioClient
-}
-storage: StorageClient = STORAGE_CLIENTS.get(
-    env['STORAGE']['CLIENT'], MinioClient)
+STORAGE_CLIENTS = {"Local": LocalCLient, "MinIO": MinioClient}
+storage: StorageClient = STORAGE_CLIENTS.get(env["STORAGE"]["CLIENT"], MinioClient)

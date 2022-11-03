@@ -1,16 +1,15 @@
-
 from typing import Dict, List
 
 from pysyncobj.batteries import ReplDict
 
-from .partition import Partition
 from .distribution import Distributed
+from .partition import Partition
 from .storage import storage
 
 
 class Schema(Partition):
     def __init__(self) -> None:
-        self.fname: str = 'schema.json'
+        self.fname: str = "schema.json"
         self.schema: Dict[str, str] = None
         if storage.object_exists(self.fname):
             self.schema = storage.get_object(self.fname)
@@ -29,11 +28,11 @@ class Table(Partition):
 
 class NoSQL(Partition):
     def get_tables(self) -> List[str]:
-        data = self.retrieve('tables.json')
+        data = self.retrieve("tables.json")
         return data
 
     def schema_exists(self) -> bool:
-        return self.stat_object('schema.json')
+        return self.stat_object("schema.json")
 
     def create_table(self, table: str):
         self.available.append(table)

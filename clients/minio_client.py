@@ -16,27 +16,19 @@ class MinioClient(StorageClient):
     client_name: str = "MinIO"
     capabilities: List[Capability] = [Capability.BASIC]
 
-    def __init__(
-            self,
-            container: str,
-            region: str = None,
-            secure: bool = True) -> None:
+    def __init__(self, container: str, region: str = None, secure: bool = True) -> None:
         super().__init__(container, region, secure)
         try:
             self.client = Minio(
-                env,
-                access_key=self.access_key,
-                secret_key=self.secret_key,
-                region=self.region,
-                secure=self.secure
+                env, access_key=self.access_key, secret_key=self.secret_key, region=self.region, secure=self.secure
             )
         except Exception as e:
             err = StorageError(e)
-            log.exception(f'MinIO Exception [init]: {err}')
+            log.exception(f"MinIO Exception [init]: {err}")
             raise err
 
     def object_exists(self, key: Key) -> bool:
-        prefix = key.rsplit('/', 1)[-1] if '/' in key else None
+        prefix = key.rsplit("/", 1)[-1] if "/" in key else None
         return key in self.client.list_objects(self.container, prefix)
 
     def container_exists(self) -> bool:
@@ -45,10 +37,7 @@ class MinioClient(StorageClient):
     def create_container(self) -> bool:
         self.client.make_bucket(self.container)
 
-    def list_objects(
-            self,
-            prefix: Key,
-            recursive: bool = False) -> List[str]:
+    def list_objects(self, prefix: Key, recursive: bool = False) -> List[str]:
         return self.client.list_objects(self.container, prefix, recursive)
 
     def put_object(self, key: Key, data: JSONish) -> str:

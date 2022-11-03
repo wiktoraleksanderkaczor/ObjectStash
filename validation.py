@@ -1,5 +1,6 @@
 import json
-#from collections.abc import Iterable
+
+# from collections.abc import Iterable
 from io import BytesIO, StringIO
 from pathlib import PurePosixPath as Key
 from typing import Any, Dict, Union, overload
@@ -8,7 +9,7 @@ from storage import MergeMode  # , List, Union
 
 from .env import env
 
-#from .storage import StorageError
+# from .storage import StorageError
 
 
 # def jsonable_args(ags: Union[List[int], int], kws: Union[List[str], str]):
@@ -42,11 +43,10 @@ class MergeStrategy(dict):
     @classmethod
     def validate(cls, v):
         if not isinstance(v, dict):
-            raise TypeError(f'Expected a dictionary, not {type(v)}')
-        invalid_keys = any(
-            [key for key in v.keys() if not isinstance(key, Key)])
+            raise TypeError(f"Expected a dictionary, not {type(v)}")
+        invalid_keys = any([key for key in v.keys() if not isinstance(key, Key)])
         if invalid_keys:
-            raise ValueError(f'MergeStrategy contains keys that are not valid')
+            raise ValueError(f"MergeStrategy contains keys that are not valid")
         for val in v.values():
             if isinstance(val, dict):
                 MergeStrategy.validate(val)
@@ -63,11 +63,10 @@ class MergeIndex(dict):
     @classmethod
     def validate(cls, v):
         if not isinstance(v, dict):
-            raise TypeError(f'Expected a dictionary, not {type(v)}')
-        invalid_keys = any(
-            [key for key in v.keys() if not isinstance(key, Key)])
+            raise TypeError(f"Expected a dictionary, not {type(v)}")
+        invalid_keys = any([key for key in v.keys() if not isinstance(key, Key)])
         if invalid_keys:
-            raise ValueError(f'MergeIndex contains keys that are not valid')
+            raise ValueError(f"MergeIndex contains keys that are not valid")
         for val in v.values():
             if isinstance(val, dict):
                 MergeIndex.validate(val)
@@ -87,11 +86,8 @@ class JSONish(dict):
             self.update(json.loads(data.read()))
 
     def as_json(self):
-        value: str = json.dumps(
-            self,
-            ensure_ascii=False,
-            indent=env['DATA']['JSON']['INDENT'])
-        value = value.encode(env['DATA']['JSON']['ENCODING'])
+        value: str = json.dumps(self, ensure_ascii=False, indent=env["DATA"]["JSON"]["INDENT"])
+        value = value.encode(env["DATA"]["JSON"]["ENCODING"])
         return value
 
     def as_dict(self):
@@ -116,15 +112,13 @@ class JSONish(dict):
         elif isinstance(v, StringIO):
             v = json.load(v)
         else:
-            raise TypeError(
-                f'Expected a dictionary, string or StringIO, not {type(v)}')
-        invalid_keys = any(
-            [key for key in v.keys() if not isinstance(key, Key)])
+            raise TypeError(f"Expected a dictionary, string or StringIO, not {type(v)}")
+        invalid_keys = any([key for key in v.keys() if not isinstance(key, Key)])
         if invalid_keys:
-            raise ValueError(f'Data contains keys that are not valid')
+            raise ValueError(f"Data contains keys that are not valid")
         try:
             v = JSONish(v)
             v.as_json()
         except Exception:
-            raise ValueError(f'Data is not JSON serializable')
+            raise ValueError(f"Data is not JSON serializable")
         return v

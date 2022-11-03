@@ -1,4 +1,3 @@
-
 from typing import Any, Callable, Dict, List
 
 from pysyncobj import replicated
@@ -8,14 +7,12 @@ from validation import JSONish
 
 
 class Messaging(Distributed):
-    handling: Dict[str, Callable] = {
-        "invalidate_cache": None
-    }
+    handling: Dict[str, Callable] = {"invalidate_cache": None}
     targets: Dict[str, List[object]]
 
     def process(self):
         for msg in self.queue:
-            name: str = msg.get('func')
+            name: str = msg.get("func")
             func: Callable = Messaging.handling.get(name)
             if not func:
                 continue

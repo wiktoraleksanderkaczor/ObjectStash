@@ -5,9 +5,16 @@ from io import BytesIO
 from typing import Any, Dict, List, Union
 
 from pydantic import BaseModel
-from pysyncobj.batteries import (ReplCounter, ReplDict, ReplList,
-                                 ReplLockManager, ReplPriorityQueue, ReplQueue,
-                                 ReplSet, replicated)
+from pysyncobj.batteries import (
+    ReplCounter,
+    ReplDict,
+    ReplList,
+    ReplLockManager,
+    ReplPriorityQueue,
+    ReplQueue,
+    ReplSet,
+    replicated,
+)
 
 from .distribution import Distributed
 from .env import env
@@ -17,13 +24,12 @@ from .validation import JSONish, Key
 
 class ObjectLock(Distributed):
     def __init__(self, partition):
-        self.locked = ReplLockManager(
-            env['ACTIVITY']['LOCK_TIMEOUT'], self.selfNode.address)
+        self.locked = ReplLockManager(env["ACTIVITY"]["LOCK_TIMEOUT"], self.selfNode.address)
         Distributed.__init__(self, partition)
 
 
 class PartitionLock(Distributed):
-    def __init__(self, partition, fname='.lock'):
+    def __init__(self, partition, fname=".lock"):
         self.partition = partition
         self.fname = self.partition + fname
         self.state = ReplDict()
@@ -31,7 +37,7 @@ class PartitionLock(Distributed):
 
         if not self.state:
             self.state = self.check()
-        if not self.state['obtained']:
+        if not self.state["obtained"]:
             self.lock()
 
     @replicated(sync=True)
@@ -40,52 +46,47 @@ class PartitionLock(Distributed):
         return self.state
 
     def check(self) -> JSONish:
-        state = \
-            storage.get_object(self.fname) \
-            if storage.object_exists(self.fname) \
-            else {
-                'isotime': datetime.utcnow().isoformat(),
-                'instance': Distributed.cluster_name,
-                'obtained': False
-            }
+        state = (
+            storage.get_object(self.fname)
+            if storage.object_exists(self.fname)
+            else {"isotime": datetime.utcnow().isoformat(), "instance": Distributed.cluster_name, "obtained": False}
+        )
         return state
 
     def lock(self, override: bool = False) -> bool:
         # Check if lock is currently obtained
-        if self.state['instance'] == Distributed.cluster_name and self.state['obtained']:
+        if self.state["instance"] == Distributed.cluster_name and self.state["obtained"]:
             return True
 
         # Get current lock or possible new lock
         state = self.check()
         lockfile = None
-        if not state['obtained']:
-            state['obtained'] = True
-            if state['instance'] == Distributed.cluster_name:
+        if not state["obtained"]:
+            state["obtained"] = True
+            if state["instance"] == Distributed.cluster_name:
                 lockfile = storage.put_object(self.fname, state)
         # Handling if there is already a lock
-        elif state['obtained'] and state['instance'] != Distributed.cluster_name:
+        elif state["obtained"] and state["instance"] != Distributed.cluster_name:
             if not override:
-                raise Exception(
-                    f'Partition is already locked by another client')
+                raise Exception(f"Partition is already locked by another client")
             # If override option is set
-            state['obtained'] = True
+            state["obtained"] = True
             lockfile = storage.put_object(self.fname, state)
 
         if not lockfile:
-            raise Exception(
-                f'Could not acquire lock for {self.partition} partition')
+            raise Exception(f"Could not acquire lock for {self.partition} partition")
 
         # Check whether lock in remote is as local
         remote = self.check()
         if remote != state:
-            raise Exception('Different lock was obtained during locking')
+            raise Exception("Different lock was obtained during locking")
 
         self.set_lock(state)
         return True
 
-    def unlock(self, leave: bool = env['ACTIVITY']['LOCK_LEAVE']):
+    def unlock(self, leave: bool = env["ACTIVITY"]["LOCK_LEAVE"]):
         new = deepcopy(self.state)
-        new['obtained'] = False
+        new["obtained"] = False
         lockfile = None
         if leave:
             lockfile = storage.put_object(self.fname, new)
@@ -93,14 +94,13 @@ class PartitionLock(Distributed):
             lockfile = storage.remove_object(self.fname)
 
         if not lockfile:
-            raise Exception(
-                f'Could not unlock for {self.partition} partition')
+            raise Exception(f"Could not unlock for {self.partition} partition")
         self.set_lock(new)
 
     def __del__(self):
         is_last_node = len(self.otherNodes) == 0 and self.isReady()
-        if self.state['obtained'] and is_last_node:  # and is last node
-            self.unlock(env['ACTIVITY']['LOCK_LEAVE'])
+        if self.state["obtained"] and is_last_node:  # and is last node
+            self.unlock(env["ACTIVITY"]["LOCK_LEAVE"])
 
 
 class Cache(Distributed):
@@ -133,7 +133,7 @@ class PartitionMeta(Distributed):
         self.records.remove(record)
 
 
-class Partition():
+class Partition:
     def insert(key: Key, value: JSONish) -> Key:
         return storage.put_object(key, value)
 
@@ -142,8 +142,7 @@ class Partition():
             keys = [keys]
         keys = [self.prefix + key for key in keys]
         existing = [key for key in keys if key in self.meta.records]
-        data = [storage.get_object(self.prefix + key)
-                for key in existing]
+        data = [storage.get_object(self.prefix + key) for key in existing]
         if len(data) != 1:
             return data
         return data[0]
@@ -151,9 +150,7 @@ class Partition():
     def exists(self, keys: Union[Key, List[Key]]) -> List[Key]:
         if isinstance(keys, str):
             keys = [keys]
-        existing = [
-            self.prefix +
-            key if key in self.meta.records else None for key in keys]
+        existing = [self.prefix + key if key in self.meta.records else None for key in keys]
         return existing
 
     def delete(self, keys: Union[Key, List[Key]]) -> List[bool]:
@@ -168,8 +165,8 @@ class Partition():
         return self.meta.records
 
     def __init__(self, name: Key, cached: bool = False):
-        self.prefix = f'partitions/{name}'
+        self.prefix = f"partitions/{name}"
         self.cached = cached
-        self.lock = PartitionLock(self.prefix, '.lock')
+        self.lock = PartitionLock(self.prefix, ".lock")
         self.meta: PartitionMeta = PartitionMeta(self.prefix)
         self.cache: Cache = Cache(self.prefix) if cached else None

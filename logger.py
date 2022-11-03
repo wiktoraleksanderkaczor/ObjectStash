@@ -1,6 +1,6 @@
 import logging
 
-log = logging.Logger('ObjectStash')
+log = logging.Logger("ObjectStash")
 if __debug__:
     level = logging.DEBUG
 else:
