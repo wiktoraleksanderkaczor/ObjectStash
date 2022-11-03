@@ -4,3 +4,5 @@ fusepy
 pysyncobj
 pydantic
 PyYAML
+
+-r "dev-requirements.txt"
