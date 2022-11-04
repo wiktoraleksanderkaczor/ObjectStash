@@ -61,3 +61,9 @@ Ideas for implementation:
     That includes record aggregation, caching, 
 - A lot of those wrappers need access to distributed information. 
     I suppose they can all inherit from Distributed class, no harm in redundancy.
+
+
+Operation mechanics:
+- Underlying storage operates in bytes
+- Storage client operates in Objects (caching here by container)
+- Partitions (databases) operate in JSON
