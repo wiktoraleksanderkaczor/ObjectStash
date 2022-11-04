@@ -1,15 +1,12 @@
-from io import BytesIO
-from pathlib import PurePath as Path
 from typing import List
 
 from minio import Minio
 
-from ..models.exceptions import StorageError
-from ..models.objects import ObjectInfo
+from ..config.env import env
+from ..config.logger import log
+from ..models.objects import Object, ObjectInfo
+from ..models.partition import Key
 from ..models.storage import Capability, StorageClient
-from ..models.validation import JSONish, Key
-from ..utils.env import env
-from ..utils.logger import log
 
 
 class MinioClient(StorageClient):
@@ -23,13 +20,8 @@ class MinioClient(StorageClient):
                 env, access_key=self.access_key, secret_key=self.secret_key, region=self.region, secure=self.secure
             )
         except Exception as e:
-            err = StorageError(e)
-            log.exception(f"MinIO Exception [init]: {err}")
-            raise err
-
-    def object_exists(self, key: Key) -> bool:
-        prefix = key.rsplit("/", 1)[-1] if "/" in key else None
-        return key in self.client.list_objects(self.container, prefix)
+            log.exception(f"MinIO Exception [init]: {e}")
+            raise e
 
     def container_exists(self) -> bool:
         return self.client.bucket_exists(self.container)
@@ -37,17 +29,17 @@ class MinioClient(StorageClient):
     def create_container(self) -> bool:
         self.client.make_bucket(self.container)
 
-    def list_objects(self, prefix: Key, recursive: bool = False) -> List[str]:
+    def list_objects(self, prefix: Key, recursive: bool = False) -> List[Key]:
         return self.client.list_objects(self.container, prefix, recursive)
 
-    def put_object(self, key: Key, data: JSONish) -> str:
-        data = BytesIO(data)
-        return self.client.put_object(self.container, key, data)
+    def get_object(self, key: Key) -> Object:
+        return self.client.get_object(self.container, key)
 
-    # TODO: Fix this thing, set up a ObjectInfo structure that will work between all storage
-    # Likely need an Object option too... with the data. It'll need to be
-    # compatible with JSONish
-    def stat_object(self, key: str) -> ObjectInfo:
-        data = self.client.stat_object(self.container, key)
+    def put_object(self, key: Key, obj: Object) -> bool:
+        return self.client.put_object(self.container, key, obj)
 
+    def stat_object(self, key: Key) -> ObjectInfo:
         return self.client.stat_object(self.container, key).__dict__
+
+    def remove_object(self, key: Key) -> bool:
+        return self.client.remove_object(self.container, key)

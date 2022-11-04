@@ -1,8 +1,8 @@
 import os
 from typing import List
 
+from ..models.objects import Key, Object
 from ..models.storage import Capability, StorageClient
-from ..models.validation import JSONish, Key
 
 
 class LocalCLient(StorageClient):
@@ -22,6 +22,6 @@ class LocalCLient(StorageClient):
     def object_exists(self, key: Key) -> bool:
         return os.path.isfile(key)
 
-    def get_object(self, key: Key) -> JSONish:
+    def get_object(self, key: Key) -> Object:
         with open(key, "r") as infile:
-            return JSONish(infile)
+            return infile.read()

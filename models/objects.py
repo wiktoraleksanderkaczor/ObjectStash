@@ -1,19 +1,19 @@
 from datetime import datetime
 from enum import Enum
+from pathlib import PurePosixPath as Key
 from typing import Dict, List
-from uuid import uuid4
 
-from pydantic import BaseModel
+from pydantic import UUID4, BaseModel, PositiveInt, StrictBytes, StrictStr
 
 
 class Group(BaseModel):
-    identifier: str = uuid4().hex
-    name: str
+    name: StrictStr
+    uuid: UUID4
 
 
 class User(BaseModel):
-    identifier: str = uuid4().hex
-    name: str
+    name: StrictStr
+    uuid: UUID4
     membership: List[Group]
 
 
@@ -38,7 +38,7 @@ class EncryptionAlgorithm(str, Enum):
 
 
 class StorageInfo(BaseModel):
-    container: str
+    container: StrictStr
     storage_class: StorageClass
 
 
@@ -49,15 +49,15 @@ class PermissionFlags(BaseModel):
     # list
 
 
-class BytesSizeInfo(BaseModel):
-    raw_bytes: int
-    compressed_bytes: int = None
+class SizeInfo(BaseModel):
+    raw_bytes: PositiveInt
+    compressed_bytes: PositiveInt = None
 
 
 class ContentInfo(BaseModel):
-    extension: str  # Content type for content
-    size: BytesSizeInfo  # Size of data
-    signature: str  # Hash for integrity
+    extension: StrictStr  # Content type for content
+    size: SizeInfo  # Size of data in bytes
+    signature: StrictBytes  # Hash for integrity
     compression: CompressionAlgorithm
     encryption: EncryptionAlgorithm
 
@@ -81,12 +81,24 @@ class ModificationInfo(BaseModel):
 class VersionInfo(BaseModel):
     is_deleted: bool
     is_latest: bool
+    when: ModificationInfo
 
 
 class ObjectInfo(BaseModel):
-    uuid: str = uuid4().hex
+    path: Key
+    uuid: UUID4
     content: ContentInfo
     storage: StorageInfo
     ownership: OwnershipInfo
     permissions: PermissionInfo
     version: VersionInfo
+    metadata: Metadata
+
+
+class ContentData(BaseModel):
+    data: StrictBytes
+
+
+class Object(BaseModel):
+    info: ObjectInfo
+    data: ContentData

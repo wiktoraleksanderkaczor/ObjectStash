@@ -1,26 +1,20 @@
 from enum import Enum
-from typing import Any, Dict, Iterable, List, Mapping
+from typing import List
 
-from pydantic import Protocol
+from pydantic import Protocol, SecretStr
 
 from clients.local_client import LocalCLient
 from clients.minio_client import MinioClient
+from models.objects import Object, ObjectInfo
 
-from ..utils.env import env
-from .validation import JSONish, Key, MergeIndex, MergeStrategy
+from ..config.env import env
+from .partition import Key
 
 
 class Capability(str, Enum):
     BASIC = "BASIC"
     STREAMS = "STREAMS"
     INSERT = "INSERT"
-
-
-class MergeMode(str, Enum):
-    UPDATE = "UPDATE"
-    ADDITIVE = "ADDITIVE"
-    SUBTRACT = "SUBTRACT"
-    INTERSECT = "INTERSECT"  # If value in both sides
 
 
 # Handling singular and multiple object operations is done by calling the singular function multiple times by default
@@ -39,8 +33,8 @@ class StorageClient(Protocol):
         self.container = container
         self.region = region
         self.secure = secure
-        self.access_key: str = env["STORAGE"]["ACCESS_KEY"]
-        self.secret_key: str = env["STORAGE"]["SECRET_KEY"]
+        self.access_key: SecretStr = env["STORAGE"]["ACCESS_KEY"]
+        self.secret_key: SecretStr = env["STORAGE"]["SECRET_KEY"]
 
     # REQUIRED:
 
@@ -50,99 +44,38 @@ class StorageClient(Protocol):
     def create_container(self) -> bool:
         ...
 
-    def list_objects(self, prefix: Key, recursive: bool = None) -> List[Key]:
-        prefix = prefix
+    def list_objects(self, prefix: Key, recursive: bool = False) -> List[Key]:
         ...
 
-    def get_object(self, key: Key) -> JSONish:
+    def get_object(self, key: Key) -> Object:
         ...
 
-    def put_object(self, key: Key, data: JSONish) -> Key:
+    def put_object(self, key: Key, obj: Object) -> bool:
         ...
 
-    def stat_object(self, key: str) -> Dict[str, Any]:
+    def stat_object(self, key: Key) -> ObjectInfo:
         ...
 
-    def remove_object(self, key: str) -> bool:
+    def remove_object(self, key: Key) -> bool:
         ...
 
     # OPTIONAL:
 
-    def get_objects(self, keys: List[Key]) -> List[JSONish]:
+    def get_objects(self, keys: List[Key]) -> List[Object]:
         return [self.get_object(key) for key in keys]
 
-    def put_objects(self, keys: List[Key], data: List[JSONish]) -> List[Key]:
+    def put_objects(self, keys: List[Key], data: List[Object]) -> List[bool]:
         return [self.put_object(key, item) for key, item in zip(keys, data)]
 
-    def stat_objects(self, keys: List[Key]) -> List[Dict[str, Any]]:
+    def stat_objects(self, keys: List[Key]) -> List[ObjectInfo]:
         return [self.stat_object(key) for key in keys]
 
     def remove_objects(self, keys: List[Key]) -> List[bool]:
         return [self.remove_object(key) for key in keys]
 
     def object_exists(self, key: Key) -> bool:
-        prefix, key = key.rsplit("/", 1) if "/" in key else None, key
-        return key in self.list_objects(prefix)
-
-    def merge_object(
-        self,
-        key: Key,
-        data: JSONish,
-        index: MergeIndex = None,
-        merge: MergeStrategy = None,
-        mode: MergeMode = MergeMode.UPDATE,
-    ) -> str:
-        old = self.get_object(key)
-        new = self._merge_mapping(old, data, index, merge, mode)
-        return self.put_object(key, new)
-
-    # INTERNAL:
-
-    def _merge_value(self, old: Any, new: Any, mode: MergeMode = MergeMode.UPDATE) -> Any:
-        if new is None:
-            return old
-
-        if mode == MergeMode.UPDATE:
-            return new
-        elif mode == MergeMode.ADDITIVE:
-            return old + new
-        elif mode == MergeMode.SUBTRACT:
-            return old - new
-
-    # TODO: Merging for iterables and with indexes, also strings
-    # Might need option for multiple indexes...?
-    def _merge_iterable(
-        self, old: Iterable, new: Iterable, index: int, mode: MergeMode = MergeMode.UPDATE
-    ) -> List[Any]:
-        if new is None:
-            return old
-
-        if mode == MergeMode.ADDITIVE:
-            return old[:index] + new + old[index:]
-        elif mode == MergeMode.SUBTRACT:
-            return [item for item in old if item not in new]
-        elif mode == MergeMode.UPDATE:
-            return new
-
-    def _merge_mapping(
-        self, old: JSONish, new: JSONish, index: MergeIndex = None, merge: MergeStrategy = None, mode=MergeMode.UPDATE
-    ) -> JSONish:
-        if not new:
-            return old
-        if not index:
-            index = {}
-        if not merge:
-            merge = {}
-
-        for k, v in old.items():
-            if isinstance(v, Mapping):
-                new[k] = self._merge_mapping(v, new.get(k, {}), index.get(k, {}), merge.get(k, {}), merge.get(k, mode))
-            elif isinstance(v, Iterable):
-                new[k] = self._merge_iterable(v, new.get(k, []), index.get(k, len(v)), merge.get(k, mode))
-            else:
-                new[k] = self._merge_value(new.get(k, None), v, merge.get(k, mode))
-        return new
+        return key in self.list_objects(key.parent)
 
 
 STORAGE_CLIENTS = {"Local": LocalCLient, "MinIO": MinioClient}
-storage: StorageClient = STORAGE_CLIENTS.get(env["STORAGE"]["CLIENT"], MinioClient)
+storage: StorageClient = STORAGE_CLIENTS.get(env["STORAGE"]["CLIENT"], LocalCLient)

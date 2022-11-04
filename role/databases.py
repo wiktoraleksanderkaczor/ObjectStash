@@ -1,29 +1,9 @@
-from typing import Dict, List
+from typing import List
 
 from pysyncobj.batteries import ReplDict
 
-from ..utils.distribution import Distributed
-from .partition import Partition
-from .storage import storage
-
-
-class Schema(Partition):
-    def __init__(self) -> None:
-        self.fname: str = "schema.json"
-        self.schema: Dict[str, str] = None
-        if storage.object_exists(self.fname):
-            self.schema = storage.get_object(self.fname)
-        else:
-            self.schema = {}
-            storage.put_object(self.fname, self.schema)
-
-
-class Table(Partition):
-    def __init__(self, name: str):
-        super().__init__(name)
-
-    def select_by_value(val: dict):
-        pass
+from ..models.databases import Partition, Schema
+from .distribution import Distributed
 
 
 class NoSQL(Partition):

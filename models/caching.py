@@ -1,14 +1,14 @@
-class Cache:
-    pass
+from pydantic import Protocol
+
+from models.objects import Object
+
+from .objects import Key
 
 
-class ShardedCache(Cache):
-    pass
+class Cache(Protocol):
+    def __init__(self):
+        self.hits = 0
+        self.misses = 0
 
-
-class ReplicatedCache(Cache):
-    pass
-
-
-class IntelligentCache(Cache):
-    pass
+    def get(self, key: Key) -> Object:
+        ...

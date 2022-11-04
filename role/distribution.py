@@ -3,9 +3,9 @@ from typing import List
 
 from pysyncobj import SyncObj
 
+from ..config.env import env
+from ..config.logger import log
 from .discovery import host_ip, port
-from .env import env
-from .logger import log
 
 
 class Distributed(SyncObj):

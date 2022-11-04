@@ -1,13 +1,68 @@
+import json
 from copy import deepcopy
 from datetime import datetime
-from typing import List, Union
+from io import BytesIO, StringIO
+from typing import Any, Dict, List, Union, overload
 
 from pysyncobj.batteries import ReplDict, ReplLockManager, replicated
 
-from ..utils.distribution import Distributed
-from ..utils.env import env
-from .storage import storage
-from .validation import JSONish, Key
+from ..config.env import env
+from ..models.merge import MergeIndex, MergeMode, MergeStrategy
+from ..models.objects import Key
+from ..models.storage import storage
+from ..role.distribution import Distributed
+from ..role.merge import _merge_mapping
+
+
+class JSONish(dict):
+    @overload
+    def __init__(self, data: Union[Dict[str, Any], str, bytes, StringIO, BytesIO]):
+        if isinstance(data, dict):
+            self.update(data)
+        elif isinstance(data, str):
+            self.update(json.loads(data))
+        elif isinstance(data, bytes):
+            self.update(json.loads(data.decode()))
+        elif isinstance(data, StringIO, BytesIO):
+            self.update(json.loads(data.read()))
+
+    def as_json(self):
+        value: str = json.dumps(self, ensure_ascii=False, indent=env["DATA"]["JSON"]["INDENT"])
+        value = value.encode(env["DATA"]["JSON"]["ENCODING"])
+        return value
+
+    def as_dict(self):
+        return self
+
+    def as_stringio(self):
+        return StringIO(self.as_json())
+
+    def as_bytesio(self):
+        return BytesIO(self.as_json())
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if isinstance(v, dict):
+            pass
+        elif isinstance(v, str):
+            v = json.loads(v)
+        elif isinstance(v, StringIO):
+            v = json.load(v)
+        else:
+            raise TypeError(f"Expected a dictionary, string or StringIO, not {type(v)}")
+        invalid_keys = any([key for key in v.keys() if not isinstance(key, Key)])
+        if invalid_keys:
+            raise ValueError("Data contains keys that are not valid")
+        try:
+            v = JSONish(v)
+            v.as_json()
+        except Exception:
+            raise ValueError("Data is not JSON serializable")
+        return v
 
 
 class ObjectLock(Distributed):
@@ -137,8 +192,39 @@ class Partition:
                 self.meta.add_record(obj)
         return self.meta.records
 
+    def merge_object(
+        self,
+        key: Key,
+        data: JSONish,
+        index: MergeIndex = None,
+        merge: MergeStrategy = None,
+        mode: MergeMode = MergeMode.UPDATE,
+    ) -> bool:
+        old = self.retrieve(key)
+        new = _merge_mapping(old, data, index, merge, mode)
+        return self.insert(key, new)
+
     def __init__(self, name: Key, cached: bool = False):
         self.prefix = f"partitions/{name}"
         self.cached = cached
         self.lock = PartitionLock(self.prefix, ".lock")
         self.meta: PartitionMeta = PartitionMeta(self.prefix)
+
+
+class Schema(Partition):
+    def __init__(self) -> None:
+        self.fname: str = "schema.json"
+        self.schema: Dict[str, str] = None
+        if storage.object_exists(self.fname):
+            self.schema = storage.get_object(self.fname)
+        else:
+            self.schema = {}
+            storage.put_object(self.fname, self.schema)
+
+
+class Table(Partition):
+    def __init__(self, name: str):
+        super().__init__(name)
+
+    def select_by_value(val: dict):
+        pass

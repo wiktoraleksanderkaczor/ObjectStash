@@ -1,25 +1,12 @@
-import logging
-import socket
+from zeroconf import ServiceBrowser  # , ZeroconfServiceTypes
+from zeroconf import ServiceListener, Zeroconf
 
-from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf  # , ZeroconfServiceTypes
-
+from ..config.discovery import service, stype
+from ..config.env import env
 from .distribution import Distributed
-from .env import env
-from .logger import level
 
 # Find all services
 # print('\n'.join(ZeroconfServiceTypes.find()))
-
-
-# Set logging
-logging.getLogger("zeroconf").setLevel(level)
-
-# Define service parameters
-base_name = "objectstash.local."
-stype = "_http._tcp.local."
-name = "%s.%s" % (base_name.split(".")[0], stype)
-port = env["CLUSTER"]["PORT"]
-host_ip = socket.gethostbyname(socket.gethostname())
 
 
 class ObjectStashListener(ServiceListener):
@@ -54,16 +41,8 @@ class ObjectStashCoordinator:
         self.browser = ServiceBrowser(self.zeroconf, "_http._tcp.local.", self.listener)
 
         # Register service
-        properties = {"container": env["STORAGE"]["CONTAINER"]}
-        self.service = ServiceInfo(
-            stype,
-            name,
-            server=base_name,
-            address=host_ip,
-            port=port,
-            # Setting DNS TXT records...
-            properties=properties,
-        )
+
+        self.service = service
         self.zeroconf.register_service(self.service, cooperating_responders=True)
 
     def __del__(self):
