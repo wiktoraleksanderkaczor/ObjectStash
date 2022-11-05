@@ -2,8 +2,7 @@ from typing import Any, Callable, Dict, List
 
 from pysyncobj import replicated
 
-from models.partition import JSONish
-
+from ..models.databases import JSONish
 from ..role.distribution import Distributed
 
 

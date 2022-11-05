@@ -4,8 +4,7 @@ from minio import Minio
 
 from ..config.env import env
 from ..config.logger import log
-from ..models.objects import Object, ObjectInfo
-from ..models.partition import Key
+from ..models.objects import Key, Object, ObjectInfo
 from ..models.storage import Capability, StorageClient
 
 

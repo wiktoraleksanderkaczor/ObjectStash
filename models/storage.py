@@ -8,7 +8,7 @@ from clients.minio_client import MinioClient
 from models.objects import Object, ObjectInfo
 
 from ..config.env import env
-from .partition import Key
+from .objects import Key
 
 
 class Capability(str, Enum):
