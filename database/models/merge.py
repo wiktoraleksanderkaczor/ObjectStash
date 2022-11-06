@@ -1,7 +1,5 @@
 from enum import Enum
 
-from .objects import Key
-
 
 class MergeMode(str, Enum):
     UPDATE = "UPDATE"
@@ -19,7 +17,7 @@ class MergeStrategy(dict):
     def validate(cls, v):
         if not isinstance(v, dict):
             raise TypeError(f"Expected a dictionary, not {type(v)}")
-        invalid_keys = any([key for key in v.keys() if not isinstance(key, Key)])
+        invalid_keys = any([key for key in v.keys() if not isinstance(key, str)])
         if invalid_keys:
             raise ValueError("MergeStrategy contains keys that are not valid")
         for val in v.values():
@@ -39,7 +37,7 @@ class MergeIndex(dict):
     def validate(cls, v):
         if not isinstance(v, dict):
             raise TypeError(f"Expected a dictionary, not {type(v)}")
-        invalid_keys = any([key for key in v.keys() if not isinstance(key, Key)])
+        invalid_keys = any([key for key in v.keys() if not isinstance(key, str)])
         if invalid_keys:
             raise ValueError("MergeIndex contains keys that are not valid")
         for val in v.values():

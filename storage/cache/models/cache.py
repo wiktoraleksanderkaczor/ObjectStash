@@ -1,8 +1,6 @@
 from pydantic import Protocol
 
-from models.objects import Object
-
-from .objects import Key
+from storage.client.models.objects import Key, Object
 
 
 class Cache(Protocol):

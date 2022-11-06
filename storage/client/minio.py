@@ -2,10 +2,11 @@ from typing import List
 
 from minio import Minio
 
-from ..config.env import env
-from ..config.logger import log
-from ..models.objects import Key, Object, ObjectInfo
-from ..models.storage import Capability, StorageClient
+from config.env import env
+from config.logger import log
+from storage.client.models.capabilities import Capability
+from storage.client.models.client import StorageClient
+from storage.client.models.objects import Key, Object, ObjectInfo
 
 
 class MinioClient(StorageClient):

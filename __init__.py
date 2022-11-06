@@ -1,9 +1,11 @@
 import signal
 
-from .models.storage import storage
-from .utils.discovery import ObjectStashCoordinator
-from .utils.env import container_name
-from .utils.logger import log
+from config.env import container_name
+from config.logger import log
+from role.discovery import ObjectStashCoordinator
+
+# Need a way to make following some kind of default storage in config
+from storage.client.models.client import storage
 
 
 class GracefulExit:

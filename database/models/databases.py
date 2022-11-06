@@ -6,12 +6,14 @@ from typing import Any, Dict, List, Union, overload
 
 from pysyncobj.batteries import ReplDict, ReplLockManager, replicated
 
-from ..config.env import env
-from ..models.merge import MergeIndex, MergeMode, MergeStrategy
-from ..models.objects import Key
-from ..models.storage import storage
-from ..role.distribution import Distributed
-from ..role.merge import _merge_mapping
+from config.env import env
+from database.merge import _merge_mapping
+from database.models.merge import MergeIndex, MergeMode, MergeStrategy
+from role.distribution import Distributed
+
+# Need a way to make following some kind of default storage in config
+from storage.client.models.client import storage
+from storage.client.models.objects import Key
 
 
 class JSONish(dict):

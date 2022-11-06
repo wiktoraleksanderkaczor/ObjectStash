@@ -1,11 +1,12 @@
 import os
 from typing import List
 
-from ..models.objects import Key, Object
-from ..models.storage import Capability, StorageClient
+from storage.client.models.capabilities import Capability
+from storage.client.models.client import StorageClient
+from storage.client.models.objects import Key, Object
 
 
-class LocalCLient(StorageClient):
+class LocalClient(StorageClient):
     client_name: str = "Local"
     capabilities: List[Capability] = [Capability.BASIC]
 

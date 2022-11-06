@@ -2,8 +2,8 @@ from typing import List
 
 from pysyncobj.batteries import ReplDict
 
-from ..models.databases import Partition, Schema
-from .distribution import Distributed
+from database.models.databases import Partition, Schema
+from role.distribution import Distributed
 
 
 class NoSQL(Partition):

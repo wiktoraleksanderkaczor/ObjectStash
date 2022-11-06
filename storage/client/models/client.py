@@ -1,21 +1,10 @@
-from enum import Enum
 from typing import List
 
 from pydantic import Protocol, SecretStr
 
-from clients.local_client import LocalCLient
-from clients.minio_client import MinioClient
-from models.objects import Object, ObjectInfo
-
-from ..config.env import env
-from .objects import Key
-
-
-class Capability(str, Enum):
-    BASIC = "BASIC"
-    STREAMS = "STREAMS"
-    INSERT = "INSERT"
-
+from config.env import env
+from storage.client.models.capabilities import Capability
+from storage.client.models.objects import Key, Object, ObjectInfo
 
 # Handling singular and multiple object operations is done by calling the singular function multiple times by default
 # If client has appropriate efficient functions, that can be called instead
@@ -75,7 +64,3 @@ class StorageClient(Protocol):
 
     def object_exists(self, key: Key) -> bool:
         return key in self.list_objects(key.parent)
-
-
-STORAGE_CLIENTS = {"Local": LocalCLient, "MinIO": MinioClient}
-storage: StorageClient = STORAGE_CLIENTS.get(env["STORAGE"]["CLIENT"], LocalCLient)
