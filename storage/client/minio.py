@@ -9,7 +9,7 @@ from storage.client.models.client import StorageClient
 from storage.client.models.objects import Object, ObjectID, ObjectInfo
 
 
-class MinioClient(StorageClient):
+class MinIOClient(StorageClient):
     client_name: str = "MinIO"
     capabilities: List[Capability] = [Capability.BASIC]
 

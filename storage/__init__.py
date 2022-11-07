@@ -1,6 +1,4 @@
-from storage.client.models.client import StorageClient
+from storage.client.local import LocalClient
+from storage.client.minio import MinIOClient
 
-
-# Maybe this way? I need some way to wrap with cache
-def make_client(name: str, cache: str) -> StorageClient:
-    pass
+clients = {None: LocalClient, "Local": LocalClient, "MinIO": MinIOClient}

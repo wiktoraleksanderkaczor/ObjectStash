@@ -1,11 +1,12 @@
 import signal
 
-from config.env import container_name
+from config.env import container_name, env
 from config.logger import log
 from role.discovery import ObjectStashCoordinator
 
 # Need a way to make following some kind of default storage in config
-from storage.client.models.client import storage
+from storage import clients
+from storage.client.models.client import StorageClient
 
 
 class GracefulExit:
@@ -23,12 +24,13 @@ class GracefulExit:
 
 
 class ObjectStash:
-    def __init__(self):
+    def __init__(self, client: str = env["STORAGE"]["CLIENT"]):
         try:
+            client: StorageClient = clients[client]
             self.coordinator = ObjectStashCoordinator()
-            if not storage.container_exists(container_name):
+            if not client.container_exists(container_name):
                 log.debug(f"{container_name} not found in storage; creating container")
-                done = storage.create_container(container_name)
+                done = client.create_container(container_name)
                 if not done:
                     raise Exception(f"Could not create {container_name} container")
             log.debug(f"Initializing with the {container_name} container")
