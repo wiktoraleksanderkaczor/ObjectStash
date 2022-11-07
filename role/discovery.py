@@ -41,7 +41,6 @@ class ObjectStashCoordinator:
         self.browser = ServiceBrowser(self.zeroconf, "_http._tcp.local.", self.listener)
 
         # Register service
-
         self.service = service
         self.zeroconf.register_service(self.service, cooperating_responders=True)
 
