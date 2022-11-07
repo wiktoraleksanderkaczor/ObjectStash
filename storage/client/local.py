@@ -3,7 +3,7 @@ from typing import List
 
 from storage.client.models.capabilities import Capability
 from storage.client.models.client import StorageClient
-from storage.client.models.objects import Key, Object
+from storage.client.models.objects import Object, ObjectID
 
 
 class LocalClient(StorageClient):
@@ -20,9 +20,9 @@ class LocalClient(StorageClient):
     def container_exists(self) -> bool:
         return os.path.isdir(self.container)
 
-    def object_exists(self, key: Key) -> bool:
+    def object_exists(self, key: ObjectID) -> bool:
         return os.path.isfile(key)
 
-    def get_object(self, key: Key) -> Object:
+    def get_object(self, key: ObjectID) -> Object:
         with open(key, "r") as infile:
             return infile.read()

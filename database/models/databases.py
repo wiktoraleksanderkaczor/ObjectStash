@@ -13,7 +13,7 @@ from role.distribution import Distributed
 
 # Need a way to make following some kind of default storage in config
 from storage.client.models.client import storage
-from storage.client.models.objects import Key
+from storage.client.models.objects import ObjectID
 
 
 class JSONish(dict):
@@ -56,7 +56,7 @@ class JSONish(dict):
             v = json.load(v)
         else:
             raise TypeError(f"Expected a dictionary, string or StringIO, not {type(v)}")
-        invalid_keys = any([key for key in v.keys() if not isinstance(key, Key)])
+        invalid_keys = any([key for key in v.keys() if not isinstance(key, str)])
         if invalid_keys:
             raise ValueError("Data contains keys that are not valid")
         try:
@@ -149,7 +149,7 @@ class PartitionLock(Distributed):
 
 
 class PartitionMeta(Distributed):
-    def __init__(self, partition: Key) -> None:
+    def __init__(self, partition: ObjectID) -> None:
         self.partition = partition
         Distributed.__init__(self, self.partition)
         self.records: List[str] = []
@@ -164,11 +164,11 @@ class PartitionMeta(Distributed):
 
 
 class Partition:
-    def insert(key: Key, value: JSONish) -> Key:
+    def insert(key: ObjectID, value: JSONish) -> ObjectID:
         return storage.put_object(key, value)
 
-    def retrieve(self, keys: Union[Key, List[Key]]) -> JSONish:
-        if isinstance(keys, Key):
+    def retrieve(self, keys: Union[ObjectID, List[ObjectID]]) -> JSONish:
+        if isinstance(keys, ObjectID):
             keys = [keys]
         keys = [self.prefix + key for key in keys]
         existing = [key for key in keys if key in self.meta.records]
@@ -177,17 +177,17 @@ class Partition:
             return data
         return data[0]
 
-    def exists(self, keys: Union[Key, List[Key]]) -> List[Key]:
+    def exists(self, keys: Union[ObjectID, List[ObjectID]]) -> List[ObjectID]:
         if isinstance(keys, str):
             keys = [keys]
         existing = [self.prefix + key if key in self.meta.records else None for key in keys]
         return existing
 
-    def delete(self, keys: Union[Key, List[Key]]) -> List[bool]:
+    def delete(self, keys: Union[ObjectID, List[ObjectID]]) -> List[bool]:
         existing = self.exists(keys)
         return storage.remove_objects(existing)
 
-    def items(self) -> List[Key]:
+    def items(self) -> List[ObjectID]:
         if not self.meta.records:
             objects = storage.list_objects(self.prefix)
             for obj in objects:
@@ -196,7 +196,7 @@ class Partition:
 
     def merge_object(
         self,
-        key: Key,
+        key: ObjectID,
         data: JSONish,
         index: MergeIndex = None,
         merge: MergeStrategy = None,
@@ -206,7 +206,7 @@ class Partition:
         new = _merge_mapping(old, data, index, merge, mode)
         return self.insert(key, new)
 
-    def __init__(self, name: Key, cached: bool = False):
+    def __init__(self, name: ObjectID, cached: bool = False):
         self.prefix = f"partitions/{name}"
         self.cached = cached
         self.lock = PartitionLock(self.prefix, ".lock")

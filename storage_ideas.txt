@@ -64,6 +64,12 @@ Ideas for implementation:
 
 
 Operation mechanics:
+L1:
 - Underlying storage operates in bytes
-- Storage client operates in Objects (caching here by container)
+L2:
+- Storage client operates in Objects
+L3 (services):
 - Partitions (databases) operate in JSON
+- Filesystem operates in FUSE
+
+Maybe caching can be in L3 per usecase

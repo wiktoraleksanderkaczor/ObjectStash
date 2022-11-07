@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from pathlib import PurePosixPath as Key
+from pathlib import PurePosixPath as ObjectID
 from typing import Dict, List
 
 from pydantic import UUID4, BaseModel, PositiveInt, StrictBytes, StrictStr
@@ -85,7 +85,7 @@ class VersionInfo(BaseModel):
 
 
 class ObjectInfo(BaseModel):
-    path: Key
+    path: ObjectID
     uuid: UUID4
     content: ContentInfo
     storage: StorageInfo
@@ -100,5 +100,6 @@ class ContentData(BaseModel):
 
 
 class Object(BaseModel):
+    name: ObjectID
     info: ObjectInfo
     data: ContentData

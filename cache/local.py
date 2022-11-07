@@ -1,4 +1,4 @@
-from storage.cache.models.cache import Cache
+from cache.models.cache import Cache
 
 
 class LocalCache(Cache):

@@ -6,7 +6,7 @@ from config.env import env
 from config.logger import log
 from storage.client.models.capabilities import Capability
 from storage.client.models.client import StorageClient
-from storage.client.models.objects import Key, Object, ObjectInfo
+from storage.client.models.objects import Object, ObjectID, ObjectInfo
 
 
 class MinioClient(StorageClient):
@@ -29,17 +29,17 @@ class MinioClient(StorageClient):
     def create_container(self) -> bool:
         self.client.make_bucket(self.container)
 
-    def list_objects(self, prefix: Key, recursive: bool = False) -> List[Key]:
+    def list_objects(self, prefix: ObjectID, recursive: bool = False) -> List[ObjectID]:
         return self.client.list_objects(self.container, prefix, recursive)
 
-    def get_object(self, key: Key) -> Object:
+    def get_object(self, key: ObjectID) -> Object:
         return self.client.get_object(self.container, key)
 
-    def put_object(self, key: Key, obj: Object) -> bool:
+    def put_object(self, key: ObjectID, obj: Object) -> bool:
         return self.client.put_object(self.container, key, obj)
 
-    def stat_object(self, key: Key) -> ObjectInfo:
+    def stat_object(self, key: ObjectID) -> ObjectInfo:
         return self.client.stat_object(self.container, key).__dict__
 
-    def remove_object(self, key: Key) -> bool:
+    def remove_object(self, key: ObjectID) -> bool:
         return self.client.remove_object(self.container, key)

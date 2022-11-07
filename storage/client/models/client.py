@@ -4,7 +4,7 @@ from pydantic import Protocol, SecretStr
 
 from config.env import env
 from storage.client.models.capabilities import Capability
-from storage.client.models.objects import Key, Object, ObjectInfo
+from storage.client.models.objects import Object, ObjectID, ObjectInfo
 
 # Handling singular and multiple object operations is done by calling the singular function multiple times by default
 # If client has appropriate efficient functions, that can be called instead
@@ -33,34 +33,34 @@ class StorageClient(Protocol):
     def create_container(self) -> bool:
         ...
 
-    def list_objects(self, prefix: Key, recursive: bool = False) -> List[Key]:
+    def list_objects(self, prefix: ObjectID, recursive: bool = False) -> List[ObjectID]:
         ...
 
-    def get_object(self, key: Key) -> Object:
+    def get_object(self, key: ObjectID) -> Object:
         ...
 
-    def put_object(self, key: Key, obj: Object) -> bool:
+    def put_object(self, key: ObjectID, obj: Object) -> bool:
         ...
 
-    def stat_object(self, key: Key) -> ObjectInfo:
+    def stat_object(self, key: ObjectID) -> ObjectInfo:
         ...
 
-    def remove_object(self, key: Key) -> bool:
+    def remove_object(self, key: ObjectID) -> bool:
         ...
 
     # OPTIONAL:
 
-    def get_objects(self, keys: List[Key]) -> List[Object]:
+    def get_objects(self, keys: List[ObjectID]) -> List[Object]:
         return [self.get_object(key) for key in keys]
 
-    def put_objects(self, keys: List[Key], data: List[Object]) -> List[bool]:
+    def put_objects(self, keys: List[ObjectID], data: List[Object]) -> List[bool]:
         return [self.put_object(key, item) for key, item in zip(keys, data)]
 
-    def stat_objects(self, keys: List[Key]) -> List[ObjectInfo]:
+    def stat_objects(self, keys: List[ObjectID]) -> List[ObjectInfo]:
         return [self.stat_object(key) for key in keys]
 
-    def remove_objects(self, keys: List[Key]) -> List[bool]:
+    def remove_objects(self, keys: List[ObjectID]) -> List[bool]:
         return [self.remove_object(key) for key in keys]
 
-    def object_exists(self, key: Key) -> bool:
+    def object_exists(self, key: ObjectID) -> bool:
         return key in self.list_objects(key.parent)
