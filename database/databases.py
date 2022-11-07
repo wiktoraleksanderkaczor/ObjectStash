@@ -46,4 +46,4 @@ class Parameter(Partition):
 class Memory(Distributed):
     def __init__(self, name: str) -> None:
         Distributed.__init__(self, name)
-        self.data = ReplDict
+        self.data = ReplDict()
