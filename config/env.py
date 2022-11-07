@@ -34,8 +34,6 @@ def nested_update(target: Dict[str, Any], source: Dict[str, Any]) -> Dict[str, A
 
 
 env: Dict[str, Any] = load_env()
-container_name: str = env["STORAGE"]["CONTAINER_NAME"]
-default = {"storage": env["STORAGE"]["CLIENT"]}
 
 if __name__ == "__main__":
     pprint(env)

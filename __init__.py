@@ -1,6 +1,6 @@
 import signal
 
-from config.env import container_name, env
+from config.env import env
 from config.logger import log
 from role.discovery import ObjectStashCoordinator
 
@@ -25,6 +25,7 @@ class GracefulExit:
 
 class ObjectStash:
     def __init__(self, client: str = env["STORAGE"]["CLIENT"]):
+        container_name = env["STORAGE"]["CONTAINER_NAME"]
         try:
             client: StorageClient = clients[client]
             self.coordinator = ObjectStashCoordinator()
