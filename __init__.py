@@ -27,7 +27,7 @@ class ObjectStash:
     def __init__(self, client: str = env["STORAGE"]["CLIENT"]):
         container_name = env["STORAGE"]["CONTAINER_NAME"]
         try:
-            client: StorageClient = clients[client]
+            client: StorageClient = clients.get(client)
             self.coordinator = ObjectStashCoordinator()
             if not client.container_exists(container_name):
                 log.debug(f"{container_name} not found in storage; creating container")

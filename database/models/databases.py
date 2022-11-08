@@ -12,8 +12,11 @@ from database.models.merge import MergeIndex, MergeMode, MergeStrategy
 from role.distribution import Distributed
 
 # Need a way to make following some kind of default storage in config
-from storage.client.models.client import storage
+from storage import clients
+from storage.client.models.client import StorageClient
 from storage.client.models.objects import ObjectID
+
+storage: StorageClient = clients.get(env["STORAGE"]["CLIENT"])
 
 
 class JSONish(dict):
