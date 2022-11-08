@@ -170,7 +170,7 @@ class Partition:
     def insert(key: ObjectID, value: JSONish) -> ObjectID:
         return storage.put_object(key, value)
 
-    def retrieve(self, keys: Union[ObjectID, List[ObjectID]]) -> JSONish:
+    def get(self, keys: Union[ObjectID, List[ObjectID]]) -> JSONish:
         if isinstance(keys, ObjectID):
             keys = [keys]
         keys = [self.prefix + key for key in keys]
