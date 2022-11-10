@@ -1,7 +1,11 @@
+# Need to make lower models, policy, etc. anything lower than a particular type of cache model...
+# ...use generic keys (dunno even) and values (bytes)
+
 from typing import List, Union
 
 from pydantic import Protocol
 
+from cache.models.policy import Policy
 from database.models.databases import JSONish
 from storage.client.models.objects import ObjectID, ObjectInfo
 
@@ -23,9 +27,12 @@ class Cache(Protocol):
     # Especially since user can delete functions from instances hehe
 
 
+# Maybe define some __getattr__ to use policy and such automatically?
+# Need some scheduling for cache rebalancing too.
 class PartitionCache(Cache):
-    def __init__(self, wrapped: object):
+    def __init__(self, wrapped: object, policy: Policy):
         super().__init__(wrapped)
+        self.policy = policy
 
     def get(self, keys: Union[ObjectInfo, List[ObjectID]]) -> JSONish:
         ...
