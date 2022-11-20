@@ -1,6 +1,6 @@
 from copy import deepcopy
 from datetime import datetime
-from typing import Dict, List, Union
+from typing import Dict, List
 
 from pysyncobj.batteries import ReplDict, ReplLockManager, replicated
 
@@ -9,7 +9,6 @@ from database.merge import _merge_mapping
 from database.models.merge import MergeIndex, MergeMode, MergeStrategy
 from database.models.objects import JSONish
 from role.distribution import Distributed
-
 # Need a way to make following some kind of default storage in config
 from storage import clients
 from storage.client.models.client import StorageClient
@@ -115,37 +114,26 @@ class PartitionMeta(Distributed):
 
 
 class Partition:
-    def insert(key: ObjectID, value: JSONish) -> ObjectID:
+    def insert(self, key: ObjectID, value: JSONish) -> bool:
+        key = self.prefix.joinpath(key)
         return storage.put_object(key, value)
 
-    def get(self, keys: Union[ObjectID, List[ObjectID]]) -> JSONish:
-        if isinstance(keys, ObjectID):
-            keys = [keys]
-        keys = [self.prefix + key for key in keys]
-        existing = [key for key in keys if key in self.meta.records]
-        data = [storage.get_object(self.prefix + key) for key in existing]
-        if len(data) != 1:
-            return data
-        return data[0]
+    def get(self, key: ObjectID) -> JSONish:
+        key = self.prefix.joinpath(key)
+        return storage.get_object(key) if self.exists(key) else None
 
-    def exists(self, keys: Union[ObjectID, List[ObjectID]]) -> List[ObjectID]:
-        if isinstance(keys, str):
-            keys = [keys]
-        existing = [self.prefix + key if key in self.meta.records else None for key in keys]
-        return existing
+    def exists(self, key: ObjectID) -> bool:
+        key = self.prefix.joinpath(key)
+        return storage.object_exists(key)
 
-    def delete(self, keys: Union[ObjectID, List[ObjectID]]) -> List[bool]:
-        existing = self.exists(keys)
-        return storage.remove_objects(existing)
+    def delete(self, key: ObjectID) -> bool:
+        key = self.prefix.joinpath(key)
+        return storage.remove_object(key) if self.exists(key) else None
 
     def items(self) -> List[ObjectID]:
-        if not self.meta.records:
-            objects = storage.list_objects(self.prefix)
-            for obj in objects:
-                self.meta.add_record(obj)
-        return self.meta.records
+        return storage.list_objects(self.prefix)
 
-    def merge_object(
+    def merge(
         self,
         key: ObjectID,
         data: JSONish,
@@ -153,14 +141,14 @@ class Partition:
         merge: MergeStrategy = None,
         mode: MergeMode = MergeMode.UPDATE,
     ) -> bool:
-        old = self.retrieve(key)
+        key = self.prefix.joinpath(key)
+        old = self.get(key)
         new = _merge_mapping(old, data, index, merge, mode)
         return self.insert(key, new)
 
-    def __init__(self, name: ObjectID, cached: bool = False):
-        self.prefix = f"partitions/{name}"
-        self.cached = cached
-        self.lock = PartitionLock(self.prefix, ".lock")
+    def __init__(self, name: ObjectID):
+        self.prefix: ObjectID = ObjectID("partitions/").joinpath(name)
+        self.lock: PartitionLock = PartitionLock(self.prefix, ".lock")
         self.meta: PartitionMeta = PartitionMeta(self.prefix)
 
 
