@@ -2,13 +2,15 @@
 
 from pydantic import Protocol
 
+from cache.models.objects import CacheKey, CacheObject
+
 
 class Persistence(Protocol):
-    def get():
+    def get(key: CacheKey) -> object:
         ...
 
-    def set():
+    def set(key: CacheKey, obj: CacheObject) -> bool:
         ...
 
-    def remove():
+    def remove(key: CacheKey) -> bool:
         ...

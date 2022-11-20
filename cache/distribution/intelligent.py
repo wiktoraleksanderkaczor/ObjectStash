@@ -1,5 +1,5 @@
 from cache.models.distribution import Distribution
 
 
-class IntelligentCache(Distribution):
+class Intelligent(Distribution):
     pass
