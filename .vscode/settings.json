@@ -15,9 +15,19 @@
     "editor.formatOnSave": true,
     "search.exclude": {
         "**/.vscode": true,
+        "**/venv": true,
     },
     "editor.codeActionsOnSave": {
         "source.organizeImports": true
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/venv": true
     },
     "editor.rulers": [
         120
