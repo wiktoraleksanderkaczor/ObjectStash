@@ -1,0 +1,1 @@
+This module covers functionality for file manipulation and capability statements of storage clients by various mediums.
