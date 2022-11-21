@@ -1,12 +1,11 @@
 import json
 from io import BytesIO, StringIO
-from typing import Any, Dict, Union, overload
+from typing import Any, Dict, Union
 
 from config.env import env
 
 
 class JSONish(dict):
-    @overload
     def __init__(self, data: Union[Dict[str, Any], str, bytes, StringIO, BytesIO]):
         if isinstance(data, dict):
             self.update(data)

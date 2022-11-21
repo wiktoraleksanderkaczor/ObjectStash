@@ -2,8 +2,8 @@ from typing import Any, Iterable, List, Mapping
 
 from pydantic import NonNegativeInt
 
-from database.models.databases import JSONish
-from database.models.merge import MergeIndex, MergeMode, MergeStrategy
+from database.models.merging import MergeIndex, MergeMode, MergeStrategy
+from database.models.objects import JSONish
 
 
 def _merge_value(old: Any, new: Any, mode: MergeMode = MergeMode.UPDATE) -> Any:

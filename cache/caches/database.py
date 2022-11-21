@@ -2,11 +2,11 @@ from typing import List
 
 from cache.models.cache import Cache
 from cache.models.policy import Policy
-from database.models.databases import JSONish
+from database.models.objects import JSONish
 from storage.client.models.objects import ObjectID
 
 
-class Partition(Cache):
+class Database(Cache):
     def __init__(self, wrapped: object, policy: Policy):
         super().__init__(wrapped, policy)
 
