@@ -1,39 +1,31 @@
 import os
-from collections.abc import Mapping
 from pprint import pprint
-from typing import IO, Any, Dict
 
-import pkg_resources
-from yaml import load  # ,dump
+from pydantic import ValidationError
 
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
+from config.logger import log
+from config.models.env import Config, make_config
+
+env: Config = None
 
 
-def load_env() -> Dict[str, Any]:
-    stream: IO[bytes] = pkg_resources.resource_stream(__name__, "default_params.yaml")
-    defaults: Dict[str, Any] = load(stream, Loader)
-    env_file = "environment.yaml"
-    env: Dict[str, Any] = {}
-    if os.path.isfile(env_file):
-        with open(env_file, "r") as infile:
-            env = load(infile, Loader)
-            env = nested_update(defaults, env)
+def load_config(fname=".objectstash") -> Config:
+    fname = os.environ.get("OBJECTSTASH_CONFIG_PATH", fname)
+    fname = f"{fname}.json"
+
+    if os.path.isfile(fname):
+        try:
+            env = Config.parse_file(fname)
+        except ValidationError as e:
+            log.error(f"Invalid configuration: {e}")
+        except Exception as e:
+            log.error(f"Configuration error: {e}")
+    else:
+        make_config(fname)
+        env = Config()
     return env
 
 
-def nested_update(target: Dict[str, Any], source: Dict[str, Any]) -> Dict[str, Any]:
-    for key, val in source.items():
-        if isinstance(val, Mapping):
-            target[key] = nested_update(target.get(key, {}), val)
-        else:
-            target[key] = val
-    return target
-
-
-env: Dict[str, Any] = load_env()
-
 if __name__ == "__main__":
-    pprint(env)
+    config = load_config()
+    pprint(config.dict())

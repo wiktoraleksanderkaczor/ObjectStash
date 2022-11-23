@@ -1,1 +1,3 @@
 venv/
+.objectstash.json
+.objectstash.schema.json
