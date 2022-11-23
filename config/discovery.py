@@ -9,16 +9,18 @@ from .logger import level, logging
 logging.getLogger("zeroconf").setLevel(level)
 
 # Define service parameters
-base_name = "objectstash.local."
-stype = "_http._tcp.local."
-name = "%s.%s" % (base_name.split(".")[0], stype)
-port = env["CLUSTER"]["PORT"]
+base = "objectstash"
+extension = "local."
+stype = "_http._tcp"
+base_name = f"{base}.{extension}"
+full_name = f"{base_name}.{stype}.{extension}"
+port = env.cluster.port
 host_ip = socket.gethostbyname(socket.gethostname())
 
-properties = {"container": env["STORAGE"]["CONTAINER"]}
+properties = {"cluster": env.cluster.name}
 service = ServiceInfo(
     stype,
-    name,
+    full_name,
     server=base_name,
     address=host_ip,
     port=port,
