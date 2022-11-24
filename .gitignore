@@ -1,3 +1,15 @@
+# Environment
 venv/
+
+# Configuration
 .objectstash.json
 .objectstash.schema.json
+
+# Python caches
+*.py[cod]
+__pycache__/
+
+
+# Package distribution
+dist/
+sdist/
