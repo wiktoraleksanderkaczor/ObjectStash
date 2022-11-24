@@ -2,6 +2,7 @@ from datetime import timedelta
 from typing import Dict, List
 
 from pydantic import AnyUrl, BaseModel, Extra, SecretStr
+from strategy import Fail, FailureStrategy
 
 
 class Cluster(BaseModel):
@@ -10,14 +11,28 @@ class Cluster(BaseModel):
     initial_peers: List[AnyUrl] = []
 
 
+class Lock(BaseModel):
+    duration: timedelta = timedelta(minutes=1)
+    timeout: timedelta = timedelta(minutes=1)
+    on_fail: FailureStrategy = Fail()
+
+
 class Timeouts(BaseModel):
-    lock: timedelta = timedelta(minutes=1)
-    action: timedelta = timedelta(minutes=1)
+    storage: Lock = Lock()
+    object: Lock = Lock()
+    action: Lock = Lock()
 
 
-class Storage(BaseModel):
+class Locking(BaseModel):
+    duration: timedelta = timedelta(minutes=1)
+
+
+class StorageConfig(BaseModel):
     container: str = "ObjectStash"
+    region: str = ""
+    secure: bool = True
     timeouts: Timeouts = Timeouts()
+    locking: Locking = Locking()
     access_key: SecretStr = ""
     secret_key: SecretStr = ""
 
@@ -59,7 +74,7 @@ class Formatting(BaseModel):
 
 class Config(BaseModel):
     cluster: Cluster = Cluster()
-    storage: Dict[str, Storage] = {"Local": Storage()}
+    storage: Dict[str, StorageConfig] = {"Local": StorageConfig()}
     activity: Activity = Activity()
     encoding: str = "utf-8"
     formatting: Formatting = Formatting()
