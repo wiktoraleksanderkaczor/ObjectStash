@@ -37,8 +37,9 @@ class StorageConfig(BaseModel):
     secret_key: SecretStr = ""
 
 
-class Activity(BaseModel):
-    timeouts: Dict[str, int] = Timeouts()
+class Defaults(BaseModel):
+    timeouts: Timeouts = Timeouts()
+    locking: Locking = Locking()
 
 
 class BasicFormat(BaseModel):
@@ -75,7 +76,7 @@ class Formatting(BaseModel):
 class Config(BaseModel):
     cluster: Cluster = Cluster()
     storage: Dict[str, StorageConfig] = {"Local": StorageConfig()}
-    activity: Activity = Activity()
+    defaults: Defaults = Defaults()
     encoding: str = "utf-8"
     formatting: Formatting = Formatting()
 
