@@ -2,7 +2,6 @@ from typing import List
 
 from pydantic import Protocol, SecretStr
 
-from config.env import env
 from storage.client.models.capabilities import Capability
 from storage.client.models.objects import Object, ObjectID, ObjectInfo
 
