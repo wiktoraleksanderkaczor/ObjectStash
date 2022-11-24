@@ -1,7 +1,9 @@
 import signal
+from typing import Union
 
 from config.env import env
 from config.logger import log
+from config.models.env import StorageConfig
 from role.discovery import ObjectStashCoordinator
 
 # Need a way to make following some kind of default storage in config
@@ -23,23 +25,52 @@ class GracefulExit:
         return self.state
 
 
+class StorageManager:
+    def __init__(self, client: StorageClient):
+        self.client = client
+        if not client.container_exists(client.container):
+            log.debug(f"{client.container} not found in storage; creating container")
+            done = client.create_container(client.container)
+            if not done:
+                raise Exception(f"Could not create {client.container} container")
+        log.debug(f"Initializing with the {client.container} container")
+
+    def database():
+        pass
+
+    def filesystem():
+        pass
+
+
 class ObjectStash:
-    def __init__(self, client: str = env["STORAGE"]["CLIENT"]):
-        container_name = env["STORAGE"]["CONTAINER_NAME"]
-        try:
-            client: StorageClient = clients.get(client)
-            self.coordinator = ObjectStashCoordinator()
-            if not client.container_exists(container_name):
-                log.debug(f"{container_name} not found in storage; creating container")
-                done = client.create_container(container_name)
-                if not done:
-                    raise Exception(f"Could not create {container_name} container")
-            log.debug(f"Initializing with the {container_name} container")
-        except Exception as e:
-            log.exception(f"ObjectStash initialisation failed because; {e}")
-            raise e
+    def __init__(self):
+        self.coordinator = ObjectStashCoordinator()
         self.flag = GracefulExit()
+
+    def connect(storage_name: str) -> Union[StorageClient, None]:
+        storage: StorageConfig = env.storage.get(storage_name)
+        client = clients.get(storage_name, None)
+        if not client or storage:
+            log.debug(f"{storage_name} not found in available storage clients and/or configuration")
+            return None
+
+        try:
+            instance: StorageClient = client(
+                storage.container, storage.region, storage.secure, storage.access_key, storage.secret_key
+            )
+            return instance
+        except Exception as e:
+            log.error(f"{storage_name} initialisation failed: {e}")
+            return None
 
     def __del__(self):
         del self.coordinator
         return self.flag
+
+
+if __name__ == "__main__":
+    objsth = ObjectStash()
+    client = objsth.connect("Local")
+    client_mgr = StorageManager(client)
+    client_mgr.database()
+    client_mgr.filesystem()

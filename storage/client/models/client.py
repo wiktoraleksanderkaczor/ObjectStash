@@ -17,13 +17,20 @@ class StorageClient(Protocol):
     client_name: str
     capabilities: List[Capability]
 
-    def __init__(self, container: str, region: str = None, secure: bool = True):
+    def __init__(
+        self,
+        container: str,
+        secure: bool = True,
+        region: str = None,
+        access_key: SecretStr = None,
+        secret_key: SecretStr = None,
+    ):
         self.client = None
         self.container = container
         self.region = region
         self.secure = secure
-        self.access_key: SecretStr = env["STORAGE"]["ACCESS_KEY"]
-        self.secret_key: SecretStr = env["STORAGE"]["SECRET_KEY"]
+        self.access_key: access_key
+        self.secret_key: secret_key
 
     # REQUIRED:
 
