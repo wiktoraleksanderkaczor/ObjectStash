@@ -3,13 +3,14 @@ from pprint import pprint
 
 from pydantic import ValidationError
 
+from config.constants import CONFIG_FNAME
 from config.logger import log
 from config.models.env import Config, make_config
 
 env: Config = None
 
 
-def load_config(fname=".objectstash") -> Config:
+def load_config(fname=CONFIG_FNAME) -> Config:
     fname = os.environ.get("OBJECTSTASH_CONFIG_PATH", fname)
     fname = f"{fname}.json"
 

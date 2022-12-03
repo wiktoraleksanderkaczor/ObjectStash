@@ -4,6 +4,8 @@ from typing import Dict, List
 from pydantic import AnyUrl, BaseModel, Extra, SecretStr
 from strategy import Fail, FailureStrategy
 
+from config.constants import CONFIG_FNAME
+
 
 class Cluster(BaseModel):
     name: str = "ObjectStash-Cluster"
@@ -81,7 +83,7 @@ class Config(BaseModel):
     formatting: Formatting = Formatting()
 
 
-def make_config(fname=".objectstash", ext="json"):
+def make_config(fname=CONFIG_FNAME, ext="json"):
     fname = f"{fname}.{ext}"
     config = Config()
     indent = FormatJSON().indent
@@ -90,7 +92,7 @@ def make_config(fname=".objectstash", ext="json"):
         handle.write(_json)
 
 
-def make_jsonschema(fname=".objectstash", ext="schema.json"):
+def make_jsonschema(fname=CONFIG_FNAME, ext="schema.json"):
     fname = f"{fname}.{ext}"
     config = Config()
     indent = FormatJSON().indent
