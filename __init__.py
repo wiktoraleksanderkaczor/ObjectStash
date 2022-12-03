@@ -8,7 +8,7 @@ from role.discovery import ObjectStashCoordinator
 
 # Need a way to make following some kind of default storage in config
 from storage import clients
-from storage.client.models.client import StorageClient
+from storage.models.client import StorageClient
 
 
 class GracefulExit:
