@@ -17,8 +17,8 @@ class JSONish(dict):
             self.update(json.loads(data.read()))
 
     def as_json(self):
-        value: str = json.dumps(self, ensure_ascii=False, indent=env["DATA"]["JSON"]["INDENT"])
-        value = value.encode(env["DATA"]["JSON"]["ENCODING"])
+        value: str = json.dumps(self, ensure_ascii=False, indent=env.formatting.JSON.indent)
+        value = value.encode(indent=env.formatting.JSON.encoding)
         return value
 
     def as_dict(self):

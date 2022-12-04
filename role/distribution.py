@@ -11,8 +11,8 @@ from ..config.logger import log
 
 class Distributed(SyncObj):
     # Peer data structure
-    cluster_name = env["CLUSTER"]["NAME"]
-    peers: List[str] = env["CLUSTER"]["INITIAL_PEERS"]
+    cluster_name = env.cluster.name
+    peers: List[str] = env.cluster.initial_peers
     distributed_objects: List["Distributed"] = []
 
     def __init__(self, name: str, consumers: List[str] = None):

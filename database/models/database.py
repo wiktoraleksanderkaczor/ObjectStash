@@ -3,8 +3,8 @@ from typing import Any, Dict, List
 from database.locking.database import DatabaseLock
 from database.models.locking import Lock
 from database.models.objects import JSONish
-from storage.client.models.client import StorageClient
-from storage.client.models.objects import ObjectID
+from storage.models.client import StorageClient
+from storage.models.objects import Object, ObjectID
 
 # from database.merging.merge import _merge_mapping
 # from database.merging.models.index import MergeIndex
@@ -15,11 +15,12 @@ from storage.client.models.objects import ObjectID
 class Database:
     def insert(self, key: ObjectID, value: JSONish) -> bool:
         key = self.prefix.joinpath(key)
-        return self.storage.put_object(key, value)
+        obj = Object(name=key, data=value)
+        return self.storage.put_object(obj)
 
     def get(self, key: ObjectID) -> JSONish:
         key = self.prefix.joinpath(key)
-        return self.storage.get_object(key) if self.exists(key) else None
+        return self.storage.get_object(key).data if self.exists(key) else None
 
     def exists(self, key: ObjectID) -> bool:
         key = self.prefix.joinpath(key)

@@ -2,8 +2,8 @@ from typing import List
 
 from pydantic import Protocol, SecretStr
 
-from storage.client.models.capabilities import Capability
-from storage.client.models.objects import Object, ObjectID, ObjectInfo
+from storage.models.capabilities import Capability
+from storage.models.objects import Object, ObjectID, ObjectInfo
 
 # Handling singular and multiple object operations is done by calling the singular function multiple times by default
 # If client has appropriate efficient functions, that can be called instead
@@ -45,7 +45,7 @@ class StorageClient(Protocol):
     def get_object(self, key: ObjectID) -> Object:
         ...
 
-    def put_object(self, key: ObjectID, obj: Object) -> bool:
+    def put_object(self, obj: Object) -> bool:
         ...
 
     def stat_object(self, key: ObjectID) -> ObjectInfo:
@@ -59,8 +59,8 @@ class StorageClient(Protocol):
     def get_objects(self, keys: List[ObjectID]) -> List[Object]:
         return [self.get_object(key) for key in keys]
 
-    def put_objects(self, keys: List[ObjectID], data: List[Object]) -> List[bool]:
-        return [self.put_object(key, item) for key, item in zip(keys, data)]
+    def put_objects(self, data: List[Object]) -> List[bool]:
+        return [self.put_object(item) for item in data]
 
     def stat_objects(self, keys: List[ObjectID]) -> List[ObjectInfo]:
         return [self.stat_object(key) for key in keys]

@@ -29,19 +29,19 @@ class Locking(BaseModel):
     duration: timedelta = timedelta(minutes=1)
 
 
+class Filename(BaseModel):
+    lock: str = ".lock"
+
+
 class StorageConfig(BaseModel):
     container: str = "ObjectStash"
     region: str = ""
     secure: bool = True
     timeouts: Timeouts = Timeouts()
+    filename: Filename = Filename()
     locking: Locking = Locking()
     access_key: SecretStr = ""
     secret_key: SecretStr = ""
-
-
-class Defaults(BaseModel):
-    timeouts: Timeouts = Timeouts()
-    locking: Locking = Locking()
 
 
 class BasicFormat(BaseModel):
@@ -78,7 +78,6 @@ class Formatting(BaseModel):
 class Config(BaseModel):
     cluster: Cluster = Cluster()
     storage: Dict[str, StorageConfig] = {"Local": StorageConfig()}
-    defaults: Defaults = Defaults()
     encoding: str = "utf-8"
     formatting: Formatting = Formatting()
 

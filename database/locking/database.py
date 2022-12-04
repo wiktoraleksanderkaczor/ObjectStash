@@ -1,5 +1,4 @@
-from copy import deepcopy
-from datetime import datetime
+import json
 
 from pysyncobj.batteries import replicated
 
@@ -7,12 +6,14 @@ from config.env import env
 from database.models.locking import Lock
 from database.models.objects import JSONish
 from role.distribution import Distributed
-from storage.client.models.client import StorageClient
+from storage.models.client import StorageClient
+from storage.models.objects import Object
 
 
 class DatabaseLock(Distributed, Lock):
-    def __init__(self, storage: StorageClient, partition, fname=".lock"):
-        Lock.__init__(self, partition, storage, fname)
+    def __init__(self, storage: StorageClient, partition):
+
+        Lock.__init__(self, partition, storage, env.storage[storage.name].filename.lock)
         Distributed.__init__(self, self.partition, consumers=[self.state])
 
     @replicated(sync=True)
@@ -21,34 +22,27 @@ class DatabaseLock(Distributed, Lock):
         return self.state
 
     def check(self) -> JSONish:
-        state = (
-            self.storage.get_object(self.fname)
-            if self.storage.object_exists(self.fname)
-            else {"isotime": datetime.utcnow().isoformat(), "instance": Distributed.cluster_name, "obtained": False}
-        )
+        state = self.storage.get_object(self.fname) if self.storage.object_exists(self.fname) else self.new()
         return state
 
-    def lock(self, override: bool = False) -> bool:
+    def lock(self) -> bool:
         # Check if lock is currently obtained
         if self.state["instance"] == Distributed.cluster_name and self.state["obtained"]:
             return True
 
         # Get current lock or possible new lock
         state = self.check()
-        lockfile = None
+        locked = None
+        locker = Object(name=self.fname, data=json.dumps(state))
         if not state["obtained"]:
             state["obtained"] = True
             if state["instance"] == Distributed.cluster_name:
-                lockfile = self.storage.put_object(self.fname, state)
+                locked = self.storage.put_object(locker)
         # Handling if there is already a lock
         elif state["obtained"] and state["instance"] != Distributed.cluster_name:
-            if not override:
-                raise Exception("Partition is already locked by another client")
-            # If override option is set
-            state["obtained"] = True
-            lockfile = self.storage.put_object(self.fname, state)
+            raise Exception("Partition is already locked by another client")
 
-        if not lockfile:
+        if not locked:
             raise Exception(f"Could not acquire lock for {self.partition} partition")
 
         # Check whether lock in remote is as local
@@ -59,20 +53,12 @@ class DatabaseLock(Distributed, Lock):
         self.set_lock(state)
         return True
 
-    def unlock(self, leave: bool = env["ACTIVITY"]["LOCK_LEAVE"]):
-        new = deepcopy(self.state)
-        new["obtained"] = False
-        lockfile = None
-        if leave:
-            lockfile = self.storage.put_object(self.fname, new)
-        else:
-            lockfile = self.storage.remove_object(self.fname)
-
-        if not lockfile:
-            raise Exception(f"Could not unlock for {self.partition} partition")
-        self.set_lock(new)
+    def unlock(self) -> bool:
+        if self.storage.object_exists(self.fname):
+            return self.storage.remove_object(self.fname)
+        return True
 
     def __del__(self):
         is_last_node = len(self.otherNodes) == 0 and self.isReady()
         if self.state["obtained"] and is_last_node:  # and is last node
-            self.unlock(env["ACTIVITY"]["LOCK_LEAVE"])
+            self.unlock()

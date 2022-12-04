@@ -85,7 +85,6 @@ class VersionInfo(BaseModel):
 
 
 class ObjectInfo(BaseModel):
-    path: ObjectID
     uuid: UUID4
     content: ContentInfo
     storage: StorageInfo

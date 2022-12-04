@@ -4,15 +4,24 @@
 
 from pydantic import Protocol
 
-from cache.models.policy import Policy
+from cache.models.replacement import Replacement
+from storage.models.client import StorageClient
+from storage.models.objects import Object, ObjectID
 
 
 class Cache(Protocol):
-    def __init__(self, wrapped: object, policy: Policy):
+    def __init__(self, wrapped: object, storage: StorageClient, replacement: Replacement):
         self.hits = 0
         self.misses = 0
         self.wrapped = wrapped
-        self.policy = policy
+        self.replacement = replacement
+        self.storage = storage
+
+    def _get(self, item: ObjectID):
+        return self.storage.get_object(item)
+
+    def _put(self, item: Object):
+        return self.storage.put_object(item)
 
     # Only called when not in current object, error when no such attr
     def __getattribute__(self, attr):

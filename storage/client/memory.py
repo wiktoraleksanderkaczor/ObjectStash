@@ -1,8 +1,8 @@
 from typing import List
 
-from storage.client.models.capabilities import Capability
-from storage.client.models.client import StorageClient
-from storage.client.models.objects import Object, ObjectID
+from storage.models.capabilities import Capability
+from storage.models.client import StorageClient
+from storage.models.objects import Object, ObjectID
 
 
 class MemoryClient(StorageClient):

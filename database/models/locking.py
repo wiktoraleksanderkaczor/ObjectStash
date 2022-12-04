@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel, Protocol
 
 from config.env import env
-from storage.client.models.client import StorageClient
+from storage.models.client import StorageClient
 
 
 class LockData(BaseModel):
@@ -25,15 +25,15 @@ class Lock(Protocol):
 
     def new(self):
         return LockData(
-            cluster=env["CLUSTER"]["NAME"],
+            cluster=env.cluster.name,
             timestamp=datetime.utcnow(),
-            duration=timedelta(**env["STORAGE"][self.storage.name]["LOCK"]["DURATION"]),
+            duration=env.storage[self.storage.name].locking.duration,
         )
 
-    def __init__(self, storage: StorageClient, prefix, fname=".lock"):
+    def __init__(self, storage: StorageClient, prefix):
         self.storage = storage
         self.prefix = prefix
-        self.fname = self.prefix + fname
+        self.fname = self.prefix + env.storage[storage.name].filename.lock
         self.state: LockData = self.check()
-        if self.state.cluster == env["CLUSTER"]["NAME"]:
+        if self.state.cluster == env.cluster.name:
             self.lock()

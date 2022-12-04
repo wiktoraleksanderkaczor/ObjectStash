@@ -4,9 +4,9 @@ from minio import Minio
 
 from config.env import env
 from config.logger import log
-from storage.client.models.capabilities import Capability
-from storage.client.models.client import StorageClient
-from storage.client.models.objects import Object, ObjectID, ObjectInfo
+from storage.models.capabilities import Capability
+from storage.models.client import StorageClient
+from storage.models.objects import Object, ObjectID, ObjectInfo
 
 
 class MinIOClient(StorageClient):
