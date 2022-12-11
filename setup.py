@@ -19,5 +19,4 @@ setuptools.setup(
         "Programming Language :: Python :: 3.6",
     ],
     include_package_data=True,
-    package_data={"": ["data/*.csv"]},
 )
