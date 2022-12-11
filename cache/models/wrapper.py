@@ -9,7 +9,7 @@ from storage.models.client import StorageClient
 from storage.models.objects import Object, ObjectID
 
 
-class Cache(Protocol):
+class CacheWrapper(Protocol):
     def __init__(self, wrapped: object, storage: StorageClient, replacement: Replacement):
         self.hits = 0
         self.misses = 0
