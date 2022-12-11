@@ -27,10 +27,7 @@ class Timeouts(BaseModel):
 
 class Locking(BaseModel):
     duration: timedelta = timedelta(minutes=1)
-
-
-class Filename(BaseModel):
-    lock: str = ".lock"
+    filename: str = ".lock"
 
 
 class StorageConfig(BaseModel):
@@ -38,7 +35,6 @@ class StorageConfig(BaseModel):
     region: str = ""
     secure: bool = True
     timeouts: Timeouts = Timeouts()
-    filename: Filename = Filename()
     locking: Locking = Locking()
     access_key: SecretStr = ""
     secret_key: SecretStr = ""
