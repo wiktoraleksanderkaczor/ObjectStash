@@ -1,14 +1,14 @@
 from typing import Any, Callable, Dict, List, Union
 
-from pysyncobj.batteries import ReplDict
+from pysyncobj.batteries import ReplDict, replicated
 
 from role.distribution import Distributed
 
 
 class Messaging(Distributed):
     def __init__(self, name: str, consumers: List[str] = None):
-        super().__init__(name, consumers)
         self.handlers: ReplDict[str, Dict[str, Callable]] = ReplDict()
+        super().__init__(name, consumers=[self.handlers])
 
     @replicated
     def route_message(self, message: Any, node: str = None):
