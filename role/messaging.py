@@ -1,37 +1,35 @@
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Union
 
-from pysyncobj import replicated
-from pysyncobj.batteries import ReplPriorityQueue
+from pysyncobj.batteries import ReplDict
 
 from role.distribution import Distributed
 
 
 class Messaging(Distributed):
-    def process(self):
-        item: Dict[str, Any] = self.queue.get()
-        if item:
-            name: str = item.get("handler")
-            func: Callable = self.handlers.get(name)
-            args = item.get("args", [])
-            kwargs = item.get("kwargs", {})
-            if func:
-                func(*args, **kwargs)
-
-    def __init__(self, name):
-        Distributed.__init__(self, name)
-        self.queue = ReplPriorityQueue()
-        self.handlers: Dict[str, Callable] = {}
-        self.addOnTickCallback(self.process)
+    def __init__(self, name: str, consumers: List[str] = None):
+        super().__init__(name, consumers)
+        self.handlers: ReplDict[str, Dict[str, Callable]] = ReplDict()
 
     @replicated
-    def send(self, handler: str, args: List[Any] = None, kwargs: Dict[str, Any] = None):
-        item = {"handler": handler}
-        if args:
-            item["args"] = args
-        if kwargs:
-            item["kwargs"] = kwargs
+    def route_message(self, message: Any, node: str = None):
+        if not node:
+            # If no node is specified, message is routed to the leader
+            node = self.getStatus()["leader"]
+        if node == self.selfNode:
+            # If the node is the same as the current node, handle message locally
+            self.handle_message(message)
 
-        self.queue.put(item)
+    @replicated
+    def add_message_handler(self, name: str, filter: Callable, func: Callable):
+        self.handlers[name] = {"filter": filter, "func": func}
 
-    def add_handler(self, name: str, func: Callable):
-        self.handlers[name] = func
+    def remove_message_handler(self, name: str) -> Union[str, None]:
+        return self.handlers.pop(name, None)
+
+    def handle_message(self, message: Any):
+        for handling in self.handlers.values():
+            if handling["filter"](message):
+                return handling["func"](message)
+
+
+messaging = Messaging("Messaging")
