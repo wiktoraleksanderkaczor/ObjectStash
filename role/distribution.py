@@ -1,13 +1,13 @@
 from typing import List
 
+from pysyncobj import SyncObj, SyncObjConf
 from pysyncobj.batteries import replicated
 
 from config.discovery import host_ip, port
 from config.env import env
 from config.logger import log
 
-from ..config.env import env
-from ..config.logger import log
+syncobj_conf = SyncObjConf(dynamicMembershipChange=True)
 
 
 class Distributed(SyncObj):
@@ -19,11 +19,11 @@ class Distributed(SyncObj):
     def __init__(self, name: str, consumers: List[str] = None):
         if not consumers:
             consumers = []
-        SyncObj.__init__(self, f"{host_ip}:{port}", Distributed.peers, consumers=consumers)
+        SyncObj.__init__(self, f"{host_ip}:{port}", Distributed.peers, consumers=consumers, conf=syncobj_conf)
         Distributed.distributed_objects.append(self)
         while not self.isReady():
             log.debug(f"Waiting to acquire initial data for {name}...")
-        self.waitReady()
+            self.waitReady()
 
     # Check if master node
     def is_master(self):
