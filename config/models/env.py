@@ -2,9 +2,9 @@ from datetime import timedelta
 from typing import Dict, List
 
 from pydantic import AnyUrl, BaseModel, Extra, SecretStr
-from strategy import Fail, FailureStrategy
 
 from config.constants import CONFIG_FNAME
+from config.models.strategy import Fail, FailureStrategy
 
 
 class Cluster(BaseModel):
