@@ -24,7 +24,7 @@ setuptools.setup(
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     packages=find_packages(exclude=("tests")),
-    install_requires=["minio", "zeroconf", "pysyncobj", "pyfuse", "pydantic", "PyYAML"],
+    install_requires=["minio", "zeroconf", "pysyncobj", "pyfuse", "pydantic", "PyYAML", "schedule"],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",

@@ -4,5 +4,6 @@ fusepy
 pysyncobj
 pydantic
 PyYAML
+schedule
 
 -r "dev-requirements.txt"
