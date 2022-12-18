@@ -3,12 +3,14 @@ from typing import List
 
 from storage.models.capabilities import Capability
 from storage.models.client import StorageClient
+from storage.models.medium import Medium
 from storage.models.objects import Object, ObjectID
 
 
 class LocalClient(StorageClient):
-    client_name: str = "Local"
-    capabilities: List[Capability] = [Capability.BASIC]
+    CLIENT_NAME: str = "Local"
+    CAPABILITIES: List[Capability] = [Capability.BASIC]
+    MEDIUM: str = Medium.LOCAL
 
     def __init__(self, container: str, region: str = None, secure: bool = True):
         super().__init__(container, region, secure)

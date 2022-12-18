@@ -1,8 +1,9 @@
-from typing import List
+from typing import List, Optional
 
-from pydantic import Protocol, SecretStr
+from pydantic import SecretStr
 
 from storage.models.capabilities import Capability
+from storage.models.medium import Medium
 from storage.models.objects import Object, ObjectID, ObjectInfo
 
 # Handling singular and multiple object operations is done by calling the singular function multiple times by default
@@ -12,24 +13,25 @@ from storage.models.objects import Object, ObjectID, ObjectInfo
 # - all multiple operations without a singular alternative
 
 
-class StorageClient(Protocol):
-    client_name: str
-    capabilities: List[Capability]
+class StorageClient:
+    CLIENT_NAME: str
+    CAPABILITIES: List[Capability]
+    MEDIUM: Medium
 
     def __init__(
         self,
         container: str,
-        secure: bool = True,
-        region: str = None,
-        access_key: SecretStr = None,
-        secret_key: SecretStr = None,
+        region: Optional[str] = None,
+        secure: Optional[bool] = None,
+        access_key: Optional[SecretStr] = None,
+        secret_key: Optional[SecretStr] = None,
     ):
         self.client = None
         self.container = container
         self.region = region
         self.secure = secure
-        self.access_key: access_key
-        self.secret_key: secret_key
+        self.access_key = access_key
+        self.secret_key = secret_key
 
     # REQUIRED:
 

@@ -6,12 +6,14 @@ from config.env import env
 from config.logger import log
 from storage.models.capabilities import Capability
 from storage.models.client import StorageClient
+from storage.models.medium import Medium
 from storage.models.objects import Object, ObjectID, ObjectInfo
 
 
 class MinIOClient(StorageClient):
-    client_name: str = "MinIO"
-    capabilities: List[Capability] = [Capability.BASIC]
+    CLIENT_NAME: str = "MinIO"
+    CAPABILITIES: List[Capability] = [Capability.BASIC]
+    MEDIUM: str = Medium.DISTRIBUTED
 
     def __init__(self, container: str, region: str = None, secure: bool = True) -> None:
         super().__init__(container, region, secure)
