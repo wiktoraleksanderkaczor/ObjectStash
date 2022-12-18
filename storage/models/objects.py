@@ -4,18 +4,9 @@ from pathlib import PurePosixPath as ObjectID
 from typing import Dict, List
 from uuid import uuid4
 
+from auth.models.group import Group
+from auth.models.user import User
 from pydantic import UUID4, BaseModel, Field, PositiveInt, StrictBytes, StrictStr
-
-
-class Group(BaseModel):
-    name: StrictStr
-    uuid: UUID4
-
-
-class User(BaseModel):
-    name: StrictStr
-    uuid: UUID4
-    membership: List[Group]
 
 
 class Metadata(BaseModel):
