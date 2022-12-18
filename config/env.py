@@ -10,9 +10,8 @@ from config.models.env import Config, FormatJSON
 def make_config(fname=CONFIG_FNAME, ext="json") -> Config:
     fname = f"{fname}.{ext}"
     config = Config()
-    indent = FormatJSON().indent
     with open(fname, "w+") as handle:
-        _json = config.json(indent=indent)
+        _json = config.json(**FormatJSON().dict())
         handle.write(_json)
     return config
 
@@ -20,9 +19,8 @@ def make_config(fname=CONFIG_FNAME, ext="json") -> Config:
 def make_jsonschema(fname=CONFIG_FNAME, ext="schema.json"):
     fname = f"{fname}.{ext}"
     config = Config()
-    indent = FormatJSON().indent
     with open(fname, "w+") as handle:
-        _jsonschema = config.schema_json(indent=indent)
+        _jsonschema = config.schema_json(**FormatJSON().dict())
         handle.write(_jsonschema)
 
 

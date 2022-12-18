@@ -37,9 +37,6 @@ class StorageConfig(BaseModel):
 
 
 class BasicFormat(BaseModel):
-    encoding: str = "utf-8"
-    indent: int = 4  # spaces
-
     class Config:
         extra: Extra = Extra.allow
 
@@ -56,8 +53,11 @@ class FormatYAML(BasicFormat):
     pass
 
 
+# Passed to json.dumps as kwargs
 class FormatJSON(BasicFormat):
-    pass
+    encoding: str = "utf-8"
+    indent: int = 4  # spaces
+    sort_keys: bool = True
 
 
 class Formatting(BaseModel):
