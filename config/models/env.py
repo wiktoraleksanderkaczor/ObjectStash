@@ -1,10 +1,7 @@
 from datetime import timedelta
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from pydantic import AnyUrl, BaseModel, Extra, SecretStr
-
-from config.constants import CONFIG_FNAME
-from config.models.strategy import Fail, FailureStrategy
 
 
 class Cluster(BaseModel):
@@ -16,7 +13,6 @@ class Cluster(BaseModel):
 class Lock(BaseModel):
     duration: timedelta = timedelta(minutes=1)
     timeout: timedelta = timedelta(minutes=1)
-    on_fail: FailureStrategy = Fail()
 
 
 class Timeouts(BaseModel):
@@ -32,12 +28,12 @@ class Locking(BaseModel):
 
 class StorageConfig(BaseModel):
     container: str = "ObjectStash"
-    region: str = ""
+    region: Optional[str] = None
     secure: bool = True
     timeouts: Timeouts = Timeouts()
     locking: Locking = Locking()
-    access_key: SecretStr = ""
-    secret_key: SecretStr = ""
+    access_key: Optional[SecretStr] = None
+    secret_key: Optional[SecretStr] = None
 
 
 class BasicFormat(BaseModel):
@@ -76,26 +72,3 @@ class Config(BaseModel):
     storage: Dict[str, StorageConfig] = {"Local": StorageConfig()}
     encoding: str = "utf-8"
     formatting: Formatting = Formatting()
-
-
-def make_config(fname=CONFIG_FNAME, ext="json"):
-    fname = f"{fname}.{ext}"
-    config = Config()
-    indent = FormatJSON().indent
-    with open(fname, "w+") as handle:
-        _json = config.json(indent=indent)
-        handle.write(_json)
-
-
-def make_jsonschema(fname=CONFIG_FNAME, ext="schema.json"):
-    fname = f"{fname}.{ext}"
-    config = Config()
-    indent = FormatJSON().indent
-    with open(fname, "w+") as handle:
-        _jsonschema = config.schema_json(indent=indent)
-        handle.write(_jsonschema)
-
-
-if __name__ == "__main__":
-    make_config()
-    make_jsonschema()

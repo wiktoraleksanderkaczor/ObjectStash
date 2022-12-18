@@ -1,24 +1,20 @@
-from datetime import timedelta
+# from datetime import timedelta
 
-from pydantic import BaseModel, Extra, PositiveInt, root_validator
-
-
-class FailureStrategy(BaseModel):
-    action: str
-
-    @root_validator(pre=True)
-    def set_action_name(cls, values):
-        values["action"] = cls.__name__
-        return values
-
-    class Config:
-        extra: Extra = Extra.allow
+# from pydantic import BaseModel, Extra, PositiveInt
 
 
-class Await(FailureStrategy):
-    times: PositiveInt = 3
-    interval: timedelta = timedelta(seconds=5)
+# class FailureStrategy(BaseModel):
+#     NAME: str
+
+#     class Config:
+#         extra: Extra = Extra.allow
 
 
-class Fail(FailureStrategy):
-    pass
+# class Await(FailureStrategy):
+#     NAME: str = "Await"
+#     times: PositiveInt = 3
+#     interval: timedelta = timedelta(seconds=5)
+
+
+# class Fail(FailureStrategy):
+#     NAME: str = "Fail"

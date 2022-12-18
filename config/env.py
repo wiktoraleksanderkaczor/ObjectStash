@@ -4,8 +4,26 @@ from pprint import pprint
 from pydantic import ValidationError
 
 from config.constants import CONFIG_FNAME
-from config.logger import log
-from config.models.env import Config, make_config
+from config.models.env import Config, FormatJSON
+
+
+def make_config(fname=CONFIG_FNAME, ext="json") -> Config:
+    fname = f"{fname}.{ext}"
+    config = Config()
+    indent = FormatJSON().indent
+    with open(fname, "w+") as handle:
+        _json = config.json(indent=indent)
+        handle.write(_json)
+    return config
+
+
+def make_jsonschema(fname=CONFIG_FNAME, ext="schema.json"):
+    fname = f"{fname}.{ext}"
+    config = Config()
+    indent = FormatJSON().indent
+    with open(fname, "w+") as handle:
+        _jsonschema = config.schema_json(indent=indent)
+        handle.write(_jsonschema)
 
 
 def load_config(fname=CONFIG_FNAME) -> Config:
@@ -16,12 +34,11 @@ def load_config(fname=CONFIG_FNAME) -> Config:
         try:
             env = Config.parse_file(fname)
         except ValidationError as e:
-            log.error(f"Invalid configuration: {e}")
+            raise Exception(f"Invalid configuration: {e}")
         except Exception as e:
-            log.error(f"Configuration error: {e}")
+            raise Exception(f"Configuration error: {e}")
     else:
-        make_config(fname)
-        env = Config()
+        env = make_config(fname)
     return env
 
 
