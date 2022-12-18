@@ -22,7 +22,7 @@ service = ServiceInfo(
     stype,
     full_name,
     server=base_name,
-    address=host_ip,
+    parsed_addresses=[host_ip],
     port=port,
     # Setting DNS TXT records...
     properties=properties,
