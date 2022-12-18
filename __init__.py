@@ -1,5 +1,4 @@
 import signal
-from typing import Union
 
 from config.env import env
 from config.logger import log
@@ -28,17 +27,17 @@ class GracefulExit:
 class StorageManager:
     def __init__(self, client: StorageClient):
         self.client = client
-        if not client.container_exists(client.container):
+        if not client.container_exists():
             log.debug(f"{client.container} not found in storage; creating container")
-            done = client.create_container(client.container)
+            done = client.create_container()
             if not done:
                 raise Exception(f"Could not create {client.container} container")
         log.debug(f"Initializing with the {client.container} container")
 
-    def database():
+    def database(self):
         pass
 
-    def filesystem():
+    def filesystem(self):
         pass
 
 
@@ -47,12 +46,11 @@ class ObjectStash:
         self.coordinator = ObjectStashCoordinator()
         self.flag = GracefulExit()
 
-    def connect(storage_name: str) -> Union[StorageClient, None]:
-        storage: StorageConfig = env.storage.get(storage_name)
+    def connect(self, storage_name: str) -> StorageClient:
+        storage: StorageConfig = env.storage[storage_name]
         client = clients.get(storage_name, None)
         if not client or storage:
-            log.debug(f"{storage_name} not found in available storage clients and/or configuration")
-            return None
+            raise Exception(f"{storage_name} not found in available storage clients and/or configuration")
 
         try:
             instance: StorageClient = client(
@@ -60,8 +58,7 @@ class ObjectStash:
             )
             return instance
         except Exception as e:
-            log.error(f"{storage_name} initialisation failed: {e}")
-            return None
+            raise Exception(f"{storage_name} initialisation failed: {e}")
 
     def __del__(self):
         del self.coordinator
