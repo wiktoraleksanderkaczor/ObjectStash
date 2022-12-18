@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Union
 
 from pysyncobj.batteries import ReplDict, replicated
 
@@ -6,14 +6,14 @@ from role.distribution import Distributed
 
 
 class Messaging(Distributed):
-    def __init__(self, name: str, consumers: List[str] = None):
-        self.handlers: ReplDict[str, Dict[str, Callable]] = ReplDict()
+    def __init__(self, name: str):
+        self.handlers: ReplDict = ReplDict()  # [str, Dict[str, Callable]]
         super().__init__(name, consumers=[self.handlers])
 
     @replicated
-    def route_message(self, message: Any, node: str = None):
-        if not node:
-            # If no node is specified, message is routed to the leader
+    def route_message(self, message: Any, node: str = "leader"):
+        if node == "leader" or not node:
+            # If node is leader or no node specified, message is routed to the leader
             node = self.getStatus()["leader"]
         if node == self.selfNode:
             # If the node is the same as the current node, handle message locally

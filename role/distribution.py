@@ -1,6 +1,7 @@
-from typing import List
+from typing import Callable, List
 
-from pysyncobj import SyncObj, SyncObjConf
+from pydantic import AnyUrl
+from pysyncobj import SyncObj, SyncObjConf, SyncObjConsumer
 from pysyncobj.batteries import replicated
 
 from config.discovery import host_ip, port
@@ -13,10 +14,10 @@ syncobj_conf = SyncObjConf(dynamicMembershipChange=True)
 class Distributed(SyncObj):
     # Peer data structure
     cluster_name = env.cluster.name
-    peers: List[str] = env.cluster.initial_peers
+    peers: List[AnyUrl] = env.cluster.initial_peers
     distributed_objects: List["Distributed"] = []
 
-    def __init__(self, name: str, consumers: List[str] = None):
+    def __init__(self, name: str, consumers: List[SyncObjConsumer]):
         if not consumers:
             consumers = []
         SyncObj.__init__(self, f"{host_ip}:{port}", Distributed.peers, consumers=consumers, conf=syncobj_conf)
@@ -30,7 +31,8 @@ class Distributed(SyncObj):
         return self.getStatus()["leader"] == self.selfNode
 
     # Only execute on master raft node (pysyncobj) decorator
-    def only_on_master(self, func):
+    @replicated
+    def only_on_master(self, func) -> Callable:
         def wrapper(*args, **kwargs):
             if self.is_master():
                 return func(*args, **kwargs)
