@@ -2,8 +2,9 @@ from datetime import datetime
 from enum import Enum
 from pathlib import PurePosixPath as ObjectID
 from typing import Dict, List
+from uuid import uuid4
 
-from pydantic import UUID4, BaseModel, PositiveInt, StrictBytes, StrictStr
+from pydantic import UUID4, BaseModel, Field, PositiveInt, StrictBytes, StrictStr
 
 
 class Group(BaseModel):
@@ -50,8 +51,8 @@ class PermissionFlags(BaseModel):
 
 
 class SizeInfo(BaseModel):
-    raw_bytes: PositiveInt
-    compressed_bytes: PositiveInt = None
+    raw_bytes: PositiveInt = 0
+    compressed_bytes: PositiveInt = 0
 
 
 class ContentInfo(BaseModel):
@@ -85,7 +86,7 @@ class VersionInfo(BaseModel):
 
 
 class ObjectInfo(BaseModel):
-    uuid: UUID4
+    uuid: UUID4 = Field(default_factory=uuid4)
     content: ContentInfo
     storage: StorageInfo
     ownership: OwnershipInfo
