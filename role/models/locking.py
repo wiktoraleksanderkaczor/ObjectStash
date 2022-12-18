@@ -1,11 +1,11 @@
-from datetime import datetime, timedelta
+# from datetime import datetime, timedelta
 
-from pydantic import BaseModel
+# from pydantic import BaseModel, Field
 
-from config.env import env
+# from config.env import env
 
 
-class State(BaseModel):
-    cluster: str = env.cluster.name
-    timestamp: datetime = datetime.utcnow()
-    duration: timedelta
+# class State(BaseModel):
+#     cluster: str = env.cluster.name
+#     timestamp: datetime = Field(default_factory=datetime.utcnow)
+#     duration: timedelta
