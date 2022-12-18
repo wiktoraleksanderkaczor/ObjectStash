@@ -1,9 +1,7 @@
-from pydantic import Protocol
-
 from storage.models.client import StorageClient
 
 
-class StorageWrapper(Protocol):
+class StorageWrapper:
     def __init__(self, wrapped: StorageClient):
         self.wrapped = wrapped
 

@@ -1,15 +1,12 @@
 # Need to make lower models, policy, etc. anything lower than a particular type of cache model...
 # ...use generic keys (dunno even) and values (bytes)
 # Classes that act as a sort of middle layer, handling conversions to the caching function inputs, like Object or bytes?
-
-from pydantic import Protocol
-
 from cache.models.replacement import Replacement
 from storage.models.client import StorageClient
 from storage.models.objects import Object, ObjectID
 
 
-class CacheWrapper(Protocol):
+class CacheWrapper:
     def __init__(self, wrapped: object, storage: StorageClient, replacement: Replacement):
         self.hits = 0
         self.misses = 0
