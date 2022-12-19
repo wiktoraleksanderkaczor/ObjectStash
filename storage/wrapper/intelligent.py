@@ -9,3 +9,4 @@ from storage.models.wrapper import StorageWrapper
 class Intelligent(StorageWrapper, StorageClient):
     def __init__(self, wrapped: StorageClient):
         super().__init__(wrapped)
+        raise NotImplementedError("Intelligent storage strategy has not been implemented yet")
