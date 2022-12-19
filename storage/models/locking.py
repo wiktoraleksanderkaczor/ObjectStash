@@ -1,22 +1,23 @@
-# from datetime import datetime, timedelta
+from datetime import datetime, timedelta
 
-# from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-# from config.env import env
-# from storage.models.client import StorageClient
-# from storage.models.objects import Object, ObjectID
+from config.env import env
+from role.scheduling import scheduler
+from storage.models.client import StorageClient
+from storage.models.objects import ObjectID
 
 
-# class StorageLockState(BaseModel):
-#     cluster: str = env.cluster.name
-#     timestamp: datetime = datetime.utcnow()
-#     duration: timedelta
+class LockState(BaseModel):
+    cluster: str = env.cluster.name
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    duration: timedelta = env.locking.duration
 
 
 # class StorageLock:
 #     def __init__(self, storage: StorageClient, path: ObjectID) -> None:
 #         self.storage = storage
-#         self.path = path
+#         self.path = path ->
 
 #     def new(self):
 #         return StorageLockState(
@@ -48,7 +49,7 @@
 #     def __init__(self, name: str, storage: StorageClient, path: ObjectID) -> None:
 #         self.name = name
 #         self.storage = storage
-#         self.path = path
+#         self.path = pat ->h
 
 #     def get_lock(self) -> StorageLockState:
 #         obj = self.storage.get_object(self.path)
@@ -91,3 +92,22 @@
 
 #         # All checks out
 #         return True
+
+
+class Lock:
+    def __init__(self, name: str, storage: StorageClient, path: ObjectID) -> None:
+        self.name = name
+        self.storage = storage
+        self.path = path
+        self.acquire()
+        interval = env.locking.duration - env.locking.grace
+        scheduler.every(interval.seconds).seconds.do(self.refresh)
+
+    def acquire(self) -> None:
+        ...
+
+    def release(self) -> None:
+        ...
+
+    def refresh(self) -> None:
+        ...
