@@ -47,15 +47,15 @@ class ObjectStash:
         self.flag = GracefulExit()
 
     def connect(self, storage_name: str) -> StorageClient:
-        storage: StorageConfig = env.storage[storage_name]
+        storage: StorageConfig = env.storage.get(storage_name, StorageConfig())
         client = clients.get(storage_name, None)
-        if not client or storage:
-            raise Exception(f"{storage_name} not found in available storage clients and/or configuration")
+        if not client:
+            raise Exception(f"{storage_name} not found in available storage clients")
+        if storage == StorageConfig():
+            raise Exception(f"{storage_name} not found in config")
 
         try:
-            instance: StorageClient = client(
-                storage.container, storage.region, storage.secure, storage.access_key, storage.secret_key
-            )
+            instance: StorageClient = client(**storage.dict())
             return instance
         except Exception as e:
             raise Exception(f"{storage_name} initialisation failed: {e}")
