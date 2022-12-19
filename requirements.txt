@@ -5,5 +5,6 @@ pysyncobj
 pydantic
 PyYAML
 schedule
+python-magic
 
 -r "dev-requirements.txt"

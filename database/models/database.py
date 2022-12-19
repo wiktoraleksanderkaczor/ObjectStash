@@ -1,8 +1,7 @@
+import json
 from typing import Any, Dict, List
 
-from database.locking.database import DatabaseLock
-from database.models.locking import Lock
-from database.models.objects import JSONish
+from database.models.objects import JSON
 from storage.models.client import StorageClient
 from storage.models.objects import Object, ObjectID
 
@@ -13,14 +12,18 @@ from storage.models.objects import Object, ObjectID
 
 
 class Database:
-    def insert(self, key: ObjectID, value: JSONish) -> bool:
-        key = self.prefix.joinpath(key)
-        obj = Object(name=key, data=value)
+    def insert(self, key: ObjectID, value: JSON) -> bool:
+        name = str(self.prefix.joinpath(key))
+        obj = Object.from_basemodel(name, value)
         return self.storage.put_object(obj)
 
-    def get(self, key: ObjectID) -> JSONish:
+    def get(self, key: ObjectID) -> JSON:
         key = self.prefix.joinpath(key)
-        return self.storage.get_object(key).data if self.exists(key) else None
+        if not self.exists(key):
+            raise KeyError(f"Key '{key}' does not exist")
+        data = self.storage.get_object(key).data
+        data = json.loads(data)
+        return JSON(**data)
 
     def exists(self, key: ObjectID) -> bool:
         key = self.prefix.joinpath(key)
@@ -28,18 +31,18 @@ class Database:
 
     def delete(self, key: ObjectID) -> bool:
         key = self.prefix.joinpath(key)
-        return self.storage.remove_object(key) if self.exists(key) else None
+        return self.storage.remove_object(key) if self.exists(key) else True
 
     def items(self) -> List[ObjectID]:
         return self.storage.list_objects(self.prefix)
 
-    def select(filter: Dict[str, Any]) -> List[ObjectID]:
+    def select(self, filter: Dict[str, Any]) -> List[ObjectID]:  # type: ignore for now
         pass
 
     # def merge(
     #     self,
     #     key: ObjectID,
-    #     data: JSONish,
+    #     data: JSON,
     #     index: MergeIndex = None,
     #     merge: MergeStrategy = None,
     #     mode: MergeMode = MergeMode.UPDATE,
@@ -52,4 +55,4 @@ class Database:
     def __init__(self, storage: StorageClient, name: ObjectID):
         self.prefix: ObjectID = ObjectID("partitions/").joinpath(name)
         self.storage: StorageClient = storage
-        self.lock: Lock = DatabaseLock(self.storage, self.prefix, ".lock")
+        # self.lock: Lock = DatabaseLock(self.storage, self.prefix, ".lock")

@@ -3,35 +3,38 @@ from typing import Dict, List, Optional
 
 from pydantic import AnyUrl, BaseModel, Extra, SecretStr
 
+from auth.models.group import Group
+from auth.models.user import User
+
 
 class Cluster(BaseModel):
     name: str = "ObjectStash-Cluster"
     port: int = 9091
     initial_peers: List[AnyUrl] = []
-
-
-class Lock(BaseModel):
-    duration: timedelta = timedelta(minutes=1)
-    timeout: timedelta = timedelta(minutes=1)
-
-
-class Timeouts(BaseModel):
-    storage: Lock = Lock()
-    object: Lock = Lock()
-    action: Lock = Lock()
+    user: User = User()
+    group: Group = Group()
 
 
 class Locking(BaseModel):
-    duration: timedelta = timedelta(minutes=1)
-    filename: str = ".lock"
+    duration: timedelta = timedelta(minutes=5)
+    grace: timedelta = timedelta(minutes=1)
+
+
+# class Timeouts(BaseModel):
+#     storage: Lock = Lock()
+#     object: Lock = Lock()
+#     action: Lock = Lock()
+
+
+# class Locking(BaseModel):
+#     duration: timedelta = timedelta(minutes=1)
+#     filename: str = ".lock"
 
 
 class StorageConfig(BaseModel):
     container: str = "ObjectStash"
     region: Optional[str] = None
     secure: bool = True
-    timeouts: Timeouts = Timeouts()
-    locking: Locking = Locking()
     access_key: Optional[SecretStr] = None
     secret_key: Optional[SecretStr] = None
 
@@ -72,3 +75,4 @@ class Config(BaseModel):
     storage: Dict[str, StorageConfig] = {"Local": StorageConfig()}
     encoding: str = "utf-8"
     formatting: Formatting = Formatting()
+    locking: Locking = Locking()
