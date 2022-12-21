@@ -112,6 +112,9 @@ class Object(BaseModel):
     info: ObjectInfo
     data: StrictBytes
 
+    class Config:
+        arbitrary_types_allowed = True
+
     @classmethod
     def from_dict(cls, name: str, data: Dict) -> "Object":
         key = ObjectID(name)
