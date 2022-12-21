@@ -10,6 +10,7 @@ from auth.models.user import User
 class Cluster(BaseModel):
     name: str = "ObjectStash-Cluster"
     port: int = 9091
+    version: str = "0.0.1"
     initial_peers: List[AnyUrl] = []
     user: User = User()
     group: Group = Group()
@@ -58,9 +59,12 @@ class FormatYAML(BasicFormat):
 
 # Passed to json.dumps as kwargs
 class FormatJSON(BasicFormat):
-    encoding: str = "utf-8"
     indent: int = 4  # spaces
     sort_keys: bool = True
+
+
+class Encoding(BaseModel):
+    encoding: str = "utf-8"
 
 
 class Formatting(BaseModel):
@@ -73,6 +77,6 @@ class Formatting(BaseModel):
 class Config(BaseModel):
     cluster: Cluster = Cluster()
     storage: Dict[str, StorageConfig] = {"Local": StorageConfig()}
-    encoding: str = "utf-8"
+    encoding: Encoding = Encoding()
     formatting: Formatting = Formatting()
     locking: Locking = Locking()
