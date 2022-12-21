@@ -2,7 +2,6 @@ from typing import List
 
 from minio import Minio
 
-from config.env import env
 from config.logger import log
 from storage.models.capabilities import Capability
 from storage.models.client import StorageClient
@@ -13,13 +12,19 @@ from storage.models.objects import Object, ObjectID, ObjectInfo
 class MinIOClient(StorageClient):
     CLIENT_NAME: str = "MinIO"
     CAPABILITIES: List[Capability] = [Capability.BASIC]
-    MEDIUM: str = Medium.DISTRIBUTED
+    MEDIUM: str = Medium.REMOTE
 
-    def __init__(self, container: str, region: str = None, secure: bool = True) -> None:
-        super().__init__(container, region, secure)
+    def __init__(
+        self,
+        container: str,
+        *args,
+        **kwargs,
+    ) -> None:
+        super().__init__(container)
         try:
             self.client = Minio(
-                env, access_key=self.access_key, secret_key=self.secret_key, region=self.region, secure=self.secure
+                *args,
+                **kwargs,
             )
         except Exception as e:
             log.exception(f"MinIO Exception [init]: {e}")
@@ -30,6 +35,7 @@ class MinIOClient(StorageClient):
 
     def create_container(self) -> bool:
         self.client.make_bucket(self.container)
+        return self.container_exists()
 
     def list_objects(self, prefix: ObjectID, recursive: bool = False) -> List[ObjectID]:
         return self.client.list_objects(self.container, prefix, recursive)

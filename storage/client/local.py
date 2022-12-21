@@ -12,12 +12,17 @@ class LocalClient(StorageClient):
     CAPABILITIES: List[Capability] = [Capability.BASIC]
     MEDIUM: str = Medium.LOCAL
 
-    def __init__(self, container: str, region: str = None, secure: bool = True):
-        super().__init__(container, region, secure)
+    def __init__(
+        self,
+        container: str,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(container)
 
     def create_container(self) -> bool:
         os.mkdir(self.container)
-        return self.container_exists(self.container)
+        return self.container_exists()
 
     def container_exists(self) -> bool:
         return os.path.isdir(self.container)

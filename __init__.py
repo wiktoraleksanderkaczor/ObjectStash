@@ -1,4 +1,5 @@
 import signal
+from typing import Union
 
 from config.env import env
 from config.logger import log
@@ -47,11 +48,11 @@ class ObjectStash:
         self.flag = GracefulExit()
 
     def connect(self, storage_name: str) -> StorageClient:
-        storage: StorageConfig = env.storage.get(storage_name, StorageConfig())
-        client = clients.get(storage_name, None)
+        storage: Union[StorageConfig, None] = env.storage.get(storage_name, None)
+        client: Union[StorageClient, None] = clients.get(storage_name, None)
         if not client:
             raise Exception(f"{storage_name} not found in available storage clients")
-        if storage == StorageConfig():
+        if not storage:
             raise Exception(f"{storage_name} not found in config")
 
         try:

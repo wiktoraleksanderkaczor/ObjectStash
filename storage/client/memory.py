@@ -11,17 +11,22 @@ class MemoryClient(StorageClient):
     CAPABILITIES: List[Capability] = [Capability.BASIC]
     MEDIUM: str = Medium.LOCAL
 
-    def __init__(self, container: str, region: str = None, secure: bool = True):
-        super().__init__(container, region, secure)
+    def __init__(
+        self,
+        container: str,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(container)
 
     def create_container(self) -> bool:
-        pass
+        ...
 
     def container_exists(self) -> bool:
-        pass
+        ...
 
     def object_exists(self, key: ObjectID) -> bool:
-        pass
+        ...
 
     def get_object(self, key: ObjectID) -> Object:
-        pass
+        ...

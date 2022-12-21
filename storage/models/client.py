@@ -1,6 +1,4 @@
-from typing import List, Optional
-
-from pydantic import SecretStr
+from typing import List
 
 from storage.models.capabilities import Capability
 from storage.models.medium import Medium
@@ -21,17 +19,11 @@ class StorageClient:
     def __init__(
         self,
         container: str,
-        region: Optional[str] = None,
-        secure: Optional[bool] = None,
-        access_key: Optional[SecretStr] = None,
-        secret_key: Optional[SecretStr] = None,
+        *args,
+        **kwargs,
     ):
         self.client = None
         self.container = container
-        self.region = region
-        self.secure = secure
-        self.access_key = access_key
-        self.secret_key = secret_key
 
     # REQUIRED:
 
