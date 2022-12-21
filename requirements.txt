@@ -6,5 +6,6 @@ pydantic
 PyYAML
 schedule
 python-magic
+jsonmerge
 
 -r "dev-requirements.txt"
