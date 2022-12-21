@@ -26,7 +26,6 @@ def make_jsonschema(fname=CONFIG_FNAME, ext="schema.json"):
 
 def load_config(fname=CONFIG_FNAME) -> Config:
     fname = os.environ.get("OBJECTSTASH_CONFIG_PATH", fname)
-    fname = f"{fname}.json"
 
     if os.path.isfile(fname):
         try:
