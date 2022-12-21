@@ -29,8 +29,13 @@ class Database:
     def items(self) -> List[ObjectID]:
         return self.storage.list_objects(self.prefix)
 
-    def select(self, filter: Dict[str, Any]) -> List[ObjectID]:  # type: ignore for now
-        pass
+    def select(self, filter: Callable[[JSON], bool]) -> List[JSON]:
+        records = []
+        for key in self.items():
+            record = self.get(key)
+            if filter(record):
+                records.append(record)
+        return records
 
     def merge(self, key: ObjectID, head: JSON) -> bool:
         key = self.prefix.joinpath(key)
