@@ -1,19 +1,8 @@
-from typing import List
-
 from database.models.database import Database
+from storage.models.client import StorageClient
+from storage.models.objects import ObjectID
 
 
 class NoSQL(Database):
-    def get_tables(self) -> List[str]:
-        data = self.get("tables.json")
-        return data
-
-    def schema_exists(self) -> bool:
-        return self.stat_object("schema.json")
-
-    def create_table(self, table: str):
-        self.available.append(table)
-
-    def __init__(self, name: str):
-        super().__init__(name)
-        self.available = self.get_tables()
+    def __init__(self, storage: StorageClient, name: ObjectID) -> None:
+        super().__init__(storage, name)

@@ -1,3 +1,4 @@
+import pickle
 from typing import Any, Dict, Union
 
 from jsonmerge import merge
@@ -23,3 +24,6 @@ class JSON(BaseModel):
             for prop in schema.get("properties", {}).values():
                 # prop.pop("title", None)
                 prop["mergeStrategy"] = "overwrite"
+
+    def to_bytes(self) -> bytes:
+        return pickle.dumps(self, protocol=pickle.HIGHEST_PROTOCOL)
