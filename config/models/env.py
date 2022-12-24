@@ -1,10 +1,12 @@
 from datetime import timedelta
+from enum import Enum
 from typing import Dict, List, Optional
 
 from pydantic import AnyUrl, BaseModel, Extra, SecretStr
 
 from auth.models.group import Group
 from auth.models.user import User
+from storage.models.objects import TypeDetection
 
 
 class Cluster(BaseModel):
@@ -74,9 +76,14 @@ class Formatting(BaseModel):
     JSON: FormatJSON = FormatJSON()
 
 
+class Objects(BaseModel):
+    mime_method: TypeDetection = TypeDetection.magic
+
+
 class Config(BaseModel):
     cluster: Cluster = Cluster()
     storage: Dict[str, StorageConfig] = {"Local": StorageConfig()}
+    objects: Objects = Objects()
     encoding: Encoding = Encoding()
     formatting: Formatting = Formatting()
     locking: Locking = Locking()

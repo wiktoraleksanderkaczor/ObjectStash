@@ -30,12 +30,12 @@ class MinIOClient(StorageClient):
             log.exception(f"MinIO Exception [init]: {e}")
             raise e
 
-    def container_exists(self) -> bool:
+    def head_container(self) -> bool:
         return self.client.bucket_exists(self.container)
 
-    def create_container(self) -> bool:
+    def put_container(self) -> bool:
         self.client.make_bucket(self.container)
-        return self.container_exists()
+        return self.head_container()
 
     def list_objects(self, prefix: ObjectID, recursive: bool = False) -> List[ObjectID]:
         return self.client.list_objects(self.container, prefix, recursive)
@@ -46,7 +46,7 @@ class MinIOClient(StorageClient):
     def put_object(self, key: ObjectID, obj: Object) -> bool:
         return self.client.put_object(self.container, key, obj)
 
-    def stat_object(self, key: ObjectID) -> ObjectInfo:
+    def get_properties(self, key: ObjectID) -> ObjectInfo:
         return self.client.stat_object(self.container, key).__dict__
 
     def remove_object(self, key: ObjectID) -> bool:

@@ -11,13 +11,13 @@ class Storage(CacheWrapper, Wrapped):
     def __init__(self, wrapped: Wrapped, storage: StorageClient, replacement: Replacement):
         super().__init__(wrapped, storage, replacement)
 
-    def container_exists(self) -> bool:
+    def head_container(self) -> bool:
         ...
 
     def get_object(self, key: ObjectID) -> Object:
         ...
 
-    def stat_object(self, key: ObjectID) -> ObjectInfo:
+    def get_properties(self, key: ObjectID) -> ObjectInfo:
         ...
 
     def list_objects(self, prefix: ObjectID, recursive: bool = False) -> List[ObjectID]:

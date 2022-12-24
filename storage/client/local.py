@@ -20,11 +20,11 @@ class LocalClient(StorageClient):
     ):
         super().__init__(container)
 
-    def create_container(self) -> bool:
+    def put_container(self) -> bool:
         os.mkdir(self.container)
-        return self.container_exists()
+        return self.head_container()
 
-    def container_exists(self) -> bool:
+    def head_container(self) -> bool:
         return os.path.isdir(self.container)
 
     def object_exists(self, key: ObjectID) -> bool:

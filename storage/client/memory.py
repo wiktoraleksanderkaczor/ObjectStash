@@ -19,10 +19,10 @@ class MemoryClient(StorageClient):
     ):
         super().__init__(container)
 
-    def create_container(self) -> bool:
+    def put_container(self) -> bool:
         ...
 
-    def container_exists(self) -> bool:
+    def head_container(self) -> bool:
         ...
 
     def object_exists(self, key: ObjectID) -> bool:

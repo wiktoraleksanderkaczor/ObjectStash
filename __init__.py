@@ -28,9 +28,9 @@ class GracefulExit:
 class StorageManager:
     def __init__(self, client: StorageClient):
         self.client = client
-        if not client.container_exists():
+        if not client.head_container():
             log.debug(f"{client.container} not found in storage; creating container")
-            done = client.create_container()
+            done = client.put_container()
             if not done:
                 raise Exception(f"Could not create {client.container} container")
         log.debug(f"Initializing with the {client.container} container")
