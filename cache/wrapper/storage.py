@@ -1,24 +1,26 @@
-from typing import List
+from typing import List, Union
 
 from cache.models.replacement import Replacement
 from cache.models.wrapper import CacheWrapper
-from storage.models.client import StorageClient
-from storage.models.client import StorageClient as Wrapped
-from storage.models.objects import Object, ObjectID, ObjectInfo
+from storage.models.client.model import StorageClient
+from storage.models.client.model import StorageClient as Wrapped
+from storage.models.item.data import ObjectData
+from storage.models.item.models import Directory, Object
+from storage.models.item.paths import DirectoryPath, ObjectPath, StoragePath
 
 
 class Storage(CacheWrapper, Wrapped):
     def __init__(self, wrapped: Wrapped, storage: StorageClient, replacement: Replacement):
         super().__init__(wrapped, storage, replacement)
 
-    def head_container(self) -> bool:
-        ...
+    def get(self, key: ObjectPath) -> ObjectData:
+        return super().get(key)
 
-    def get_object(self, key: ObjectID) -> Object:
-        ...
+    def stat(self, key: StoragePath) -> Union[Object, Directory]:
+        return super().stat(key)
 
-    def get_properties(self, key: ObjectID) -> ObjectInfo:
-        ...
+    def list(self, prefix: DirectoryPath, recursive: bool = False) -> List[ObjectPath]:
+        return super().list(prefix, recursive)
 
-    def list_objects(self, prefix: ObjectID, recursive: bool = False) -> List[ObjectID]:
-        ...
+    def exists(self, key: StoragePath) -> bool:
+        return super().exists(key)

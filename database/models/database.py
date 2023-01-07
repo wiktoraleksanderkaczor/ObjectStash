@@ -1,33 +1,41 @@
+from pathlib import PurePosixPath
 from typing import Callable, List
 
 from database.models.objects import JSON
-from storage.models.client import StorageClient
-from storage.models.objects import Object, ObjectID
+from storage.models.client.model import StorageClient
+from storage.models.item.content import ObjectContentInfo
+from storage.models.item.data import ObjectData
+from storage.models.item.models import Object
+from storage.models.item.paths import DirectoryPath, ObjectPath, StoragePath
 
 
 class Database:
-    def insert(self, key: ObjectID, value: JSON) -> bool:
-        name = str(self.prefix.joinpath(key))
-        obj = Object.from_basemodel(name, value)
-        return self.storage.put_object(obj)
+    def insert(self, key: ObjectPath, value: JSON) -> None:
+        name = ObjectPath(self.storage.name, self.prefix.joinpath(key))
+        # obj = Object.from_basemodel(name, value)
+        data = ObjectData(__root__=value.to_bytes())
+        content = ObjectContentInfo.from_data(data=data)
+        obj = Object(name=name, content=content)
+        self.storage.put(obj, data)
 
-    def get(self, key: ObjectID) -> JSON:
-        key = self.prefix.joinpath(key)
+    def get(self, key: ObjectPath) -> JSON:
+        name = ObjectPath(self.storage.name, self.prefix.joinpath(key))
         if not self.exists(key):
             raise KeyError(f"Key '{key}' does not exist")
-        data = self.storage.get_object(key).data
+        data = self.storage.get(name).__root__
         return JSON.parse_raw(data)
 
-    def exists(self, key: ObjectID) -> bool:
+    def exists(self, key: StoragePath) -> bool:
         key = self.prefix.joinpath(key)
-        return self.storage.object_exists(key)
+        return self.storage.exists(key)
 
-    def delete(self, key: ObjectID) -> bool:
-        key = self.prefix.joinpath(key)
-        return self.storage.remove_object(key) if self.exists(key) else True
+    def delete(self, key: StoragePath) -> None:
+        key = self.prefix / key
+        if self.exists(key):
+            self.storage.remove(key)
 
-    def items(self) -> List[ObjectID]:
-        return self.storage.list_objects(self.prefix)
+    def items(self) -> List[ObjectPath]:
+        return self.storage.list(self.prefix)
 
     def select(self, filter: Callable[[JSON], bool]) -> List[JSON]:
         records = []
@@ -37,13 +45,13 @@ class Database:
                 records.append(record)
         return records
 
-    def merge(self, key: ObjectID, head: JSON) -> bool:
-        key = self.prefix.joinpath(key)
-        base = self.get(key)
+    def merge(self, key: ObjectPath, head: JSON) -> None:
+        name = ObjectPath(self.storage.name, self.prefix.joinpath(key))
+        base = self.get(name)
         new = JSON.merge(base, head)
-        return self.insert(key, new)
+        self.insert(key, new)
 
-    def __init__(self, storage: StorageClient, name: ObjectID):
-        self.prefix: ObjectID = ObjectID("partitions/").joinpath(name)
+    def __init__(self, storage: StorageClient, name: DirectoryPath):
+        self.prefix: DirectoryPath = DirectoryPath(storage.name, PurePosixPath("partitions/")).joinpath(name)
         self.storage: StorageClient = storage
         # self.lock: Lock = DatabaseLock(self.storage, self.prefix, ".lock")
