@@ -2,10 +2,10 @@ from uuid import uuid4
 
 from pydantic import UUID4, BaseModel, Field
 
-from storage.models.item.content import ContainerContentInfo, DirectoryContentInfo, ObjectContentInfo
+from storage.models.item.content import DirectoryContentInfo, ObjectContentInfo
 from storage.models.item.metadata import Metadata
 from storage.models.item.ownership import OwnershipInfo
-from storage.models.item.paths import ContainerPath, DirectoryPath, ObjectPath
+from storage.models.item.paths import DirectoryPath, ObjectPath
 from storage.models.item.permissions import PermissionInfo
 from storage.models.item.storage import StorageInfo
 from storage.models.item.version import VersionInfo
@@ -18,11 +18,6 @@ class ItemModel(BaseModel):
     permissions: PermissionInfo = PermissionInfo()
     metadata: Metadata = Metadata()
     version: VersionInfo = VersionInfo()
-
-
-class Container(ItemModel):
-    name: ContainerPath
-    content: ContainerContentInfo
 
 
 class Directory(ItemModel):

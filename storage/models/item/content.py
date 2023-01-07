@@ -1,15 +1,16 @@
 import mimetypes
 from enum import Enum
 from hashlib import sha256
-from typing import Optional
+from typing import List, Optional
 
 import magic
+from hashid import HashID, HashInfo
 from pydantic import BaseModel, PositiveInt, StrictBytes, StrictStr
 
-from config.env import env
 from storage.models.item.data import ObjectData
 from storage.models.item.encryption import EncryptionAlgorithm
-from storage.models.item.paths import ObjectPath
+
+# from storage.models.item.paths import ObjectPath
 from storage.models.item.size import SizeInfo
 from storage.models.item.types import ItemType
 
@@ -31,36 +32,67 @@ class ModelContentInfo(BaseModel):
     encryption: Optional[EncryptionAlgorithm] = None
 
 
-class ContainerContentInfo(ModelContentInfo):
-    pass
-
-
 class DirectoryContentInfo(ModelContentInfo):
+    item_type: ItemType = ItemType.DIRECTORY
     num_items: PositiveInt = 0  # Number of items in directory
 
 
-class ObjectContentInfo(ModelContentInfo):
-    mime_type: StrictStr  # Content type for content
-    signature: StrictBytes  # Hash for integrity
+class TypeSignature(BaseModel):
+    mime: StrictStr = "application/octet-stream"
+
+    # @classmethod
+    # def from_path(cls, name: ObjectPath) -> "TypeSignature":
+    #     mime = None
+    #     try:
+    #         mime, _ = mimetypes.guess_type(name)
+    #     except Exception:
+    #         pass
+    #     return cls(mime=mime) if mime else cls()
 
     @classmethod
-    def from_object(cls, name: "ObjectPath", data: "ObjectData") -> "ObjectContentInfo":
-        path = str(name)
-        buffer = data.__root__
-
-        mime = "application/octet-stream"
+    def from_data(cls, buffer: ObjectData) -> "TypeSignature":
+        mime = None
         try:
-            if env.objects.mime_method == TypeDetection.magic:
-                mime = magic.from_buffer(buffer, mime=True)
-                mime = str(mime)
-            elif env.objects.mime_method == TypeDetection.extension:
-                guess, _ = mimetypes.guess_type(path)
-                mime = guess if guess else mime
+            mime = magic.from_buffer(buffer.__root__, mime=True)
+            mime = str(mime)
         except Exception:
             pass
+        return cls(mime=mime) if mime else cls()
 
-        signature = sha256(buffer).digest()
-        item_type = ItemType.FILE
-        size = SizeInfo(raw_bytes=len(buffer))
+    @classmethod
+    def validate(cls, v: str) -> "TypeSignature":
+        # Check that v in MIME type database
+        if v not in mimetypes.types_map.values():
+            raise ValueError("Invalid MIME type")
+        return cls(mime=v)
 
-        return cls(mime_type=mime, signature=signature, item_type=item_type, size=size)
+
+class HashSignature(BaseModel):
+    algorithm: StrictStr = "SHA256"
+    signature: StrictBytes
+
+    @classmethod
+    def from_data(cls, buffer: ObjectData) -> "HashSignature":
+        signature = sha256(buffer.__root__).digest()
+        return cls(signature=signature)
+
+    @classmethod
+    def validate(cls, v: bytes) -> "HashSignature":
+        hashes: List[HashInfo] = list(HashID().identifyHash(v))
+        hashes = [item.name for item in hashes if not item.extended]
+        if "SHA256" not in hashes:
+            raise ValueError("Invalid hash")
+        return cls(signature=v)
+
+
+class ObjectContentInfo(ModelContentInfo):
+    item_type: ItemType = ItemType.FILE
+    mime_type: TypeSignature  # MIME type for content
+    signature: HashSignature  # Hash for integrity
+
+    @classmethod
+    def from_data(cls, data: ObjectData) -> "ObjectContentInfo":
+        size = SizeInfo.from_data(data)
+        mime_type = TypeSignature.from_data(data)
+        signature = HashSignature.from_data(data)
+        return cls(size=size, mime_type=mime_type, signature=signature)
