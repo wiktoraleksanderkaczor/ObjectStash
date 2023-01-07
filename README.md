@@ -1,4 +1,4 @@
-Providing highly available database services on S3 or other compatible storage. This is done by synchronising nodes in a local network to work together with PubSub updates on DB modifications and distributed locking with the requirement of all participating nodes in a single container having communication to each-other with zeroconf. S3 or other compatible storage must be strict read-after-write and list-after-write consistent.
+Providing highly available database services on S3 or other compatible storage. This is done by synchronising nodes in a local network to work together with PubSub updates on DB modifications and distributed locking with the requirement of all participating nodes in a single repository having communication to each-other with zeroconf. S3 or other compatible storage must be strict read-after-write and list-after-write consistent.
 
 Supported paradigms:
 - Relational

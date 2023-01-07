@@ -1,32 +1,17 @@
-from typing import List
-
-from storage.models.capabilities import Capability
 from storage.models.client import StorageClient
 from storage.models.medium import Medium
-from storage.models.objects import Object, ObjectID
+from storage.models.repository import Repository
 
 
 class MemoryClient(StorageClient):
-    CLIENT_NAME: str = "Memory"
-    CAPABILITIES: List[Capability] = [Capability.BASIC]
-    MEDIUM: str = Medium.LOCAL
-
     def __init__(
         self,
-        container: str,
+        repository: Repository,
         *args,
         **kwargs,
     ):
-        super().__init__(container)
+        super().__init__(repository)
 
-    def put_container(self) -> bool:
-        ...
-
-    def head_container(self) -> bool:
-        ...
-
-    def object_exists(self, key: ObjectID) -> bool:
-        ...
-
-    def get_object(self, key: ObjectID) -> Object:
-        ...
+    @property
+    def medium(self) -> Medium:
+        return Medium.LOCAL

@@ -1,26 +1,19 @@
-from typing import List
-
 from minio import Minio
 
 from config.logger import log
-from storage.models.capabilities import Capability
 from storage.models.client import StorageClient
 from storage.models.medium import Medium
-from storage.models.objects import Object, ObjectID, ObjectInfo
+from storage.models.repository import Repository
 
 
 class MinIOClient(StorageClient):
-    CLIENT_NAME: str = "MinIO"
-    CAPABILITIES: List[Capability] = [Capability.BASIC]
-    MEDIUM: str = Medium.REMOTE
-
     def __init__(
         self,
-        container: str,
+        repository: Repository,
         *args,
         **kwargs,
     ) -> None:
-        super().__init__(container)
+        super().__init__(repository)
         try:
             self.client = Minio(
                 *args,
@@ -30,24 +23,6 @@ class MinIOClient(StorageClient):
             log.exception(f"MinIO Exception [init]: {e}")
             raise e
 
-    def head_container(self) -> bool:
-        return self.client.bucket_exists(self.container)
-
-    def put_container(self) -> bool:
-        self.client.make_bucket(self.container)
-        return self.head_container()
-
-    def list_objects(self, prefix: ObjectID, recursive: bool = False) -> List[ObjectID]:
-        return self.client.list_objects(self.container, prefix, recursive)
-
-    def get_object(self, key: ObjectID) -> Object:
-        return self.client.get_object(self.container, key)
-
-    def put_object(self, key: ObjectID, obj: Object) -> bool:
-        return self.client.put_object(self.container, key, obj)
-
-    def get_properties(self, key: ObjectID) -> ObjectInfo:
-        return self.client.stat_object(self.container, key).__dict__
-
-    def remove_object(self, key: ObjectID) -> bool:
-        return self.client.remove_object(self.container, key)
+    @property
+    def medium(self) -> Medium:
+        return Medium.REMOTE
