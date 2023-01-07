@@ -1,12 +1,11 @@
 from datetime import timedelta
-from enum import Enum
 from typing import Dict, List, Optional
 
 from pydantic import AnyUrl, BaseModel, Extra, SecretStr
 
 from auth.models.group import Group
 from auth.models.user import User
-from storage.models.objects import TypeDetection
+from storage.models.repository import Repository
 
 
 class Cluster(BaseModel):
@@ -35,7 +34,7 @@ class Locking(BaseModel):
 
 
 class StorageConfig(BaseModel):
-    container: str = "ObjectStash"
+    repository: Repository = Repository()
     region: Optional[str] = None
     secure: bool = True
     access_key: Optional[SecretStr] = None
@@ -77,7 +76,7 @@ class Formatting(BaseModel):
 
 
 class Objects(BaseModel):
-    mime_method: TypeDetection = TypeDetection.magic
+    pass
 
 
 class Config(BaseModel):
