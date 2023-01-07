@@ -1,12 +1,18 @@
 # Need to make lower models, policy, etc. anything lower than a particular type of cache model...
 # ...use generic keys (dunno even) and values (bytes)
 # Classes that act as a sort of middle layer, handling conversions to the caching function inputs, like Object or bytes?
+from typing import Dict, Type
+
 from cache.models.replacement import Replacement
-from storage.models.client import StorageClient
-from storage.models.objects import Object, ObjectID
+from storage.models.client.model import StorageClient
+from storage.models.item.data import ObjectData
+from storage.models.item.models import Object
+from storage.models.item.paths import ObjectPath
 
 
 class CacheWrapper:
+    subclasses: Dict[str, Type["CacheWrapper"]] = {}
+
     def __init__(self, wrapped: object, storage: StorageClient, replacement: Replacement):
         self.hits = 0
         self.misses = 0
@@ -14,11 +20,15 @@ class CacheWrapper:
         self.replacement = replacement
         self.storage = storage
 
-    def _get(self, item: ObjectID):
-        return self.storage.get_object(item)
+    def __init_subclass__(cls: Type["CacheWrapper"], **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.subclasses[cls.__name__] = cls
 
-    def _put(self, item: Object):
-        return self.storage.put_object(item)
+    def _get(self, item: ObjectPath) -> ObjectData:
+        return self.storage.get(item)
+
+    def _put(self, item: Object, data: ObjectData):
+        return self.storage.put(item, data)
 
     # Only called when not in current object, error when no such attr
     def __getattribute__(self, attr):
