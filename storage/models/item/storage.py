@@ -11,5 +11,4 @@ class StorageClass(str, Enum):
 
 
 class StorageInfo(BaseModel):
-    # container: StrictStr  # What is this?
     storage_class: StorageClass = StorageClass.HOT
