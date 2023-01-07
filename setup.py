@@ -1,5 +1,10 @@
+import sys
+
 import setuptools
 from setuptools import find_packages
+
+if sys.version_info < (3, 8):
+    sys.exit("Sorry, Python < 3.8 is not supported")
 
 DESCRIPTION = (
     "Multi-paradigm database, caching and FUSE layer on various storage clients, for example, S3, memory, local etc."
@@ -24,6 +29,7 @@ setuptools.setup(
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     packages=find_packages(exclude=("tests")),
+    python_requires=">3.8.0",
     install_requires=[
         "minio",
         "zeroconf",
@@ -38,6 +44,6 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.8",
     ],
 )
