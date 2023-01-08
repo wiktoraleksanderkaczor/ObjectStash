@@ -6,7 +6,7 @@ from storage.models.client.model import StorageClient
 from storage.models.item.content import ObjectContentInfo
 from storage.models.item.data import ObjectData
 from storage.models.item.models import Object
-from storage.models.item.paths import DirectoryPath, ObjectPath, StoragePath
+from storage.models.item.paths import DirectoryPath, ObjectPath, StorageKey
 
 
 class Database:
@@ -25,11 +25,11 @@ class Database:
         data = self.storage.get(name).__root__
         return JSON.parse_raw(data)
 
-    def exists(self, key: StoragePath) -> bool:
+    def exists(self, key: StorageKey) -> bool:
         key = self.prefix.joinpath(key)
         return self.storage.exists(key)
 
-    def delete(self, key: StoragePath) -> None:
+    def delete(self, key: StorageKey) -> None:
         key = self.prefix / key
         if self.exists(key):
             self.storage.remove(key)
