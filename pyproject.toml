@@ -1,0 +1,7 @@
+[tool.flake8]
+max-line-length = 120
+count = true
+exclude = ["venv/*"]
+
+[tool.black]
+line-length = 120

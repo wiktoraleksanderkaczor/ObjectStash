@@ -1,3 +1,4 @@
 wheel
 black
 flake8
+Flake8-pyproject

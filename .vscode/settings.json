@@ -1,24 +1,18 @@
 {
     "python.formatting.provider": "black",
-    "python.formatting.blackArgs": [
-        "--line-length=120"
-    ],
-    "python.linting.flake8Enabled": true,
-    "python.linting.flake8Args": [
-        "--max-line-length=120"
-    ],
-    "python.formatting.autopep8Args": [
-        "--aggressive",
-        "--aggressive",
-        "--experimental"
-    ],
     "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
+    "python.linting.flake8Enabled": true,
+    "python.linting.lintOnSave": true,
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.completeFunctionParens": true,
     "search.exclude": {
         "**/.vscode": true,
         "**/venv": true,
-    },
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": true
     },
     "files.exclude": {
         "**/.git": true,
