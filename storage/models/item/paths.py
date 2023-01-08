@@ -83,6 +83,18 @@ class StorageKey:
     #         raise ValueError(f"Invalid StorageKey: {e}")
     #     return cls(storage=storage, path=path)
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state["__client"]
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        try:
+            self.__client = StorageClient.initialized[self.storage]
+        except KeyError:
+            raise KeyError(f"'{self.storage}' not found in initialized storage clients")
+
 
 # Should I override the class for validation of particular types like file or directory?
 # Would this be good to be overriden in particular storage applications, like database wanting some special fields?
