@@ -79,9 +79,12 @@ class StorageClient:
     def medium(self) -> Medium:
         ...
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}@{self.repository.name}({self.repository.uuid})"
+
     @property
     def name(self) -> StorageClientKey:
-        return StorageClientKey(f"{self.__class__.__name__}@{self.repository.name}({self.repository.uuid})")
+        return StorageClientKey(repr(self))
 
     # OPTIONAL:
     def get_multiple(self, *keys: ObjectPath) -> List[ObjectData]:
