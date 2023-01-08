@@ -14,7 +14,7 @@ class StorageKey:
         self.storage = storage
         self.path = path
         try:
-            self.__client = StorageClient.clients[storage]
+            self.__client = StorageClient.initialized[storage]
         except KeyError:
             raise KeyError(f"'{storage}' not found in initialized storage clients")
 
@@ -99,7 +99,7 @@ class StorageKey:
 # Should I override the class for validation of particular types like file or directory?
 # Would this be good to be overriden in particular storage applications, like database wanting some special fields?
 # Finally, duck typing should theoretically allow using this instead of StorageKey but needs validation
-class DirectoryPath(StorageKey):
+class DirectoryKey(StorageKey):
     @classmethod
     def validate(cls, *args, **kwargs):
         v = super().validate(*args, **kwargs)
@@ -107,7 +107,7 @@ class DirectoryPath(StorageKey):
             raise ValueError("Not a directory")
 
 
-class ObjectPath(StorageKey):
+class ObjectKey(StorageKey):
     @classmethod
     def validate(cls, *args, **kwargs):
         v = super().validate(*args, **kwargs)

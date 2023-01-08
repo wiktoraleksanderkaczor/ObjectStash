@@ -7,7 +7,7 @@ from cache.models.replacement import Replacement
 from storage.models.client.model import StorageClient
 from storage.models.item.data import ObjectData
 from storage.models.item.models import Object
-from storage.models.item.paths import ObjectPath
+from storage.models.item.paths import ObjectKey
 
 
 class CacheWrapper:
@@ -24,7 +24,7 @@ class CacheWrapper:
         super().__init_subclass__(**kwargs)
         cls.subclasses[cls.__name__] = cls
 
-    def _get(self, item: ObjectPath) -> ObjectData:
+    def _get(self, item: ObjectKey) -> ObjectData:
         return self.storage.get(item)
 
     def _put(self, item: Object, data: ObjectData):

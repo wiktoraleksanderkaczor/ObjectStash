@@ -20,7 +20,7 @@ from typing import Dict, List, Type, Union
 from storage.models.client.key import StorageClientKey
 from storage.models.item.data import ObjectData
 from storage.models.item.models import Directory, Object
-from storage.models.item.paths import DirectoryPath, ObjectPath, StorageKey
+from storage.models.item.paths import DirectoryKey, ObjectKey, StorageKey
 from storage.models.medium import Medium
 from storage.models.repository import Repository
 
@@ -28,7 +28,7 @@ ITEM = Union[Object, Directory]
 
 
 class StorageClient:
-    clients: Dict[StorageClientKey, "StorageClient"] = {}
+    initialized: Dict[StorageClientKey, "StorageClient"] = {}
     subclasses: Dict[str, Type["StorageClient"]] = {}
 
     def __init__(
@@ -39,7 +39,7 @@ class StorageClient:
     ):
         self.client = None
         self.repository = repository
-        self.clients[self.name] = self
+        self.initialized[self.name] = self
 
     def __init_subclass__(cls: Type["StorageClient"], **kwargs):
         super().__init_subclass__(**kwargs)
@@ -53,21 +53,30 @@ class StorageClient:
     # Streams will be implemented over PyFuse, too much bullshit otherwise...
     # Should I put ObjectData in Object under a generator?
 
-    def get(self, key: ObjectPath) -> ObjectData:
+    def get(self, key: ObjectKey) -> ObjectData:
         ...
 
     def stat(self, key: StorageKey) -> Union[Object, Directory]:
         ...
 
-    def put(self, object: Object, data: ObjectData) -> None:
+    def put(self, obj: Object, data: ObjectData) -> None:
         ...
 
     def remove(self, key: StorageKey) -> None:
         ...
 
-    def list(self, prefix: DirectoryPath, recursive: bool = False) -> List[ObjectPath]:
+    def list(self, prefix: DirectoryKey, recursive: bool = False) -> List[ObjectKey]:
         ...
 
+    @property
+    def name(self) -> StorageClientKey:
+        return StorageClientKey(repr(self))
+
+    @property
+    def medium(self) -> Medium:
+        ...
+
+    # OPTIONAL:
     def exists(self, key: StorageKey) -> bool:
         try:
             self.stat(key)
@@ -75,31 +84,19 @@ class StorageClient:
         except Exception:
             return False
 
-    @property
-    def medium(self) -> Medium:
+    def get_multiple(self, *keys: ObjectKey) -> List[ObjectData]:
         ...
 
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}@{self.repository.name}({self.repository.uuid})"
-
-    @property
-    def name(self) -> StorageClientKey:
-        return StorageClientKey(repr(self))
-
-    # OPTIONAL:
-    def get_multiple(self, *keys: ObjectPath) -> List[ObjectData]:
-        ...
-
-    def stat_multiple(self, *keys: ObjectPath) -> List[Object]:
+    def stat_multiple(self, *keys: ObjectKey) -> List[Object]:
         ...
 
     def put_multiple(self, *objects: Object) -> List[bool]:
         ...
 
-    def remove_multiple(self, *keys: ObjectPath) -> List[bool]:
+    def remove_multiple(self, *keys: ObjectKey) -> List[bool]:
         ...
 
-    def exists_multiple(self, *keys: ObjectPath) -> List[bool]:
+    def exists_multiple(self, *keys: ObjectKey) -> List[bool]:
         ...
 
     # def object_from_bytes(self, key: str, raw: bytes) -> Object:
@@ -113,3 +110,7 @@ class StorageClient:
     # Hash for ObjectStash client management set replacement
     def __hash__(self):
         return hash(self.name)
+
+    # String representation for pathing
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}@{self.repository.name}({self.repository.uuid})"

@@ -2,8 +2,9 @@ from pysyncobj.batteries import replicated
 
 from role.distribution import Distributed
 from storage.models.client.model import StorageClient
+from storage.models.item.data import ObjectData
 from storage.models.item.models import Object
-from storage.models.item.paths import StorageKey
+from storage.models.item.paths import ObjectKey
 from storage.models.medium import Medium
 from storage.models.wrapper import StorageWrapper
 
@@ -16,15 +17,15 @@ class Replicated(StorageWrapper, Distributed, StorageClient):
         Distributed.__init__(self, f"Replicated({wrapped.name})", consumers=[])
 
     @replicated
-    def put_object(self, obj: Object) -> bool:
+    def put(self, obj: Object, data: ObjectData) -> None:
         if self.MEDIUM == Medium.LOCAL:
-            return self.wrapped.put_object(obj)
+            return self.wrapped.put(obj, data)
         # Only pysyncobj master
         elif self.MEDIUM == Medium.REMOTE:
-            return self.only_on_master(self.wrapped.put_object)(obj)
+            return self.only_on_master(self.wrapped.put)(obj, data)
         else:
-            return False
+            return None
 
-    def get_object(self, key: StorageKey) -> Object:
+    def get(self, key: ObjectKey) -> ObjectData:
         self.doTick()
-        return self.wrapped.get_object(key)
+        return self.wrapped.get(key)
