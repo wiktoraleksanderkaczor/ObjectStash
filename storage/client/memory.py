@@ -1,4 +1,4 @@
-from storage.models.client import StorageClient
+from storage.models.client.model import StorageClient
 from storage.models.medium import Medium
 from storage.models.repository import Repository
 

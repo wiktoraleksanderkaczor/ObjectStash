@@ -4,8 +4,8 @@ from pydantic import BaseModel, Field
 
 from config.env import env
 from role.scheduling import scheduler
-from storage.models.client import StorageClient
-from storage.models.objects import ObjectID
+from storage.models.client.model import StorageClient
+from storage.models.item.paths import StorageKey
 
 
 class LockState(BaseModel):
@@ -95,7 +95,7 @@ class LockState(BaseModel):
 
 
 class Lock:
-    def __init__(self, name: str, storage: StorageClient, path: ObjectID) -> None:
+    def __init__(self, name: str, storage: StorageClient, path: StorageKey) -> None:
         self.name = name
         self.storage = storage
         self.path = path

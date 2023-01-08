@@ -1,4 +1,4 @@
-from storage.models.client import StorageClient
+from storage.models.client.model import StorageClient
 from storage.models.wrapper import StorageWrapper
 
 

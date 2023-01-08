@@ -20,7 +20,7 @@ from typing import Dict, List, Type, Union
 from storage.models.client.key import StorageClientKey
 from storage.models.item.data import ObjectData
 from storage.models.item.models import Directory, Object
-from storage.models.item.paths import DirectoryPath, ObjectPath, StoragePath
+from storage.models.item.paths import DirectoryPath, ObjectPath, StorageKey
 from storage.models.medium import Medium
 from storage.models.repository import Repository
 
@@ -47,8 +47,8 @@ class StorageClient:
 
     # REQUIRED:
     # TODO: Initial container setup methods... since MinIO has create_bucket which seems separate from other operations.
-    # This also means that ContainerPath will not be dependant on StoragePath... probably? Although, I suppose it could.
-    # Also figure out a way to store connected clients... especially for the whole StoragePath client for URL replace.
+    # This also means that ContainerPath will not be dependant on StorageKey... probably? Although, I suppose it could.
+    # Also figure out a way to store connected clients... especially for the whole StorageKey client for URL replace.
     # Like so; {client_name}@{container(UUID)}://{path} with UUID being generated and stored per container.
     # Streams will be implemented over PyFuse, too much bullshit otherwise...
     # Should I put ObjectData in Object under a generator?
@@ -56,19 +56,19 @@ class StorageClient:
     def get(self, key: ObjectPath) -> ObjectData:
         ...
 
-    def stat(self, key: StoragePath) -> Union[Object, Directory]:
+    def stat(self, key: StorageKey) -> Union[Object, Directory]:
         ...
 
     def put(self, object: Object, data: ObjectData) -> None:
         ...
 
-    def remove(self, key: StoragePath) -> None:
+    def remove(self, key: StorageKey) -> None:
         ...
 
     def list(self, prefix: DirectoryPath, recursive: bool = False) -> List[ObjectPath]:
         ...
 
-    def exists(self, key: StoragePath) -> bool:
+    def exists(self, key: StorageKey) -> bool:
         try:
             self.stat(key)
             return True

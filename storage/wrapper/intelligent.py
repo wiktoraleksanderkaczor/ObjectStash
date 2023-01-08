@@ -1,7 +1,7 @@
 """
     An intelligent tiering system between data volume, access and durability needs, some mesh of replica and sharding
 """
-from storage.models.client import StorageClient
+from storage.models.client.model import StorageClient
 from storage.models.wrapper import StorageWrapper
 
 
