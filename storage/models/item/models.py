@@ -12,7 +12,7 @@ from storage.models.item.version import VersionInfo
 
 
 class ItemModel(BaseModel):
-    uuid: UUID4 = Field(..., default_factory=uuid4)
+    uuid: UUID4 = Field(default_factory=uuid4)
     storage: StorageInfo = StorageInfo()
     ownership: OwnershipInfo = OwnershipInfo()
     permissions: PermissionInfo = PermissionInfo()
