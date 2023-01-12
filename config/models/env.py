@@ -34,7 +34,7 @@ class Locking(BaseModel):
 
 
 class StorageConfig(BaseModel):
-    endpoint: Union[AnyUrl, IPvAnyAddress] = AnyUrl(url="localhost", scheme="http")
+    endpoint: Union[AnyUrl, IPvAnyAddress] = IPvAnyAddress("127.0.0.1")
     repository: Repository = Repository()
     region: Optional[str] = None
     secure: bool = True
