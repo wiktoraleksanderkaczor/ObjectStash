@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from pydantic import UUID4, BaseModel, Field, StrictBytes
+from pydantic import UUID4, BaseModel, Field
 
 from storage.interface.path import DirectoryKey, ObjectKey
 from storage.models.item.content import DirectoryContentInfo, ObjectContentInfo
@@ -28,7 +28,3 @@ class Directory(ItemModel):
 class Object(ItemModel):
     name: ObjectKey
     content: ObjectContentInfo
-
-
-class ObjectData(BaseModel):
-    __root__: StrictBytes

@@ -5,7 +5,8 @@ from storage.base.client import StorageClient
 from storage.base.wrapper import StorageWrapper
 from storage.interface.path import ObjectKey
 from storage.models.client.medium import Medium
-from storage.models.item.models import Object, ObjectData
+from storage.models.item.content import ObjectData
+from storage.models.item.models import Object
 
 # Methods with multiple MUST be overwritten, i.e. multi_get() otherwise, it'll fall to the wrapped object
 

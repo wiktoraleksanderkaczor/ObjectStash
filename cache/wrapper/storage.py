@@ -5,7 +5,8 @@ from cache.models.wrapper import CacheWrapper
 from storage.base.client import StorageClient
 from storage.base.client import StorageClient as Wrapped
 from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
-from storage.models.item.models import Directory, Object, ObjectData
+from storage.models.item.content import ObjectData
+from storage.models.item.models import Directory, Object
 
 
 class Storage(CacheWrapper, Wrapped):
