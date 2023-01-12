@@ -9,8 +9,12 @@ class StorageKey:
     # http://davis.lbl.gov/Manuals/PYTHON-2.4.3/lib/pickle-inst.html
     @abstractmethod
     def __init__(self, storage: StorageClientKey, path: PurePosixPath):
-        self.storage = storage
-        self.path = path
+        self.storage: StorageClientKey
+        self.path: PurePosixPath
+        ...
+
+    @abstractmethod
+    def __new__(cls, storage: StorageClientKey, path: PurePosixPath) -> "StorageKey":
         ...
 
     @abstractmethod
@@ -20,15 +24,6 @@ class StorageKey:
     @abstractmethod
     def __str__(self):
         ...
-
-    @abstractmethod
-    def __new__(cls, storage: StorageClientKey, path: PurePosixPath) -> "StorageKey":
-        ...
-
-    # NOTE: Cannot do this, it will operate on current object as if PurePosixPath... and return one too.
-    # Only called when not in current object, error when no such attr
-    # def __getattribute__(self, attr):
-    #     return getattr(self.path, attr)
 
     @abstractmethod
     def is_dir(self) -> bool:
@@ -51,23 +46,6 @@ class StorageKey:
     def validate(cls, storage: StorageClientKey, path: PurePosixPath) -> "StorageKey":
         ...
 
-    # @classmethod
-    # def validate(cls, storage: StorageClientKey, path: StorageKey):
-    #     try:
-    #         client = StorageClient.clients[storage]
-    #         exists = client.exists(path)
-    #         if exists:
-    #             stat = client.stat(path)
-    #             if stat.content.item_type == ItemType.DIRECTORY:
-    #                 if path.suffixes:
-    #                     raise ValueError("Not a directory")
-    #             elif stat.content.item_type == ItemType.FILE:
-    #                 if not path.suffixes:
-    #                     raise ValueError("Not a file")
-    #     except Exception as e:
-    #         raise ValueError(f"Invalid StorageKey: {e}")
-    #     return cls(storage=storage, path=path)
-
     @abstractmethod
     def __getstate__(self):
         ...
@@ -77,9 +55,6 @@ class StorageKey:
         ...
 
 
-# Should I override the class for validation of particular types like file or directory?
-# Would this be good to be overriden in particular storage applications, like database wanting some special fields?
-# Finally, duck typing should theoretically allow using this instead of StorageKey but needs validation
 class DirectoryKey(StorageKey):
     @classmethod
     @abstractmethod
