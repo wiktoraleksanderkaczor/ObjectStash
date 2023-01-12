@@ -1,7 +1,7 @@
 from datetime import timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
-from pydantic import AnyUrl, BaseModel, Extra, SecretStr
+from pydantic import AnyUrl, BaseModel, Extra, IPvAnyAddress, SecretStr
 
 from auth.models.group import Group
 from auth.models.user import User
@@ -34,11 +34,15 @@ class Locking(BaseModel):
 
 
 class StorageConfig(BaseModel):
+    endpoint: Union[AnyUrl, IPvAnyAddress] = AnyUrl(url="localhost", scheme="http")
     repository: Repository = Repository()
     region: Optional[str] = None
     secure: bool = True
     access_key: Optional[SecretStr] = None
     secret_key: Optional[SecretStr] = None
+
+    class Config:
+        extra: Extra = Extra.allow
 
 
 class BasicFormat(BaseModel):
