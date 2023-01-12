@@ -1,54 +1,21 @@
-"""
-StorageClient is the base class for all storage clients. It consists of a set of required and optional functions.
-Multiple-based variants of those operations are also available. Those can act on the following base types:
-- Object
-- Directory
-- Container
-- Item (superset of Object and Directory)
+from typing import Dict, List, Tuple, Union
 
-Options can be:
-    - get
-    - list
-    - put
-    - remove
-    - stat
-    - exists
-    ... and {operation}_multiple versions of the above
-"""
-from typing import Dict, List, Tuple, Type, Union
-
+from config.models.env import StorageConfig
 from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
 from storage.models.client.key import StorageClientKey
 from storage.models.client.medium import Medium
-from storage.models.client.repository import Repository
 from storage.models.item import Directory, Object, ObjectData
 
 
 class StorageClient:
     initialized: Dict[StorageClientKey, "StorageClient"] = {}
-    subclasses: Dict[str, Type["StorageClient"]] = {}
 
-    def __init__(
-        self,
-        repository: Repository,
-        *args,
-        **kwargs,
-    ):
+    def __init__(self, config: StorageConfig):
         self.client = None
-        self.repository = repository
+        self.config = config
         self.initialized[self.name] = self
 
-    def __init_subclass__(cls: Type["StorageClient"], **kwargs):
-        super().__init_subclass__(**kwargs)
-        cls.subclasses[cls.__name__] = cls
-
     # REQUIRED:
-    # TODO: Initial container setup methods... since MinIO has create_bucket which seems separate from other operations.
-    # This also means that ContainerPath will not be dependant on StorageKey... probably? Although, I suppose it could.
-    # Also figure out a way to store connected clients... especially for the whole StorageKey client for URL replace.
-    # Like so; {client_name}@{container(UUID)}://{path} with UUID being generated and stored per container.
-    # Streams will be implemented over PyFuse, too much bullshit otherwise...
-    # Should I put ObjectData in Object under a generator?
 
     def get(self, key: ObjectKey) -> ObjectData:
         ...
@@ -96,12 +63,6 @@ class StorageClient:
     def exists_multiple(self, *keys: ObjectKey) -> List[bool]:
         return [self.exists(key) for key in keys]
 
-    # def object_from_bytes(self, key: str, raw: bytes) -> Object:
-    #     name = ObjectPath(self, key)
-    #     data = ObjectData(__root__=raw)
-    #     content = ObjectContentInfo.from_data(data)
-    #     return Object(name=name, content=content)
-
     # MISCELLANEOUS:
 
     # Hash for ObjectStash client management set replacement
@@ -110,4 +71,4 @@ class StorageClient:
 
     # String representation for pathing
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}@{self.repository.name}({self.repository.uuid})"
+        return f"{self.__class__.__name__}@{self.config.repository.name}({self.config.repository.uuid})"

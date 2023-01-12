@@ -1,16 +1,11 @@
+from config.models.env import StorageConfig
 from storage.base.client import StorageClient
 from storage.models.client.medium import Medium
-from storage.models.client.repository import Repository
 
 
 class MemoryClient(StorageClient):
-    def __init__(
-        self,
-        repository: Repository,
-        *args,
-        **kwargs,
-    ):
-        super().__init__(repository)
+    def __init__(self, config: StorageConfig):
+        super().__init__(config)
 
     @property
     def medium(self) -> Medium:

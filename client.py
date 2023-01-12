@@ -25,7 +25,7 @@ class GracefulExit:
 class StorageManager:
     def __init__(self, client: StorageClient):
         self.client: StorageClient = client
-        log.debug(f"Initializing with the {client.repository} repository")
+        log.debug(f"Initializing with the {client.config.repository} repository")
 
     def database(self):
         pass
@@ -39,19 +39,25 @@ class ObjectStash:
         self.coordinator = ObjectStashCoordinator()
         self.flag = GracefulExit()
 
-    def connect(self, storage_name: str) -> StorageClient:
-        storage: Union[StorageConfig, None] = env.storage.get(storage_name, None)
-        client: Union[Type[StorageClient], None] = StorageClient.subclasses.get(storage_name, None)
+    def connect(self, config: Union[str, StorageConfig], client: Type[StorageClient]) -> StorageClient:
+        settings: Union[StorageConfig, None] = None
+        if isinstance(config, str):
+            settings = env.storage.get(config, None)
+        else:
+            settings = config
+
+        if not settings:
+            raise Exception(f"{config} not found in settings or arguments")
+
+        # client: Union[Type[StorageClient], None] = StorageClient.subclasses.get(storage_name, None)
         if not client:
-            raise Exception(f"{storage_name} not found in available storage clients")
-        if not storage:
-            raise Exception(f"{storage_name} not found in config")
+            raise Exception(f"{config} not found in available storage clients")
 
         try:
-            instance: StorageClient = client(**storage.dict())
+            instance: StorageClient = client(settings)
             return instance
         except Exception as e:
-            raise Exception(f"{storage_name} initialisation failed: {e}")
+            raise Exception(f"{client.__name__} initialisation failed: {e}")
 
     def __del__(self):
         del self.coordinator
@@ -60,7 +66,9 @@ class ObjectStash:
 
 if __name__ == "__main__":
     objsth = ObjectStash()
-    client = objsth.connect("Local")
+    from storage.client.local import LocalClient
+
+    client = objsth.connect("Local", LocalClient)
     client_mgr = StorageManager(client)
     client_mgr.database()
     client_mgr.filesystem()
