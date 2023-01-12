@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ByteSize
 
-from storage.models.item.data import ObjectData
+from storage.models.item.models import ObjectData
 
 
 class SizeInfo(BaseModel):

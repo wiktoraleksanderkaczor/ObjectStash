@@ -1,12 +1,11 @@
 from pysyncobj.batteries import replicated
 
 from role.distribution import Distributed
-from storage.models.client.model import StorageClient
-from storage.models.item.data import ObjectData
-from storage.models.item.models import Object
-from storage.models.item.paths import ObjectKey
-from storage.models.medium import Medium
-from storage.models.wrapper import StorageWrapper
+from storage.base.client import StorageClient
+from storage.base.wrapper import StorageWrapper
+from storage.models.client.medium import Medium
+from storage.models.client.path import ObjectKey
+from storage.models.item.models import Object, ObjectData
 
 # Methods with multiple MUST be overwritten, i.e. multi_get() otherwise, it'll fall to the wrapped object
 

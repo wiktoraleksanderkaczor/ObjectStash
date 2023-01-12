@@ -5,7 +5,7 @@ from config.env import env
 from config.logger import log
 from config.models.env import StorageConfig
 from role.discovery import ObjectStashCoordinator
-from storage.models.client.model import StorageClient
+from storage.base.client import StorageClient
 
 
 class GracefulExit:

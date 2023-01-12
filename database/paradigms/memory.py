@@ -1,6 +1,6 @@
 from database.models.database import Database
-from storage.models.client.model import StorageClient
-from storage.models.item.paths import DirectoryKey
+from storage.base.client import StorageClient
+from storage.models.client.path import DirectoryKey
 
 
 class Memory(Database):

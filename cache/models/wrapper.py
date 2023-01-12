@@ -4,10 +4,9 @@
 from typing import Dict, Type
 
 from cache.models.replacement import Replacement
-from storage.models.client.model import StorageClient
-from storage.models.item.data import ObjectData
-from storage.models.item.models import Object
-from storage.models.item.paths import ObjectKey
+from storage.base.client import StorageClient
+from storage.models.client.path import ObjectKey
+from storage.models.item.models import Object, ObjectData
 
 
 class CacheWrapper:

@@ -15,16 +15,17 @@ Options can be:
     - exists
     ... and {operation}_multiple versions of the above
 """
-from typing import Dict, List, Type, Union
+from typing import Dict, List, Tuple, Type, Union
 
-from storage.models.client.key import StorageClientKey
-from storage.models.item.data import ObjectData
-from storage.models.item.models import Directory, Object
-from storage.models.item.paths import DirectoryKey, ObjectKey, StorageKey
-from storage.models.medium import Medium
-from storage.models.repository import Repository
-
-ITEM = Union[Object, Directory]
+from storage.models.client import (
+    DirectoryKey,
+    Medium,
+    ObjectKey,
+    Repository,
+    StorageClientKey,
+    StorageKey,
+)
+from storage.models.item import Directory, Object, ObjectData
 
 
 class StorageClient:
@@ -85,19 +86,19 @@ class StorageClient:
             return False
 
     def get_multiple(self, *keys: ObjectKey) -> List[ObjectData]:
-        ...
+        return [self.get(key) for key in keys]
 
-    def stat_multiple(self, *keys: ObjectKey) -> List[Object]:
-        ...
+    def stat_multiple(self, *keys: StorageKey) -> List[Union[Object, Directory]]:
+        return [self.stat(key) for key in keys]
 
-    def put_multiple(self, *objects: Object) -> List[bool]:
-        ...
+    def put_multiple(self, *objects: Tuple[Object, ObjectData]) -> List[None]:
+        return [self.put(obj, data) for obj, data in objects]
 
-    def remove_multiple(self, *keys: ObjectKey) -> List[bool]:
-        ...
+    def remove_multiple(self, *keys: ObjectKey) -> List[None]:
+        return [self.remove(key) for key in keys]
 
     def exists_multiple(self, *keys: ObjectKey) -> List[bool]:
-        ...
+        return [self.exists(key) for key in keys]
 
     # def object_from_bytes(self, key: str, raw: bytes) -> Object:
     #     name = ObjectPath(self, key)

@@ -1,7 +1,7 @@
 from pathlib import PurePosixPath
 
+from storage.base.client import StorageClient
 from storage.models.client.key import StorageClientKey
-from storage.models.client.model import StorageClient
 from storage.models.item.types import ItemType
 
 
@@ -9,14 +9,16 @@ class StorageKey:
     # https://stackoverflow.com/questions/1939058/simple-example-of-use-of-setstate-and-getstate
     # http://davis.lbl.gov/Manuals/PYTHON-2.4.3/lib/pickle-inst.html
 
-    # Do I need to pass whether it's a directory or file when it doesn't exist yet?
     def __init__(self, storage: StorageClientKey, path: PurePosixPath):
         self.storage = storage
         self.path = path
+
+    # Either dependency injection here or use abstract/interface and base classes
+    def _get_client(self) -> "StorageClient":
         try:
-            self.__client = StorageClient.initialized[storage]
+            return StorageClient.initialized[self.storage]
         except KeyError:
-            raise KeyError(f"'{storage}' not found in initialized storage clients")
+            raise KeyError(f"'{self.storage}' not found in initialized storage clients")
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.storage}://{str(self.path)})"
@@ -33,20 +35,20 @@ class StorageKey:
     #     return getattr(self.path, attr)
 
     def is_dir(self) -> bool:
-        stat = self.__client.stat(self)
+        stat = self._get_client().stat(self)
         if stat.content.item_type == ItemType.DIRECTORY:
             return True
         return False
 
     def is_file(self) -> bool:
-        stat = self.__client.stat(self)
+        stat = self._get_client().stat(self)
         if stat.content.item_type == ItemType.FILE:
             return True
         return False
 
     def exists(self) -> bool:
         try:
-            self.__client.stat(self)
+            self._get_client().stat(self)
         except Exception:
             return False
         return True
@@ -77,23 +79,21 @@ class StorageKey:
     #             elif stat.content.item_type == ItemType.FILE:
     #                 if not path.suffixes:
     #                     raise ValueError("Not a file")
-    #     except KeyError:
-    #         raise KeyError(f"'{storage}' not found in initialized storage clients")
     #     except Exception as e:
     #         raise ValueError(f"Invalid StorageKey: {e}")
     #     return cls(storage=storage, path=path)
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        del state["__client"]
-        return state
+    # def __getstate__(self):
+    #     state = self.__dict__.copy()
+    #     del state["__client"]
+    #     return state
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        try:
-            self.__client = StorageClient.initialized[self.storage]
-        except KeyError:
-            raise KeyError(f"'{self.storage}' not found in initialized storage clients")
+    # def __setstate__(self, state):
+    #     self.__dict__.update(state)
+    #     try:
+    #         self.__client = StorageClient.initialized[self.storage]
+    #     except KeyError:
+    #         raise KeyError(f"'{self.storage}' not found in initialized storage clients")
 
 
 # Should I override the class for validation of particular types like file or directory?

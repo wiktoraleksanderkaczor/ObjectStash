@@ -5,7 +5,7 @@ from pydantic import AnyUrl, BaseModel, Extra, SecretStr
 
 from auth.models.group import Group
 from auth.models.user import User
-from storage.models.repository import Repository
+from storage.models.client.repository import Repository
 
 
 class Cluster(BaseModel):

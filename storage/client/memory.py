@@ -1,6 +1,6 @@
-from storage.models.client.model import StorageClient
-from storage.models.medium import Medium
-from storage.models.repository import Repository
+from storage.base.client import StorageClient
+from storage.models.client.medium import Medium
+from storage.models.client.repository import Repository
 
 
 class MemoryClient(StorageClient):

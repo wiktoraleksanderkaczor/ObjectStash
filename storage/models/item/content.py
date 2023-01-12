@@ -7,8 +7,8 @@ import magic
 from hashid import HashID, HashInfo
 from pydantic import BaseModel, PositiveInt, StrictBytes, StrictStr
 
-from storage.models.item.data import ObjectData
 from storage.models.item.encryption import EncryptionAlgorithm
+from storage.models.item.models import ObjectData
 
 # from storage.models.item.paths import ObjectPath
 from storage.models.item.size import SizeInfo
