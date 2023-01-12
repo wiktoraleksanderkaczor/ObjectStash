@@ -1,9 +1,16 @@
+from pathlib import PurePosixPath
+from typing import Type
 from uuid import uuid4
 
 from pydantic import UUID4, BaseModel, Field
 
 from storage.interface.path import DirectoryKey, ObjectKey
-from storage.models.item.content import DirectoryContentInfo, ObjectContentInfo
+from storage.models.client.key import StorageClientKey
+from storage.models.item.content import (
+    DirectoryContentInfo,
+    ObjectContentInfo,
+    ObjectData,
+)
 from storage.models.item.metadata import Metadata
 from storage.models.item.ownership import OwnershipInfo
 from storage.models.item.permissions import PermissionInfo
@@ -28,3 +35,10 @@ class Directory(ItemModel):
 class Object(ItemModel):
     name: ObjectKey
     content: ObjectContentInfo
+
+    @classmethod
+    def create(cls: Type["Object"], storage: StorageClientKey, path: PurePosixPath, raw: bytes) -> "Object":
+        name = ObjectKey(storage, path)
+        data = ObjectData(__root__=raw)
+        content = ObjectContentInfo.from_data(data)
+        return Object(name=name, content=content)
