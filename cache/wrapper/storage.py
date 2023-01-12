@@ -4,7 +4,7 @@ from cache.models.replacement import Replacement
 from cache.models.wrapper import CacheWrapper
 from storage.base.client import StorageClient
 from storage.base.client import StorageClient as Wrapped
-from storage.models.client.path import DirectoryKey, ObjectKey, StorageKey
+from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
 from storage.models.item.models import Directory, Object, ObjectData
 
 

@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from pydantic import UUID4, BaseModel, Field, StrictBytes
 
-from storage.models.client.path import DirectoryKey, ObjectKey
+from storage.interface.path import DirectoryKey, ObjectKey
 from storage.models.item.content import DirectoryContentInfo, ObjectContentInfo
 from storage.models.item.metadata import Metadata
 from storage.models.item.ownership import OwnershipInfo

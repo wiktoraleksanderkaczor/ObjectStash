@@ -17,14 +17,10 @@ Options can be:
 """
 from typing import Dict, List, Tuple, Type, Union
 
-from storage.models.client import (
-    DirectoryKey,
-    Medium,
-    ObjectKey,
-    Repository,
-    StorageClientKey,
-    StorageKey,
-)
+from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
+from storage.models.client.key import StorageClientKey
+from storage.models.client.medium import Medium
+from storage.models.client.repository import Repository
 from storage.models.item import Directory, Object, ObjectData
 
 

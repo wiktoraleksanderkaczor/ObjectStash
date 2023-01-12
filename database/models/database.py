@@ -3,7 +3,7 @@ from typing import Callable, List
 
 from database.models.objects import JSON
 from storage.base.client import StorageClient
-from storage.models.client.path import DirectoryKey, ObjectKey, StorageKey
+from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
 from storage.models.item.content import ObjectContentInfo
 from storage.models.item.models import Object, ObjectData
 

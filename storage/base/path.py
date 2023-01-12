@@ -1,11 +1,12 @@
 from pathlib import PurePosixPath
 
 from storage.base.client import StorageClient
+from storage.interface.path import StorageKey as StorageKeyInterface
 from storage.models.client.key import StorageClientKey
 from storage.models.item.types import ItemType
 
 
-class StorageKey:
+class StorageKey(StorageKeyInterface):
     # https://stackoverflow.com/questions/1939058/simple-example-of-use-of-setstate-and-getstate
     # http://davis.lbl.gov/Manuals/PYTHON-2.4.3/lib/pickle-inst.html
 
@@ -13,10 +14,8 @@ class StorageKey:
         self.storage = storage
         self.path = path
 
-    # Either dependency injection here or use abstract/interface and base classes
-    def _get_client(self) -> "StorageClient":
         try:
-            return StorageClient.initialized[self.storage]
+            self._client = StorageClient.initialized[self.storage]
         except KeyError:
             raise KeyError(f"'{self.storage}' not found in initialized storage clients")
 
@@ -35,20 +34,20 @@ class StorageKey:
     #     return getattr(self.path, attr)
 
     def is_dir(self) -> bool:
-        stat = self._get_client().stat(self)
+        stat = self._client.stat(self)
         if stat.content.item_type == ItemType.DIRECTORY:
             return True
         return False
 
     def is_file(self) -> bool:
-        stat = self._get_client().stat(self)
+        stat = self._client.stat(self)
         if stat.content.item_type == ItemType.FILE:
             return True
         return False
 
     def exists(self) -> bool:
         try:
-            self._get_client().stat(self)
+            self._client.stat(self)
         except Exception:
             return False
         return True
@@ -83,17 +82,17 @@ class StorageKey:
     #         raise ValueError(f"Invalid StorageKey: {e}")
     #     return cls(storage=storage, path=path)
 
-    # def __getstate__(self):
-    #     state = self.__dict__.copy()
-    #     del state["__client"]
-    #     return state
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state["_client"]
+        return state
 
-    # def __setstate__(self, state):
-    #     self.__dict__.update(state)
-    #     try:
-    #         self.__client = StorageClient.initialized[self.storage]
-    #     except KeyError:
-    #         raise KeyError(f"'{self.storage}' not found in initialized storage clients")
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        try:
+            self._client = StorageClient.initialized[self.storage]
+        except KeyError:
+            raise KeyError(f"'{self.storage}' not found in initialized storage clients")
 
 
 # Should I override the class for validation of particular types like file or directory?

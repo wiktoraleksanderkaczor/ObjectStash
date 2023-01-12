@@ -1,7 +1,7 @@
 from config.env import env
 from role.scheduling import scheduler
 from storage.base.client import StorageClient
-from storage.models.client.path import StorageKey
+from storage.interface.path import StorageKey
 
 # class StorageLock:
 #     def __init__(self, storage: StorageClient, path: ObjectID) -> None:
