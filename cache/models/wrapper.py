@@ -4,7 +4,7 @@
 from typing import Dict, Type
 
 from cache.models.replacement import Replacement
-from storage.base.client import StorageClient
+from storage.interface.client import StorageClient
 from storage.interface.path import ObjectKey
 from storage.models.item.content import ObjectData
 from storage.models.item.models import Object

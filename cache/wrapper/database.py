@@ -4,7 +4,7 @@ from cache.models.replacement import Replacement
 from cache.models.wrapper import CacheWrapper
 from database.models.database import Database as Wrapped
 from database.models.objects import JSON
-from storage.base.client import StorageClient
+from storage.interface.client import StorageClient
 from storage.interface.path import ObjectKey
 
 

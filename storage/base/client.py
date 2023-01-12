@@ -1,14 +1,15 @@
 from typing import Dict, List, Tuple, Union
 
 from config.models.env import StorageConfig
+from storage.interface.client import StorageClient as StorageClientInterface
 from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
 from storage.models.client.key import StorageClientKey
 from storage.models.client.medium import Medium
 from storage.models.item import Directory, Object, ObjectData
 
 
-class StorageClient:
-    initialized: Dict[StorageClientKey, "StorageClient"] = {}
+class BaseStorageClient(StorageClientInterface):
+    initialized: Dict[StorageClientKey, StorageClientInterface] = {}
 
     def __init__(self, config: StorageConfig):
         self.client = None

@@ -1,4 +1,4 @@
-from storage.base.client import StorageClient
+from storage.interface.client import StorageClient
 
 
 class StorageWrapper:

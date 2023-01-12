@@ -1,8 +1,8 @@
 from pysyncobj.batteries import replicated
 
 from role.distribution import Distributed
-from storage.base.client import StorageClient
 from storage.base.wrapper import StorageWrapper
+from storage.interface.client import StorageClient
 from storage.interface.path import ObjectKey
 from storage.models.client.medium import Medium
 from storage.models.item.content import ObjectData

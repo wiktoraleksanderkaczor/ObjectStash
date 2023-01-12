@@ -1,5 +1,5 @@
 from database.models.database import Database
-from storage.base.client import StorageClient
+from storage.interface.client import StorageClient
 from storage.interface.path import DirectoryKey
 
 

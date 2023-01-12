@@ -1,6 +1,6 @@
 from pathlib import PurePosixPath
 
-from storage.base.client import StorageClient
+from storage.interface.client import StorageClient
 from storage.interface.path import StorageKey as StorageKeyInterface
 from storage.models.client.key import StorageClientKey
 from storage.models.item.content import ItemType

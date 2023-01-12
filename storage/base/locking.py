@@ -1,6 +1,6 @@
 from config.env import env
 from role.scheduling import scheduler
-from storage.base.client import StorageClient
+from storage.interface.client import StorageClient
 from storage.interface.path import StorageKey
 
 # class StorageLock:
