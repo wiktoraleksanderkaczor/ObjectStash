@@ -53,15 +53,6 @@ class DirectoryContentInfo(ModelContentInfo):
 class TypeSignature(BaseModel):
     mime: StrictStr = "application/octet-stream"
 
-    # @classmethod
-    # def from_path(cls, name: ObjectPath) -> "TypeSignature":
-    #     mime = None
-    #     try:
-    #         mime, _ = mimetypes.guess_type(name)
-    #     except Exception:
-    #         pass
-    #     return cls(mime=mime) if mime else cls()
-
     @classmethod
     def from_data(cls, buffer: "ObjectData") -> "TypeSignature":
         mime = None
