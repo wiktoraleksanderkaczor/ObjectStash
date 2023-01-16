@@ -2,6 +2,7 @@ This module covers functionality for file manipulation and capability statements
 
 This is split into the following structure:
 - interface (define class properties for valid implementation)
-- base (shared implementation details for above)
+- superclass (shared implementation details for above)
 - models (pydantic compatible data models)
-- {interface}/(implementations of interface)
+
+Finally, {interface}/(implementations) with each implementation inheriting from the interface or superclass
