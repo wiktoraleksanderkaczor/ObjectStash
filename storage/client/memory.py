@@ -1,6 +1,6 @@
 from config.models.env import StorageConfig
-from storage.base.client import BaseStorageClient
 from storage.models.client.medium import Medium
+from storage.superclass.client import BaseStorageClient
 
 
 class MemoryClient(BaseStorageClient):
