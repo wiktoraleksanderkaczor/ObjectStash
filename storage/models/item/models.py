@@ -1,5 +1,5 @@
 from pathlib import PurePosixPath
-from typing import Type
+from typing import Tuple, Type
 from uuid import uuid4
 
 from pydantic import UUID4, BaseModel, Field
@@ -37,8 +37,10 @@ class Object(ItemModel):
     content: ObjectContentInfo
 
     @classmethod
-    def create(cls: Type["Object"], storage: StorageClientKey, path: PurePosixPath, raw: bytes) -> "Object":
+    def create(
+        cls: Type["Object"], storage: StorageClientKey, path: PurePosixPath, raw: bytes
+    ) -> Tuple["Object", "ObjectData"]:
         name = ObjectKey(storage, path)
         data = ObjectData(__root__=raw)
         content = ObjectContentInfo.from_data(data)
-        return Object(name=name, content=content)
+        return Object(name=name, content=content), data
