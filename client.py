@@ -4,7 +4,7 @@ from typing import Type, Union
 from config.env import env
 from config.logger import log
 from config.models.env import StorageConfig
-from role.discovery import ObjectStashCoordinator
+from role.superclass.discovery import Coordinator
 from storage.interface.client import StorageClient
 
 
@@ -36,7 +36,7 @@ class StorageManager:
 
 class ObjectStash:
     def __init__(self):
-        self.coordinator = ObjectStashCoordinator()
+        self.coordinator = Coordinator()
         self.flag = GracefulExit()
 
     def connect(self, config: Union[str, StorageConfig], client: Type[StorageClient]) -> StorageClient:

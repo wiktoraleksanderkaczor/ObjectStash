@@ -7,21 +7,21 @@ from pysyncobj.batteries import replicated
 from config.discovery import host_ip
 from config.env import env
 from config.logger import log
+from role.interface.distribution import DistributedInterface
 
-syncobj_conf = SyncObjConf(dynamicMembershipChange=True)
 
-
-class Distributed(SyncObj):
+class Distributed(DistributedInterface, SyncObj):
     # Peer data structure
     cluster_name = env.cluster.name
     peers: List[AnyUrl] = env.cluster.initial_peers
     distributed_objects: List["Distributed"] = []
+    syncobj_conf = SyncObjConf(dynamicMembershipChange=True)
 
     def __init__(self, name: str, consumers: List[SyncObjConsumer]):
         if not consumers:
             consumers = []
         SyncObj.__init__(
-            self, f"{host_ip}:{env.cluster.port}", Distributed.peers, consumers=consumers, conf=syncobj_conf
+            self, f"{host_ip}:{env.cluster.port}", Distributed.peers, consumers=consumers, conf=Distributed.syncobj_conf
         )
         Distributed.distributed_objects.append(self)
         while not self.isReady():

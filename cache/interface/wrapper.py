@@ -1,38 +1,43 @@
 # Need to make lower models, policy, etc. anything lower than a particular type of cache model...
 # ...use generic keys (dunno even) and values (bytes)
 # Classes that act as a sort of middle layer, handling conversions to the caching function inputs, like Object or bytes?
+from abc import ABC, abstractmethod
 from typing import Dict, Type
 
-from cache.models.replacement import Replacement
+from cache.interface.replacement import ReplacementInterface
 from storage.interface.client import StorageClient
 from storage.interface.path import ObjectKey
 from storage.models.item.content import ObjectData
 from storage.models.item.models import Object
 
 
-class CacheWrapper:
-    subclasses: Dict[str, Type["CacheWrapper"]] = {}
+class CacheWrapperInterface(ABC):
+    subclasses: Dict[str, Type["CacheWrapperInterface"]]
 
-    def __init__(self, wrapped: object, storage: StorageClient, replacement: Replacement):
-        self.hits = 0
-        self.misses = 0
-        self.wrapped = wrapped
-        self.replacement = replacement
-        self.storage = storage
+    @abstractmethod
+    def __init__(self, wrapped: object, storage: StorageClient, replacement: ReplacementInterface):
+        self.hits: int
+        self.misses: int
+        self.wrapped: object
+        self.storage: StorageClient
+        self.replacement: ReplacementInterface
 
-    def __init_subclass__(cls: Type["CacheWrapper"], **kwargs):
-        super().__init_subclass__(**kwargs)
-        cls.subclasses[cls.__name__] = cls
+    @abstractmethod
+    def __init_subclass__(cls: Type["CacheWrapperInterface"], **kwargs):
+        ...
 
+    @abstractmethod
     def _get(self, item: ObjectKey) -> ObjectData:
-        return self.storage.get(item)
+        ...
 
+    @abstractmethod
     def _put(self, item: Object, data: ObjectData):
-        return self.storage.put(item, data)
+        ...
 
     # Only called when not in current object, error when no such attr
-    def __getattribute__(self, attr):
-        return getattr(self.wrapped, attr)
+    @abstractmethod
+    def __getattribute__(self, attr: str) -> object:
+        ...
 
     # One can attach new things to cache via:
     # Cache.func_to_cache = func

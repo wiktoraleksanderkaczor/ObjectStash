@@ -7,10 +7,11 @@ from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf
 
 from config.discovery import fqdn_service, service
 from config.env import env
-from role.distribution import Distributed
+from role.interface.discovery import CoordinatorInterface, ListenerInterface
+from role.superclass.distribution import Distributed
 
 
-class ObjectStashListener(ServiceListener):
+class Listener(ListenerInterface, ServiceListener):
     def update_service(self, zc: Zeroconf, type_: str, name: AnyUrl) -> None:
         info: Union[ServiceInfo, None] = zc.get_service_info(type_, name)
         if info:
@@ -53,11 +54,11 @@ class ObjectStashListener(ServiceListener):
             obj.addNodeToCluster(name)
 
 
-class ObjectStashCoordinator:
+class Coordinator(CoordinatorInterface):
     def __init__(self) -> None:
         # Initialise zeroconf and listeners
         self.zeroconf = Zeroconf(interfaces=["0.0.0.0"])
-        self.listener = ObjectStashListener()
+        self.listener = Listener()
         self.browser = ServiceBrowser(self.zeroconf, fqdn_service, self.listener)
 
         # Register service

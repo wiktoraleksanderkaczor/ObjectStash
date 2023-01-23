@@ -1,5 +1,5 @@
-from cache.models.replacement import Replacement
+from cache.interface.replacement import ReplacementInterface
 
 
-class LeastRecentlyUsed(Replacement):
+class LeastRecentlyUsed(ReplacementInterface):
     pass

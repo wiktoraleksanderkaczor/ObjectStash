@@ -1,7 +1,7 @@
 from typing import List, Union
 
-from cache.models.replacement import Replacement
-from cache.models.wrapper import CacheWrapper
+from cache.interface.replacement import ReplacementInterface
+from cache.superclass.wrapper import CacheWrapper
 from storage.interface.client import StorageClient
 from storage.interface.client import StorageClient as Wrapped
 from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
@@ -10,8 +10,8 @@ from storage.models.item.models import Directory, Object
 
 
 class Storage(CacheWrapper, Wrapped):
-    def __init__(self, wrapped: Wrapped, storage: StorageClient, replacement: Replacement):
-        super().__init__(wrapped, storage, replacement)
+    def __init__(self, wrapped: Wrapped, storage: StorageClient, replacement: ReplacementInterface):
+        CacheWrapper.__init__(self, wrapped, storage, replacement)
 
     def get(self, key: ObjectKey) -> ObjectData:
         return super().get(key)

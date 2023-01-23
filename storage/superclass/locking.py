@@ -1,5 +1,5 @@
 from config.env import env
-from role.scheduling import scheduler
+from role.superclass.scheduling import scheduler
 from storage.interface.client import StorageClient
 from storage.interface.path import StorageKey
 
