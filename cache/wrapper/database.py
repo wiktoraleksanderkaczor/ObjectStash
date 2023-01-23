@@ -15,10 +15,10 @@ class Database(CacheWrapper):
         CacheWrapper.__init__(self, wrapped, storage, replacement)
         self.wrapped: Wrapped = wrapped
 
-    def get(self, key: ObjectKey) -> JSON:
+    def get(self, _key: ObjectKey) -> JSON:
         ...
 
-    def exists(self, key: ObjectKey) -> bool:
+    def exists(self, _key: ObjectKey) -> bool:
         ...
 
     def items(self) -> List[ObjectKey]:

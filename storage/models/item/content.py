@@ -6,6 +6,7 @@ from typing import List, Optional
 
 import magic
 from hashid import HashID, HashInfo
+from magic import MagicException
 from pydantic import BaseModel, ByteSize, PositiveInt, StrictBytes, StrictStr
 
 from storage.models.item.encryption import EncryptionAlgorithm
@@ -60,16 +61,16 @@ class TypeSignature(BaseModel):
         try:
             mime = magic.from_buffer(buffer.__root__, mime=True)
             mime = str(mime)
-        except Exception:
+        except MagicException:
             pass
         return cls(mime=mime) if mime else cls()
 
     @classmethod
-    def validate(cls, v: str) -> "TypeSignature":
+    def validate(cls, value: str) -> "TypeSignature":
         # Check that v in MIME type database
-        if v not in mimetypes.types_map.values():
+        if value not in mimetypes.types_map.values():
             raise ValueError("Invalid MIME type")
-        return cls(mime=v)
+        return cls(mime=value)
 
 
 class HashSignature(BaseModel):
@@ -82,12 +83,12 @@ class HashSignature(BaseModel):
         return cls(signature=signature)
 
     @classmethod
-    def validate(cls, v: bytes) -> "HashSignature":
-        hashes: List[HashInfo] = list(HashID().identifyHash(v))
+    def validate(cls, value: bytes) -> "HashSignature":
+        hashes: List[HashInfo] = list(HashID().identifyHash(value))
         hashes = [item.name for item in hashes if not item.extended]
         if "SHA256" not in hashes:
             raise ValueError("Invalid hash")
-        return cls(signature=v)
+        return cls(signature=value)
 
 
 class ObjectContentInfo(ModelContentInfo):
