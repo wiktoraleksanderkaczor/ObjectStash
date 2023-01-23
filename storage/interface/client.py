@@ -1,3 +1,4 @@
+"""Storage client interface."""
 from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple, Union
 
@@ -8,14 +9,13 @@ from storage.models.client.medium import Medium
 from storage.models.item import Directory, Object, ObjectData
 
 
-class StorageClient(ABC):
-    initialized: Dict[StorageClientKey, "StorageClient"]
+class StorageClientInterface(ABC):
+    initialized: Dict[StorageClientKey, "StorageClientInterface"]
 
     @abstractmethod
     def __init__(self, config: StorageConfig):
         self.client: object
         self.config: StorageConfig
-        ...
 
     # REQUIRED:
 

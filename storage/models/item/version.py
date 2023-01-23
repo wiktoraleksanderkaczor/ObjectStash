@@ -1,3 +1,4 @@
+"""Version info model."""
 from pydantic import BaseModel
 
 from storage.models.item.modification import ModificationInfo

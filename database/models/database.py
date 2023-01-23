@@ -1,8 +1,9 @@
+"""Database model for the database service."""
 from pathlib import PurePosixPath
 from typing import Callable, List
 
 from database.models.objects import JSON
-from storage.interface.client import StorageClient
+from storage.interface.client import StorageClientInterface
 from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
 from storage.models.item.content import ObjectContentInfo, ObjectData
 from storage.models.item.models import Object
@@ -36,11 +37,11 @@ class Database:
     def items(self) -> List[ObjectKey]:
         return self.storage.list(self.prefix)
 
-    def select(self, filter: Callable[[JSON], bool]) -> List[JSON]:
+    def select(self, selector: Callable[[JSON], bool]) -> List[JSON]:
         records = []
         for key in self.items():
             record = self.get(key)
-            if filter(record):
+            if selector(record):
                 records.append(record)
         return records
 
@@ -50,8 +51,8 @@ class Database:
         new = JSON.merge(base, head)
         self.insert(key, new)
 
-    def __init__(self, storage: StorageClient, name: DirectoryKey):
+    def __init__(self, storage: StorageClientInterface, name: DirectoryKey):
         path = PurePosixPath(f"partitions/{name}")
         self.prefix: DirectoryKey = DirectoryKey(storage.name, path)
-        self.storage: StorageClient = storage
+        self.storage: StorageClientInterface = storage
         # self.lock: Lock = DatabaseLock(self.storage, self.prefix, ".lock")

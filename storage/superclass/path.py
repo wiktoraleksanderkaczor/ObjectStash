@@ -1,6 +1,6 @@
 from pathlib import PurePosixPath
 
-from storage.interface.client import StorageClient
+from storage.interface.client import StorageClientInterface
 from storage.interface.path import StorageKey as StorageKeyInterface
 from storage.models.client.key import StorageClientKey
 from storage.models.item.content import ItemType
@@ -15,7 +15,7 @@ class StorageKey(StorageKeyInterface):
         self.path = path
 
         try:
-            self._client = StorageClient.initialized[self.storage]
+            self._client = StorageClientInterface.initialized[self.storage]
         except KeyError:
             raise KeyError(f"'{self.storage}' not found in initialized storage clients")
 
@@ -90,7 +90,7 @@ class StorageKey(StorageKeyInterface):
     def __setstate__(self, state):
         self.__dict__.update(state)
         try:
-            self._client = StorageClient.initialized[self.storage]
+            self._client = StorageClientInterface.initialized[self.storage]
         except KeyError:
             raise KeyError(f"'{self.storage}' not found in initialized storage clients")
 

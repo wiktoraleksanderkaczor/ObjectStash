@@ -1,3 +1,6 @@
+"""
+Encryption models
+"""
 from enum import Enum
 
 

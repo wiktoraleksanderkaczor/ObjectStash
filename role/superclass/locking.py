@@ -3,13 +3,13 @@ from pathlib import PurePosixPath
 from config.env import env
 from role.interface.locking import LockInterface
 from role.models.locking import State
-from storage.interface.client import StorageClient
+from storage.interface.client import StorageClientInterface
 from storage.models.item.content import ObjectData
 from storage.models.item.models import Object, ObjectKey
 
 
 class Lock(LockInterface):
-    def __init__(self, prefix: PurePosixPath, storage: StorageClient):
+    def __init__(self, prefix: PurePosixPath, storage: StorageClientInterface):
         self.prefix = prefix
         self.storage = storage
         self.state: State = State()

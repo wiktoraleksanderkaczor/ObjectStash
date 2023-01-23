@@ -1,3 +1,4 @@
+"""StorageClientKey model."""
 import re
 
 CLIENT_REGEX = re.compile(

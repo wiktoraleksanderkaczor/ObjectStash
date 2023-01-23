@@ -1,3 +1,4 @@
+"""MinIO Storage Client"""
 from minio import Minio
 
 from config.logger import log
@@ -14,7 +15,7 @@ class MinIOClient(BaseStorageClient):
                 config.endpoint, config.access_key, config.secret_key, secure=config.secure, region=config.region
             )
         except Exception as e:
-            log.exception(f"MinIO Exception [init]: {e}")
+            log.exception("MinIO Exception [init]: %s", e)
             raise e
 
     @property

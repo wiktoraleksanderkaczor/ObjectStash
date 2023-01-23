@@ -1,3 +1,4 @@
+"""Object model for the database service."""
 import pickle
 from typing import Any, Dict, Union
 
@@ -20,7 +21,7 @@ class JSON(BaseModel):
 
         # Default values for all fields, work out passing parameters later
         @staticmethod
-        def schema_extra(schema: dict[str, Any], model: type["JSON"]) -> None:
+        def schema_extra(schema: dict[str, Any], _model: type["JSON"]) -> None:
             for prop in schema.get("properties", {}).values():
                 # prop.pop("title", None)
                 prop["mergeStrategy"] = "overwrite"

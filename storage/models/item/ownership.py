@@ -1,3 +1,4 @@
+"""Ownership information for a file or directory."""
 from pydantic import BaseModel
 
 from auth.models.group import Group

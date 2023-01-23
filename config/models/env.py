@@ -1,3 +1,4 @@
+"""Environment configuration model."""
 from datetime import timedelta
 from typing import Dict, List, Optional, Union
 
@@ -11,6 +12,7 @@ from storage.models.client.repository import Repository
 class Cluster(BaseModel):
     name: str = "ObjectStash-Cluster"
     port: int = 9091
+    fqdn_service: str = "_objectstash._tcp.local."
     version: str = "0.0.1"
     initial_peers: List[AnyUrl] = []
     user: User = User()

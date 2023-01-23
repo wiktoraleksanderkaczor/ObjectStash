@@ -1,3 +1,4 @@
+"""Content information for items."""
 import mimetypes
 from enum import Enum
 from hashlib import sha256
@@ -25,8 +26,8 @@ class CompressionAlgorithm(str, Enum):
 
 
 class TypeDetection(str, Enum):
-    magic = "magic"
-    extension = "extension"
+    MAGIC = "magic"
+    EXTENSION = "extension"
 
 
 class SizeInfo(BaseModel):

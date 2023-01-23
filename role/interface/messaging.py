@@ -1,3 +1,6 @@
+"""
+Messaging Interface
+"""
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Union
 
@@ -16,7 +19,7 @@ class MessagingInterface(ABC):
 
     @replicated
     @abstractmethod
-    def add_message_handler(self, name: str, filter: Callable, func: Callable):
+    def add_message_handler(self, name: str, selector: Callable, func: Callable):
         ...
 
     @abstractmethod

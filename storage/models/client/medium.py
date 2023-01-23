@@ -1,3 +1,4 @@
+"""Medium model."""
 from enum import Enum
 
 

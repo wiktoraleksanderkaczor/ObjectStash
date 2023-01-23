@@ -1,3 +1,4 @@
+"""User model."""
 from typing import List
 from uuid import uuid4
 

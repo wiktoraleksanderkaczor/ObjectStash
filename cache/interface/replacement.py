@@ -1,3 +1,5 @@
+"""Interface for replacement policy."""
+
 from abc import ABC  # , abstractmethod
 
 

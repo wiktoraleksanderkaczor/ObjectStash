@@ -1,3 +1,4 @@
+"""Discovery role superclass."""
 import ipaddress
 import socket
 from typing import Union
@@ -5,7 +6,7 @@ from typing import Union
 from pydantic import AnyUrl
 from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf
 
-from config.discovery import fqdn_service, service
+from config.discovery import service
 from config.env import env
 from role.interface.discovery import CoordinatorInterface, ListenerInterface
 from role.superclass.distribution import Distributed
@@ -31,7 +32,7 @@ class Listener(ListenerInterface, ServiceListener):
             return
 
         # Validate service type
-        if type_ != fqdn_service:
+        if type_ != env.cluster.fqdn_service:
             return
 
         # Validate IP address
@@ -59,7 +60,7 @@ class Coordinator(CoordinatorInterface):
         # Initialise zeroconf and listeners
         self.zeroconf = Zeroconf(interfaces=["0.0.0.0"])
         self.listener = Listener()
-        self.browser = ServiceBrowser(self.zeroconf, fqdn_service, self.listener)
+        self.browser = ServiceBrowser(self.zeroconf, env.cluster.fqdn_service, self.listener)
 
         # Register service
         self.service = service

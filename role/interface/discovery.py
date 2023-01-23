@@ -1,3 +1,4 @@
+"""Discovery role interfaces."""
 from abc import ABC, abstractmethod
 
 from pydantic import AnyUrl

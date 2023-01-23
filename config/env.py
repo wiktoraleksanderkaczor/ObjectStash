@@ -1,3 +1,4 @@
+"""Environment configuration."""
 import os
 from pprint import pprint
 
@@ -10,7 +11,7 @@ from config.models.env import Config, FormatJSON
 def make_config(fname=CONFIG_FNAME, ext="json") -> Config:
     fname = f"{fname}.{ext}"
     config = Config()
-    with open(fname, "w+") as handle:
+    with open(fname, "w+", encoding="utf-8") as handle:
         _json = config.json(**FormatJSON().dict())
         handle.write(_json)
     return config
@@ -19,7 +20,7 @@ def make_config(fname=CONFIG_FNAME, ext="json") -> Config:
 def make_jsonschema(fname=CONFIG_FNAME, ext="schema.json"):
     fname = f"{fname}.{ext}"
     config = Config()
-    with open(fname, "w+") as handle:
+    with open(fname, "w+", encoding="utf-8") as handle:
         _jsonschema = config.schema_json(**FormatJSON().dict())
         handle.write(_jsonschema)
 
@@ -27,16 +28,17 @@ def make_jsonschema(fname=CONFIG_FNAME, ext="schema.json"):
 def load_config(fname=CONFIG_FNAME) -> Config:
     fname = os.environ.get("OBJECTSTASH_CONFIG_PATH", fname)
 
+    _env: Config
     if os.path.isfile(fname):
         try:
-            env = Config.parse_file(fname)
+            _env = Config.parse_file(fname)
         except ValidationError as e:
-            raise Exception(f"Invalid configuration: {e}")
+            raise Exception(f"Invalid configuration: {e}") from e
         except Exception as e:
-            raise Exception(f"Configuration error: {e}")
+            raise Exception(f"Configuration error: {e}") from e
     else:
-        env = make_config(fname)
-    return env
+        _env = make_config(fname)
+    return _env
 
 
 env: Config = load_config()

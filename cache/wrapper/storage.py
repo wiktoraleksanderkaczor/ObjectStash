@@ -1,26 +1,28 @@
+"""Storage cache wrapper."""
+
 from typing import List, Union
 
 from cache.interface.replacement import ReplacementInterface
 from cache.superclass.wrapper import CacheWrapper
-from storage.interface.client import StorageClient
-from storage.interface.client import StorageClient as Wrapped
+from storage.interface.client import StorageClientInterface as Wrapped
 from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
 from storage.models.item.content import ObjectData
 from storage.models.item.models import Directory, Object
 
 
-class Storage(CacheWrapper, Wrapped):
-    def __init__(self, wrapped: Wrapped, storage: StorageClient, replacement: ReplacementInterface):
+class Storage(CacheWrapper):
+    def __init__(self, wrapped: Wrapped, storage: Wrapped, replacement: ReplacementInterface):
         CacheWrapper.__init__(self, wrapped, storage, replacement)
+        self.wrapped: Wrapped = wrapped
 
     def get(self, key: ObjectKey) -> ObjectData:
-        return super().get(key)
+        return self.wrapped.get(key)
 
     def stat(self, key: StorageKey) -> Union[Object, Directory]:
-        return super().stat(key)
+        return self.wrapped.stat(key)
 
     def list(self, prefix: DirectoryKey, recursive: bool = False) -> List[ObjectKey]:
-        return super().list(prefix, recursive)
+        return self.wrapped.list(prefix, recursive)
 
     def exists(self, key: StorageKey) -> bool:
-        return super().exists(key)
+        return self.wrapped.exists(key)

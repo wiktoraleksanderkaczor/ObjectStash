@@ -1,8 +1,11 @@
+"""
+Logging configuration for the project.
+"""
 import logging
 
 log = logging.Logger("ObjectStash")
 if __debug__:
-    level = logging.DEBUG
+    LEVEL = logging.DEBUG
 else:
-    level = logging.WARNING
-log.setLevel(level)
+    LEVEL = logging.WARNING
+log.setLevel(LEVEL)

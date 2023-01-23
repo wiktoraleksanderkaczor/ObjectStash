@@ -1,3 +1,9 @@
+"""
+ObjectStash is a simple object storage system that allows you to store and retrieve objects from a variety of storage
+backends. It is designed to be simple to use and easy to extend.
+
+This module contains the main entry point for the ObjectStash application.
+"""
 import signal
 from typing import Type, Union
 
@@ -5,7 +11,7 @@ from config.env import env
 from config.logger import log
 from config.models.env import StorageConfig
 from role.superclass.discovery import Coordinator
-from storage.interface.client import StorageClient
+from storage.interface.client import StorageClientInterface
 
 
 class GracefulExit:
@@ -13,7 +19,7 @@ class GracefulExit:
         self.state = False
         signal.signal(signal.SIGINT, self.change_state)
 
-    def change_state(self, signum, frame):
+    def change_state(self, _signum, _frame):
         print("CTRL+C captured, exiting gracefully (repeat to exit now)")
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.state = True
@@ -23,9 +29,9 @@ class GracefulExit:
 
 
 class StorageManager:
-    def __init__(self, client: StorageClient):
-        self.client: StorageClient = client
-        log.debug(f"Initializing with the {client.config.repository} repository")
+    def __init__(self, client: StorageClientInterface):
+        self.client: StorageClientInterface = client
+        log.debug("Initializing with the %s repository", client.config.repository)
 
     def database(self):
         pass
@@ -39,7 +45,9 @@ class ObjectStash:
         self.coordinator = Coordinator()
         self.flag = GracefulExit()
 
-    def connect(self, config: Union[str, StorageConfig], client: Type[StorageClient]) -> StorageClient:
+    def connect(
+        self, config: Union[str, StorageConfig], client: Type[StorageClientInterface]
+    ) -> StorageClientInterface:
         settings: Union[StorageConfig, None] = None
         if isinstance(config, str):
             settings = env.storage.get(config, None)
@@ -54,10 +62,10 @@ class ObjectStash:
             raise Exception(f"{config} not found in available storage clients")
 
         try:
-            instance: StorageClient = client(settings)
+            instance: StorageClientInterface = client(settings)
             return instance
         except Exception as e:
-            raise Exception(f"{client.__name__} initialisation failed: {e}")
+            raise Exception(f"{client.__name__} initialisation failed: {e}") from e
 
     def __del__(self):
         del self.coordinator
@@ -68,7 +76,7 @@ if __name__ == "__main__":
     objsth = ObjectStash()
     from storage.client.local import LocalClient
 
-    client = objsth.connect("Local", LocalClient)
-    client_mgr = StorageManager(client)
+    local_client = objsth.connect("Local", LocalClient)
+    client_mgr = StorageManager(local_client)
     client_mgr.database()
     client_mgr.filesystem()

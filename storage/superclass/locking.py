@@ -1,6 +1,6 @@
 from config.env import env
 from role.superclass.scheduling import scheduler
-from storage.interface.client import StorageClient
+from storage.interface.client import StorageClientInterface
 from storage.interface.path import StorageKey
 
 # class StorageLock:
@@ -84,7 +84,7 @@ from storage.interface.path import StorageKey
 
 
 class Lock:
-    def __init__(self, name: str, storage: StorageClient, path: StorageKey) -> None:
+    def __init__(self, name: str, storage: StorageClientInterface, path: StorageKey) -> None:
         self.name = name
         self.storage = storage
         self.path = path

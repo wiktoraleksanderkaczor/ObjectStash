@@ -1,3 +1,4 @@
+"""ObjectStash setup script."""
 import sys
 
 import setuptools

@@ -1,3 +1,6 @@
+"""
+This module contains the models for the items in the storage service.
+"""
 from pathlib import PurePosixPath
 from typing import Tuple, Type
 from uuid import uuid4

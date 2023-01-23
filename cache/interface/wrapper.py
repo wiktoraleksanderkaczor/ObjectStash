@@ -1,3 +1,4 @@
+"""Interface for the cache wrapper"""
 # Need to make lower models, policy, etc. anything lower than a particular type of cache model...
 # ...use generic keys (dunno even) and values (bytes)
 # Classes that act as a sort of middle layer, handling conversions to the caching function inputs, like Object or bytes?
@@ -5,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Type
 
 from cache.interface.replacement import ReplacementInterface
-from storage.interface.client import StorageClient
+from storage.interface.client import StorageClientInterface
 from storage.interface.path import ObjectKey
 from storage.models.item.content import ObjectData
 from storage.models.item.models import Object
@@ -15,11 +16,11 @@ class CacheWrapperInterface(ABC):
     subclasses: Dict[str, Type["CacheWrapperInterface"]]
 
     @abstractmethod
-    def __init__(self, wrapped: object, storage: StorageClient, replacement: ReplacementInterface):
+    def __init__(self, wrapped: object, storage: StorageClientInterface, replacement: ReplacementInterface):
         self.hits: int
         self.misses: int
         self.wrapped: object
-        self.storage: StorageClient
+        self.storage: StorageClientInterface
         self.replacement: ReplacementInterface
 
     @abstractmethod

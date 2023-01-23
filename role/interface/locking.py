@@ -1,16 +1,19 @@
+"""
+This module contains the LockInterface class.
+"""
 from abc import ABC, abstractmethod
 from pathlib import PurePosixPath
 
 from role.models.locking import State
-from storage.interface.client import StorageClient
+from storage.interface.client import StorageClientInterface
 from storage.models.item.models import ObjectKey
 
 
 class LockInterface(ABC):
     @abstractmethod
-    def __init__(self, prefix: PurePosixPath, storage: StorageClient):
+    def __init__(self, prefix: PurePosixPath, storage: StorageClientInterface):
         self.prefix: PurePosixPath
-        self.storage: StorageClient
+        self.storage: StorageClientInterface
         self.state: State
         self.path: PurePosixPath
         self.key: ObjectKey
