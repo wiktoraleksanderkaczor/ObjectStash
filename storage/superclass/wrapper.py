@@ -1,3 +1,4 @@
+"""Wraps a storage client to provide additional functionality."""
 from storage.interface.client import StorageClientInterface
 
 
