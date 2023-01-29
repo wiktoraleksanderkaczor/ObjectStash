@@ -3,16 +3,16 @@
 from typing import List, Union
 
 from cache.interface.replacement import ReplacementInterface
-from cache.superclass.wrapper import CacheWrapper
+from cache.superclass.wrapper import BaseCacheWrapper
 from storage.interface.client import StorageClientInterface as Wrapped
 from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
 from storage.models.item.content import ObjectData
 from storage.models.item.models import Directory, Object
 
 
-class Storage(CacheWrapper):
+class Storage(BaseCacheWrapper):
     def __init__(self, wrapped: Wrapped, storage: Wrapped, replacement: ReplacementInterface):
-        CacheWrapper.__init__(self, wrapped, storage, replacement)
+        BaseCacheWrapper.__init__(self, wrapped, storage, replacement)
         self.wrapped: Wrapped = wrapped
 
     def get(self, key: ObjectKey) -> ObjectData:

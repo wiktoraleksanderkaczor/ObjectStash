@@ -12,8 +12,8 @@ from storage.models.item.content import ObjectData
 from storage.models.item.models import Object
 
 
-class CacheWrapper(CacheWrapperInterface):
-    subclasses: Dict[str, Type["CacheWrapper"]] = {}
+class BaseCacheWrapper(CacheWrapperInterface):
+    subclasses: Dict[str, Type["BaseCacheWrapper"]] = {}
 
     def __init__(self, wrapped: object, storage: StorageClientInterface, replacement: ReplacementInterface):
         self.hits = 0
@@ -22,7 +22,7 @@ class CacheWrapper(CacheWrapperInterface):
         self.storage = storage
         self.replacement = replacement
 
-    def __init_subclass__(cls: Type["CacheWrapper"], **kwargs):
+    def __init_subclass__(cls: Type["BaseCacheWrapper"], **kwargs):
         super().__init_subclass__(**kwargs)
         cls.subclasses[cls.__name__] = cls
 
