@@ -8,5 +8,6 @@ schedule
 python-magic
 jsonmerge
 hashid
+wrapt
 
 -r "dev-requirements.txt"
