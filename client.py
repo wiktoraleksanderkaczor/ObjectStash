@@ -57,7 +57,6 @@ class ObjectStash:
         if not settings:
             raise Exception(f"{config} not found in settings or arguments")
 
-        # client: Union[Type[StorageClient], None] = StorageClient.subclasses.get(storage_name, None)
         if not client:
             raise Exception(f"{config} not found in available storage clients")
 
