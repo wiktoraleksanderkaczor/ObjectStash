@@ -1,3 +1,6 @@
+"""
+Base class for storage keys.
+"""
 from pathlib import PurePosixPath
 
 from storage.interface.client import StorageClientInterface
@@ -16,8 +19,8 @@ class StorageKey(StorageKeyInterface):
 
         try:
             self._client = StorageClientInterface.initialized[self.storage]
-        except KeyError:
-            raise KeyError(f"'{self.storage}' not found in initialized storage clients")
+        except KeyError as e:
+            raise KeyError(f"'{self.storage}' not found in initialized storage clients") from e
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.storage}://{str(self.path)})"
@@ -48,7 +51,7 @@ class StorageKey(StorageKeyInterface):
     def exists(self) -> bool:
         try:
             self._client.stat(self)
-        except Exception:
+        except KeyError:
             return False
         return True
 
@@ -62,7 +65,7 @@ class StorageKey(StorageKeyInterface):
             if not storage or not path:
                 raise ValueError("Missing 'storage' or 'path'")
         except Exception as e:
-            raise ValueError(f"Invalid StorageKey: {e}")
+            raise ValueError(f"Invalid StorageKey: {e}") from e
         return cls(storage=storage, path=path)
 
     # @classmethod
@@ -91,8 +94,8 @@ class StorageKey(StorageKeyInterface):
         self.__dict__.update(state)
         try:
             self._client = StorageClientInterface.initialized[self.storage]
-        except KeyError:
-            raise KeyError(f"'{self.storage}' not found in initialized storage clients")
+        except KeyError as e:
+            raise KeyError(f"'{self.storage}' not found in initialized storage clients") from e
 
 
 # Should I override the class for validation of particular types like file or directory?

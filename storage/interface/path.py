@@ -1,3 +1,6 @@
+"""
+This module contains the abstract interface classes for a StorageKey.
+"""
 from abc import abstractmethod
 from pathlib import PurePosixPath
 
@@ -11,7 +14,6 @@ class StorageKey:
     def __init__(self, storage: StorageClientKey, path: PurePosixPath):
         self.storage: StorageClientKey
         self.path: PurePosixPath
-        ...
 
     @abstractmethod
     def __new__(cls, storage: StorageClientKey, path: PurePosixPath) -> "StorageKey":
