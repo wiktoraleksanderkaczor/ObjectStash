@@ -12,20 +12,19 @@ from role.interface.distribution import DistributedInterface
 
 class Distributed(DistributedInterface, SyncObj):
     # Peer data structure
-    cluster_name = env.cluster.name
     peers: List[AnyUrl] = env.cluster.initial_peers
     distributed_objects: List["Distributed"] = []
-    syncobj_conf = SyncObjConf(dynamicMembershipChange=True)
+    config = SyncObjConf(dynamicMembershipChange=True)
 
     def __init__(self, name: str, consumers: List[SyncObjConsumer]):
         if not consumers:
             consumers = []
         SyncObj.__init__(
-            self, f"{host_ip}:{env.cluster.port}", Distributed.peers, consumers=consumers, conf=Distributed.syncobj_conf
+            self, f"{host_ip}:{env.cluster.port}", Distributed.peers, consumers=consumers, conf=Distributed.config
         )
         Distributed.distributed_objects.append(self)
         while not self.isReady():
-            log.debug(f"Waiting to acquire initial data for {name}...")
+            log.debug("Waiting to acquire initial data for %s...", name)
             self.waitReady()
 
     # Check if master node

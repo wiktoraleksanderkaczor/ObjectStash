@@ -11,10 +11,9 @@ from pysyncobj.batteries import replicated
 
 class DistributedInterface(ABC):
     # Peer data structure
-    cluster_name: str
     peers: List[AnyUrl]
     distributed_objects: List["DistributedInterface"]
-    syncobj_conf: SyncObjConf
+    config: SyncObjConf
 
     @abstractmethod
     def __init__(self, name: str, consumers: List[SyncObjConsumer]):
