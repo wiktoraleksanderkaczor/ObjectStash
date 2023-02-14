@@ -1,3 +1,4 @@
+"""Distributed object superclass"""
 from typing import Callable, List
 
 from pydantic import AnyUrl
