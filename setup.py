@@ -29,7 +29,7 @@ setuptools.setup(
     author_email="wiktoraleksanderkaczor@gmail.com",
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    packages=find_packages(exclude=("tests")),
+    packages=find_packages(exclude=["tests"]),
     python_requires=">3.8.0",
     install_requires=[
         "minio",
