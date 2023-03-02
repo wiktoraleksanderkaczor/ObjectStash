@@ -7,14 +7,9 @@ from typing import List, Optional
 import magic
 from hashid import HashID, HashInfo
 from magic import MagicException
-from pydantic import BaseModel, ByteSize, PositiveInt, StrictBytes, StrictStr
+from pydantic import BaseModel, ByteSize, StrictBytes, StrictStr
 
-from storage.models.item.encryption import EncryptionAlgorithm
-
-
-class ItemType(str, Enum):
-    DIRECTORY = "DIRECTORY"
-    FILE = "FILE"
+from storage.models.object.encryption import EncryptionAlgorithm
 
 
 class ObjectData(BaseModel):
@@ -38,18 +33,6 @@ class SizeInfo(BaseModel):
     @classmethod
     def from_data(cls, data: "ObjectData") -> "SizeInfo":
         return cls(raw_bytes=ByteSize(len(data.__root__)))
-
-
-class ModelContentInfo(BaseModel):
-    size: SizeInfo  # Size of data in bytes or all items in directory
-    item_type: ItemType  # File or directory
-    compression: Optional[CompressionAlgorithm] = None
-    encryption: Optional[EncryptionAlgorithm] = None
-
-
-class DirectoryContentInfo(ModelContentInfo):
-    item_type: ItemType = ItemType.DIRECTORY
-    num_items: PositiveInt = 0  # Number of items in directory
 
 
 class TypeSignature(BaseModel):
@@ -91,8 +74,10 @@ class HashSignature(BaseModel):
         return cls(signature=value)
 
 
-class ObjectContentInfo(ModelContentInfo):
-    item_type: ItemType = ItemType.FILE
+class ObjectContentInfo(BaseModel):
+    size: SizeInfo  # Size of data in bytes or all items in directory
+    compression: Optional[CompressionAlgorithm] = None
+    encryption: Optional[EncryptionAlgorithm] = None
     mime_type: TypeSignature  # MIME type for content
     signature: HashSignature  # Hash for integrity
 

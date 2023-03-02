@@ -1,14 +1,14 @@
 """
 Base class for storage clients.
 """
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple
 
 from config.models.env import StorageConfig
 from storage.interface.client import StorageClientInterface
-from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
 from storage.models.client.key import StorageClientKey
 from storage.models.client.medium import Medium
-from storage.models.item import Directory, Object, ObjectData
+from storage.models.object import Object, ObjectData
+from storage.models.object.path import StorageKey
 
 
 class BaseStorageClient(StorageClientInterface):
@@ -21,10 +21,10 @@ class BaseStorageClient(StorageClientInterface):
 
     # REQUIRED:
 
-    def get(self, key: ObjectKey) -> ObjectData:
+    def get(self, key: StorageKey) -> ObjectData:
         ...
 
-    def stat(self, key: StorageKey) -> Union[Object, Directory]:
+    def stat(self, key: StorageKey) -> Object:
         ...
 
     def put(self, obj: Object, data: ObjectData) -> None:
@@ -33,7 +33,7 @@ class BaseStorageClient(StorageClientInterface):
     def remove(self, key: StorageKey) -> None:
         ...
 
-    def list(self, prefix: DirectoryKey, recursive: bool = False) -> List[ObjectKey]:
+    def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         ...
 
     @property
@@ -52,19 +52,19 @@ class BaseStorageClient(StorageClientInterface):
             return False
         return True
 
-    def get_multiple(self, *keys: ObjectKey) -> List[ObjectData]:
+    def get_multiple(self, *keys: StorageKey) -> List[ObjectData]:
         return [self.get(key) for key in keys]
 
-    def stat_multiple(self, *keys: StorageKey) -> List[Union[Object, Directory]]:
+    def stat_multiple(self, *keys: StorageKey) -> List[Object]:
         return [self.stat(key) for key in keys]
 
     def put_multiple(self, *objects: Tuple[Object, ObjectData]) -> List[None]:
         return [self.put(obj, data) for obj, data in objects]
 
-    def remove_multiple(self, *keys: ObjectKey) -> List[None]:
+    def remove_multiple(self, *keys: StorageKey) -> List[None]:
         return [self.remove(key) for key in keys]
 
-    def exists_multiple(self, *keys: ObjectKey) -> List[bool]:
+    def exists_multiple(self, *keys: StorageKey) -> List[bool]:
         return [self.exists(key) for key in keys]
 
     # MISCELLANEOUS:

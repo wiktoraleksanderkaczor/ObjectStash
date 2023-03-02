@@ -1,12 +1,12 @@
 """Storage client interface."""
 from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple
 
 from config.models.env import StorageConfig
-from storage.interface.path import DirectoryKey, ObjectKey, StorageKey
 from storage.models.client.key import StorageClientKey
 from storage.models.client.medium import Medium
-from storage.models.item import Directory, Object, ObjectData
+from storage.models.object import Object, ObjectData
+from storage.models.object.path import StorageKey
 
 
 class StorageClientInterface(ABC):
@@ -20,11 +20,11 @@ class StorageClientInterface(ABC):
     # REQUIRED:
 
     @abstractmethod
-    def get(self, key: ObjectKey) -> ObjectData:
+    def get(self, key: StorageKey) -> ObjectData:
         ...
 
     @abstractmethod
-    def stat(self, key: StorageKey) -> Union[Object, Directory]:
+    def stat(self, key: StorageKey) -> Object:
         ...
 
     @abstractmethod
@@ -36,7 +36,7 @@ class StorageClientInterface(ABC):
         ...
 
     @abstractmethod
-    def list(self, prefix: DirectoryKey, recursive: bool = False) -> List[ObjectKey]:
+    def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         ...
 
     @property
@@ -55,11 +55,11 @@ class StorageClientInterface(ABC):
         ...
 
     @abstractmethod
-    def get_multiple(self, *keys: ObjectKey) -> List[ObjectData]:
+    def get_multiple(self, *keys: StorageKey) -> List[ObjectData]:
         ...
 
     @abstractmethod
-    def stat_multiple(self, *keys: StorageKey) -> List[Union[Object, Directory]]:
+    def stat_multiple(self, *keys: StorageKey) -> List[Object]:
         ...
 
     @abstractmethod
@@ -67,11 +67,11 @@ class StorageClientInterface(ABC):
         ...
 
     @abstractmethod
-    def remove_multiple(self, *keys: ObjectKey) -> List[None]:
+    def remove_multiple(self, *keys: StorageKey) -> List[None]:
         ...
 
     @abstractmethod
-    def exists_multiple(self, *keys: ObjectKey) -> List[bool]:
+    def exists_multiple(self, *keys: StorageKey) -> List[bool]:
         ...
 
     # MISCELLANEOUS:

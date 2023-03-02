@@ -1,11 +1,14 @@
+"""
+This module contains locking role service functionality.
+"""
 from pathlib import PurePosixPath
 
 from config.env import env
 from role.interface.locking import LockInterface
 from role.models.locking import State
 from storage.interface.client import StorageClientInterface
-from storage.models.item.content import ObjectData
-from storage.models.item.models import Object, ObjectKey
+from storage.models.object.content import ObjectData
+from storage.models.object.models import Object, StorageKey
 
 
 class Lock(LockInterface):
@@ -14,7 +17,7 @@ class Lock(LockInterface):
         self.storage = storage
         self.state: State = State()
         self.path = self.prefix.joinpath(".lock")
-        self.key = ObjectKey(storage.name, self.path)
+        self.key = StorageKey(storage=storage.name, path=self.path)
 
     def acquire(self) -> None:
         if self.storage.exists(self.key):
