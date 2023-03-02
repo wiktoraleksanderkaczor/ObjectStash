@@ -33,9 +33,9 @@ def load_config(fname=CONFIG_FNAME) -> Config:
         try:
             _env = Config.parse_file(fname)
         except ValidationError as e:
-            raise Exception(f"Invalid configuration: {e}") from e
+            raise ValidationError(f"Invalid configuration: {e}", Config) from e
         except Exception as e:
-            raise Exception(f"Configuration error: {e}") from e
+            raise RuntimeError(f"Configuration error: {e}") from e
     else:
         _env = make_config(fname)
     return _env

@@ -55,16 +55,16 @@ class ObjectStash:
             settings = config
 
         if not settings:
-            raise Exception(f"{config} not found in settings or arguments")
+            raise KeyError(f"{config} not found in settings or arguments")
 
         if not client:
-            raise Exception(f"{config} not found in available storage clients")
+            raise KeyError(f"{config} not found in available storage clients")
 
         try:
             instance: StorageClientInterface = client(settings)
             return instance
         except Exception as e:
-            raise Exception(f"{client.__name__} initialisation failed: {e}") from e
+            raise RuntimeError(f"{client.__name__} initialisation failed: {e}") from e
 
     def __del__(self):
         del self.coordinator
