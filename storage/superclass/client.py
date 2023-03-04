@@ -21,16 +21,16 @@ class BaseStorageClient(StorageClientInterface):
 
     # REQUIRED:
 
-    def get(self, key: StorageKey) -> ObjectData:
+    def get(self, *key: StorageKey) -> ObjectData:
         ...
 
-    def stat(self, key: StorageKey) -> Object:
+    def stat(self, *key: StorageKey) -> Object:
         ...
 
     def put(self, obj: Object, data: ObjectData) -> None:
         ...
 
-    def remove(self, key: StorageKey) -> None:
+    def remove(self, *key: StorageKey) -> None:
         ...
 
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
@@ -43,29 +43,6 @@ class BaseStorageClient(StorageClientInterface):
     @property
     def medium(self) -> Medium:
         ...
-
-    # OPTIONAL:
-    def exists(self, key: StorageKey) -> bool:
-        try:
-            self.stat(key)
-        except KeyError:
-            return False
-        return True
-
-    def get_multiple(self, *keys: StorageKey) -> List[ObjectData]:
-        return [self.get(key) for key in keys]
-
-    def stat_multiple(self, *keys: StorageKey) -> List[Object]:
-        return [self.stat(key) for key in keys]
-
-    def put_multiple(self, *objects: Tuple[Object, ObjectData]) -> List[None]:
-        return [self.put(obj, data) for obj, data in objects]
-
-    def remove_multiple(self, *keys: StorageKey) -> List[None]:
-        return [self.remove(key) for key in keys]
-
-    def exists_multiple(self, *keys: StorageKey) -> List[bool]:
-        return [self.exists(key) for key in keys]
 
     # MISCELLANEOUS:
 

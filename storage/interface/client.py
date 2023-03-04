@@ -20,11 +20,11 @@ class StorageClientInterface(ABC):
     # REQUIRED:
 
     @abstractmethod
-    def get(self, key: StorageKey) -> ObjectData:
+    def get(self, *key: StorageKey) -> ObjectData:
         ...
 
     @abstractmethod
-    def stat(self, key: StorageKey) -> Object:
+    def stat(self, *key: StorageKey) -> Object:
         ...
 
     @abstractmethod
@@ -32,7 +32,7 @@ class StorageClientInterface(ABC):
         ...
 
     @abstractmethod
-    def remove(self, key: StorageKey) -> None:
+    def remove(self, *key: StorageKey) -> None:
         ...
 
     @abstractmethod
@@ -47,31 +47,6 @@ class StorageClientInterface(ABC):
     @property
     @abstractmethod
     def medium(self) -> Medium:
-        ...
-
-    # OPTIONAL:
-    @abstractmethod
-    def exists(self, key: StorageKey) -> bool:
-        ...
-
-    @abstractmethod
-    def get_multiple(self, *keys: StorageKey) -> List[ObjectData]:
-        ...
-
-    @abstractmethod
-    def stat_multiple(self, *keys: StorageKey) -> List[Object]:
-        ...
-
-    @abstractmethod
-    def put_multiple(self, *objects: Tuple[Object, ObjectData]) -> List[None]:
-        ...
-
-    @abstractmethod
-    def remove_multiple(self, *keys: StorageKey) -> List[None]:
-        ...
-
-    @abstractmethod
-    def exists_multiple(self, *keys: StorageKey) -> List[bool]:
         ...
 
     # MISCELLANEOUS:
