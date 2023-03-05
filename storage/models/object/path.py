@@ -14,3 +14,6 @@ class StorageKey(BaseModel):
 
     def validate(self, storage: StorageClientKey, path: PurePosixPath) -> "StorageKey":
         return StorageKey(storage=storage, path=path)
+
+    def join(self, path: str):
+        return StorageKey(storage=self.storage, path=self.path.joinpath(path))
