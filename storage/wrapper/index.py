@@ -41,4 +41,11 @@ class IndexWrapper(StorageWrapper):
         data = data.dict()
         return Object(**data)
 
-    # TODO: Continue here...
+    def list(self, key: StorageKey, recursive: bool = False) -> List[StorageKey]:
+        items = [item for item in self.index.items() if item.startswith(str(key.path))]
+        if not recursive:
+            items = [item for item in items if "/" not in item.replace(str(key.path), "")]
+        return [StorageKey(storage=self.__wrapped__.name, path=PurePosixPath(item)) for item in items]
+
+    def __contains__(self, key: StorageKey) -> bool:
+        return str(key.path) in self.index
