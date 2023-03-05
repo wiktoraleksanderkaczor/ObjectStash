@@ -6,6 +6,8 @@ from jsonmerge import merge
 from pydantic import BaseModel, Extra, Json
 
 
+# BUG: Fix JSON or Dict handling, need to marshall into one or the other
+# allow passing both for construction, possibly Object.create implementation
 class JSON(BaseModel):
     # Should I use str or StrictStr? The latter prevents coercion from other types, like int one being string one
     __root__: Union[Json, Dict[str, Any]]
