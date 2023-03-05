@@ -10,32 +10,32 @@ from storage.models.object.path import StorageKey
 
 
 class Database:
-    def insert(self, key: StorageKey, value: JSON) -> None:
-        key = StorageKey(storage=self.storage.name, path=self.prefix.path.joinpath(key.path))
+    def insert(self, key: str, value: JSON) -> None:
+        path = self.prefix.join(key)
         # obj = Object.from_basemodel(name, value)
         data = ObjectData(__root__=value.to_bytes())
         content = ObjectContentInfo.from_data(data=data)
-        obj = Object(name=key, content=content)
+        obj = Object(name=path, content=content)
         self.storage.put(obj, data)
 
-    def get(self, key: StorageKey) -> JSON:
-        key = StorageKey(storage=self.storage.name, path=self.prefix.path.joinpath(key.path))
-        if not self.exists(key):
+    def get(self, key: str) -> JSON:
+        path = self.prefix.join(key)
+        if key not in self:
             raise KeyError(f"Key '{key}' does not exist")
-        data = self.storage.get(key).__root__
+        data = self.storage.get(path).__root__
         return JSON.parse_raw(data)
 
-    def exists(self, key: StorageKey) -> bool:
-        key = StorageKey(storage=self.storage.name, path=self.prefix.path.joinpath(key.path))
-        return self.storage.exists(key)
+    def __contains__(self, key: str) -> bool:
+        path = self.prefix.join(key)
+        return path in self.storage
 
-    def delete(self, key: StorageKey) -> None:
-        key = StorageKey(storage=self.storage.name, path=self.prefix.path.joinpath(key.path))
-        if self.exists(key):
-            self.storage.remove(key)
+    def delete(self, key: str) -> None:
+        path = self.prefix.join(key)
+        if key in self:
+            self.storage.remove(path)
 
-    def items(self) -> List[StorageKey]:
-        return self.storage.list(self.prefix)
+    def items(self) -> List[str]:
+        return [item.path.stem for item in self.storage.list(self.prefix)]
 
     def select(self, selector: Callable[[JSON], bool]) -> List[JSON]:
         records = []
@@ -45,9 +45,8 @@ class Database:
                 records.append(record)
         return records
 
-    def merge(self, key: StorageKey, head: JSON) -> None:
-        name = StorageKey(storage=self.storage.name, path=self.prefix.path.joinpath(key.path))
-        base = self.get(name)
+    def merge(self, key: str, head: JSON) -> None:
+        base = self.get(key)
         new = JSON.merge(base, head)
         self.insert(key, new)
 
