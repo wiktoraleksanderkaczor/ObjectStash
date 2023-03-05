@@ -1,6 +1,6 @@
 """Storage client interface."""
 from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple
+from typing import List
 
 from config.models.env import StorageConfig
 from storage.models.client.key import StorageClientKey
@@ -10,8 +10,6 @@ from storage.models.object.path import StorageKey
 
 
 class StorageClientInterface(ABC):
-    initialized: Dict[StorageClientKey, "StorageClientInterface"]
-
     @abstractmethod
     def __init__(self, config: StorageConfig):
         self.client: object
@@ -20,11 +18,11 @@ class StorageClientInterface(ABC):
     # REQUIRED:
 
     @abstractmethod
-    def get(self, *key: StorageKey) -> ObjectData:
+    def get(self, key: StorageKey) -> ObjectData:
         ...
 
     @abstractmethod
-    def stat(self, *key: StorageKey) -> Object:
+    def stat(self, key: StorageKey) -> Object:
         ...
 
     @abstractmethod
@@ -32,7 +30,7 @@ class StorageClientInterface(ABC):
         ...
 
     @abstractmethod
-    def remove(self, *key: StorageKey) -> None:
+    def remove(self, key: StorageKey) -> None:
         ...
 
     @abstractmethod
@@ -49,7 +47,9 @@ class StorageClientInterface(ABC):
     def medium(self) -> Medium:
         ...
 
-    # MISCELLANEOUS:
+    @abstractmethod
+    def __contains__(self, key: StorageKey) -> bool:
+        ...
 
     # Hash for ObjectStash client management set replacement
     @abstractmethod

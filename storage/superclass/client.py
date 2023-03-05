@@ -1,7 +1,7 @@
 """
 Base class for storage clients.
 """
-from typing import Dict, List, Tuple
+from typing import List
 
 from config.models.env import StorageConfig
 from storage.interface.client import StorageClientInterface
@@ -12,12 +12,9 @@ from storage.models.object.path import StorageKey
 
 
 class BaseStorageClient(StorageClientInterface):
-    initialized: Dict[StorageClientKey, StorageClientInterface] = {}
-
     def __init__(self, config: StorageConfig):
         self.client = None
         self.config = config
-        self.initialized[self.name] = self
 
     # REQUIRED:
 
@@ -44,7 +41,12 @@ class BaseStorageClient(StorageClientInterface):
     def medium(self) -> Medium:
         ...
 
-    # MISCELLANEOUS:
+    def __contains__(self, key: StorageKey) -> bool:
+        try:
+            self.stat(key)
+        except KeyError:
+            return False
+        return True
 
     # Hash for ObjectStash client management set replacement
     def __hash__(self):
