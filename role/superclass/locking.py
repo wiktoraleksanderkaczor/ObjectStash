@@ -20,13 +20,13 @@ class Lock(LockInterface):
         self.key = StorageKey(storage=storage.name, path=self.path)
 
     def acquire(self) -> None:
-        if self.storage.exists(self.key):
+        if self.key in self.storage:
             raise RuntimeError("Lock already exists")
         obj, data = Object.create(self.storage.name, self.path, self.state.to_bytes())
         self.storage.put(obj, data)
 
     def release(self) -> None:
-        if self.storage.exists(self.key):
+        if self.key in self.storage:
             lock: ObjectData = self.storage.get(self.key)
             state: State = State.parse_raw(lock.__root__)
             if state.cluster != env.cluster.name:
