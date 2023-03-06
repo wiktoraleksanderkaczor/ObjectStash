@@ -16,8 +16,6 @@ class BaseStorageClient(StorageClientInterface):
         self.client = None
         self.config = config
 
-    # REQUIRED:
-
     def get(self, *key: StorageKey) -> ObjectData:
         ...
 

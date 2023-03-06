@@ -15,8 +15,6 @@ class StorageClientInterface(ABC):
         self.client: object
         self.config: StorageConfig
 
-    # REQUIRED:
-
     @abstractmethod
     def get(self, key: StorageKey) -> ObjectData:
         ...
