@@ -26,11 +26,11 @@ class IndexWrapper(StorageWrapper):
         self.index = NoSQL(self.storage, StorageKey(storage=self.storage.name, path=PurePosixPath("index")))
         for item in self.__wrapped__.list(root_path, recursive=True):
             stat = self.__wrapped__.stat(item)
-            self.index.insert(str(item.path), JSON(__root__=stat.json()))
+            self.index.insert(str(item.path), JSON.parse_obj(stat.dict()))
 
     def put(self, obj: Object, data: ObjectData) -> None:
         self.__wrapped__.put(obj, data)
-        self.index.insert(str(obj.name.path), JSON(__root__=obj.json()))
+        self.index.insert(str(obj.name.path), JSON.parse_obj(obj.dict()))
 
     def remove(self, key: StorageKey) -> None:
         self.__wrapped__.remove(key)
