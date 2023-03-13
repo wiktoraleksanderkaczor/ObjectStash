@@ -6,5 +6,5 @@ from pydantic.types import UUID4
 
 
 class Group(BaseModel):
-    name: StrictStr = "ObjectStash"
+    name: StrictStr = "Pioneer"
     uuid: UUID4 = Field(default_factory=uuid4)

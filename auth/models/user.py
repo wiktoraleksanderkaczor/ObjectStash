@@ -9,6 +9,6 @@ from auth.models.group import Group
 
 
 class User(BaseModel):
-    name: StrictStr = "ObjectStash"
+    name: StrictStr = "Pioneer"
     uuid: UUID4 = Field(default_factory=uuid4)
     membership: List[Group] = [Group()]

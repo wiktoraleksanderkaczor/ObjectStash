@@ -1,8 +1,8 @@
 """
-ObjectStash is a simple object storage system that allows you to store and retrieve objects from a variety of storage
+Pioneer is a simple object storage system that allows you to store and retrieve objects from a variety of storage
 backends. It is designed to be simple to use and easy to extend.
 
-This module contains the main entry point for the ObjectStash application.
+This module contains the main entry point for the Pioneer application.
 """
 import signal
 from typing import Type, Union
@@ -40,7 +40,7 @@ class StorageManager:
         pass
 
 
-class ObjectStash:
+class Pioneer:
     def __init__(self):
         self.coordinator = Coordinator()
         self.flag = GracefulExit()
@@ -72,7 +72,7 @@ class ObjectStash:
 
 
 if __name__ == "__main__":
-    objsth = ObjectStash()
+    objsth = Pioneer()
     from storage.client.local import LocalClient
 
     local_client = objsth.connect("Local", LocalClient)

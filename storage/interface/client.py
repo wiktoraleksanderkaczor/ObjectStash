@@ -49,7 +49,7 @@ class StorageClientInterface(ABC):
     def __contains__(self, key: StorageKey) -> bool:
         ...
 
-    # Hash for ObjectStash client management set replacement
+    # Hash for Pioneer client management set replacement
     @abstractmethod
     def __hash__(self):
         ...

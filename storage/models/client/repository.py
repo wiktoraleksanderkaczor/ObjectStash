@@ -5,5 +5,5 @@ from pydantic import UUID4, BaseModel, Field
 
 
 class Repository(BaseModel):
-    name: str = "ObjectStash"
+    name: str = "Pioneer"
     uuid: UUID4 = Field(default_factory=uuid4)

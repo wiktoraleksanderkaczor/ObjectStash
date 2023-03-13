@@ -1,4 +1,4 @@
-"""ObjectStash setup script."""
+"""Pioneer setup script."""
 import sys
 
 import setuptools
@@ -12,7 +12,7 @@ DESCRIPTION = (
 )
 
 LONG_DESCRIPTION = """
-ObjectStash is a serverless distribution-capable database, caching, and FUSE layer self-contained package.
+Pioneer is a serverless distribution-capable database, caching, and FUSE layer self-contained package.
 
 What can it do:
 - It can act like a filesystem, mounted wherever needed for interfacing with legacy applications.
@@ -22,9 +22,9 @@ What can it do:
 - All of this with the ability to cache, replicate and shard as desired on any of the storage clients.
 """
 setuptools.setup(
-    name="ObjectStash",
+    name="Pioneer",
     version="0.1.0",
-    url="https://github.com/wiktoraleksanderkaczor/ObjectStash",
+    url="https://github.com/wiktoraleksanderkaczor/Pioneer",
     author="Wiktor Kaczor",
     author_email="wiktoraleksanderkaczor@gmail.com",
     description=DESCRIPTION,

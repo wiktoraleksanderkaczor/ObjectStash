@@ -10,9 +10,9 @@ from storage.models.client.repository import Repository
 
 
 class Cluster(BaseModel):
-    name: str = "ObjectStash-Cluster"
+    name: str = "Pioneer-Cluster"
     port: int = 9091
-    fqdn_service: str = "_objectstash._tcp.local."
+    fqdn_service: str = "_pioneer._tcp.local."
     version: str = "0.0.1"
     initial_peers: List[AnyUrl] = []
     user: User = User()
@@ -36,7 +36,7 @@ class Locking(BaseModel):
 
 
 class StorageConfig(BaseModel):
-    endpoint: Union[AnyUrl, IPvAnyAddress] = AnyUrl("localhost", scheme="objectstash")
+    endpoint: Union[AnyUrl, IPvAnyAddress] = AnyUrl("localhost", scheme="pioneer")
     repository: Repository = Repository()
     region: Optional[str] = None
     secure: bool = True

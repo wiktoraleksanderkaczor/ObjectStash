@@ -1,2 +1,2 @@
 """Constants for the configuration."""
-CONFIG_FNAME = ".objectstash"
+CONFIG_FNAME = ".pioneer"

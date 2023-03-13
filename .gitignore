@@ -2,8 +2,8 @@
 venv/
 
 # Configuration
-.objectstash.json
-.objectstash.schema.json
+.pioneer.json
+.pioneer.schema.json
 
 # Python caches
 *.py[cod]

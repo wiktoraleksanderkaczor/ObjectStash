@@ -46,7 +46,7 @@ class BaseStorageClient(StorageClientInterface):
             return False
         return True
 
-    # Hash for ObjectStash client management set replacement
+    # Hash for Pioneer client management set replacement
     def __hash__(self):
         return hash(self.name)
 
