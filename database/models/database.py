@@ -47,7 +47,7 @@ class Database:
 
     def merge(self, key: str, head: JSON) -> None:
         base = self.get(key)
-        new = JSON.merge(base, head)
+        _, new = JSON.merge(base, head)
         self.insert(key, new)
 
     def __init__(self, storage: StorageClientInterface, name: StorageKey):
