@@ -16,16 +16,16 @@ class BaseStorageClient(StorageClientInterface):
         self.client = None
         self.config = config
 
-    def get(self, *key: StorageKey) -> ObjectData:
+    def get(self, key: StorageKey) -> ObjectData:
         ...
 
-    def stat(self, *key: StorageKey) -> Object:
+    def stat(self, key: StorageKey) -> Object:
         ...
 
     def put(self, obj: Object, data: ObjectData) -> None:
         ...
 
-    def remove(self, *key: StorageKey) -> None:
+    def remove(self, key: StorageKey) -> None:
         ...
 
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
