@@ -57,21 +57,21 @@ class TypeSignature(BaseModel):
 
 
 class HashSignature(BaseModel):
-    algorithm: StrictStr = "SHA256"
-    signature: StrictBytes
+    algorithm: StrictStr = "SHA-256"
+    signature: str
 
     @classmethod
     def from_data(cls, buffer: "ObjectData") -> "HashSignature":
-        signature = sha256(buffer.__root__).digest()
+        signature = sha256(buffer.__root__).hexdigest()
         return cls(signature=signature)
 
     @classmethod
-    def validate(cls, value: bytes) -> "HashSignature":
-        hashes: List[HashInfo] = list(HashID().identifyHash(value))
+    def validate(cls, value: "HashSignature") -> "HashSignature":
+        hashes: List[HashInfo] = list(HashID().identifyHash(value.signature))
         hashes = [item.name for item in hashes if not item.extended]
-        if "SHA256" not in hashes:
+        if "SHA-256" not in hashes:
             raise ValueError("Invalid hash")
-        return cls(signature=value)
+        return value
 
 
 class ObjectContentInfo(BaseModel):
