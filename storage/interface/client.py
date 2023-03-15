@@ -12,7 +12,6 @@ from storage.models.object.path import StorageKey
 class StorageClientInterface(ABC):
     @abstractmethod
     def __init__(self, config: StorageConfig):
-        self.client: object
         self.config: StorageConfig
 
     @abstractmethod
