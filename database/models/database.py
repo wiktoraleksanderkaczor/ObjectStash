@@ -51,7 +51,7 @@ class Database:
         self.insert(key, new)
 
     def __init__(self, storage: StorageClientInterface, name: StorageKey):
-        path = PurePosixPath(f"partitions/{name}")
+        path = PurePosixPath(f"partitions/{name.path}")
         self.prefix: StorageKey = StorageKey(storage=storage.name, path=path)
         self.storage: StorageClientInterface = storage
         # self.lock: Lock = DatabaseLock(self.storage, self.prefix, ".lock")
