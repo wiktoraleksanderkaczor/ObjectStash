@@ -76,10 +76,10 @@ class HashSignature(BaseModel):
 
 class ObjectContentInfo(BaseModel):
     size: SizeInfo  # Size of data in bytes or all items in directory
-    compression: Optional[CompressionAlgorithm] = None
-    encryption: Optional[EncryptionAlgorithm] = None
     mime_type: TypeSignature  # MIME type for content
     signature: HashSignature  # Hash for integrity
+    compression: Optional[CompressionAlgorithm] = None
+    encryption: Optional[EncryptionAlgorithm] = None
 
     @classmethod
     def from_data(cls, data: "ObjectData") -> "ObjectContentInfo":
