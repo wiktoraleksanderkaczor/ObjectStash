@@ -9,11 +9,11 @@ from storage.models.client.key import StorageClientKey
 
 
 class StorageKey(BaseModel):
+    class Config:
+        arbitrary_types_allowed = True
+
     storage: StorageClientKey
     path: PurePosixPath
-
-    def validate(self, storage: StorageClientKey, path: PurePosixPath) -> "StorageKey":
-        return StorageKey(storage=storage, path=path)
 
     def join(self, path: str):
         return StorageKey(storage=self.storage, path=self.path.joinpath(path))
