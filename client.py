@@ -5,6 +5,7 @@ backends. It is designed to be simple to use and easy to extend.
 This module contains the main entry point for the Pioneer application.
 """
 import signal
+from pathlib import PurePosixPath
 from typing import Type, Union
 
 from config.env import env
@@ -12,6 +13,7 @@ from config.logger import log
 from config.models.env import StorageConfig
 from role.superclass.discovery import Coordinator
 from storage.interface.client import StorageClientInterface
+from storage.models.object.path import StorageKey
 
 
 class GracefulExit:
@@ -77,5 +79,10 @@ if __name__ == "__main__":
 
     local_client = objsth.connect("Local", LocalClient)
     client_mgr = StorageManager(local_client)
-    client_mgr.database()
-    client_mgr.filesystem()
+    from database.models.objects import JSON
+    from database.paradigms.nosql import NoSQL
+
+    db_key = StorageKey(storage=local_client.name, path=PurePosixPath("random_db"))
+    ndb = NoSQL(local_client, db_key)
+    ndb.insert("test", JSON.parse_obj({"test": "test"}))
+    exec("")
