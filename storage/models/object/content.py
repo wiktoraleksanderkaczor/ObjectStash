@@ -49,11 +49,11 @@ class TypeSignature(BaseModel):
         return cls(mime=mime) if mime else cls()
 
     @classmethod
-    def validate(cls, value: str) -> "TypeSignature":
+    def validate(cls, value: "TypeSignature") -> "TypeSignature":
         # Check that v in MIME type database
-        if value not in mimetypes.types_map.values():
+        if value.mime not in mimetypes.types_map.values():
             raise ValueError("Invalid MIME type")
-        return cls(mime=value)
+        return value
 
 
 class HashSignature(BaseModel):
