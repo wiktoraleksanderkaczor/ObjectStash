@@ -85,4 +85,4 @@ if __name__ == "__main__":
     db_key = StorageKey(storage=local_client.name, path=PurePosixPath("random_db"))
     ndb = NoSQL(local_client, db_key)
     ndb.insert("test", JSON.parse_obj({"test": "test"}))
-    exec("")
+    print("")
