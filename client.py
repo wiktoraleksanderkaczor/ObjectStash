@@ -11,9 +11,14 @@ from typing import Type, Union
 from config.env import env
 from config.logger import log
 from config.models.env import StorageConfig
+from database.models.objects import JSON
+from database.paradigms.nosql import NoSQL
 from role.superclass.discovery import Coordinator
+from storage.client.local import LocalClient
+from storage.client.memory import MemoryClient
 from storage.interface.client import StorageClientInterface
 from storage.models.object.path import StorageKey
+from storage.wrapper.index import IndexWrapper
 
 
 class GracefulExit:
@@ -74,15 +79,17 @@ class Pioneer:
 
 
 if __name__ == "__main__":
-    objsth = Pioneer()
-    from storage.client.local import LocalClient
+    pioneer = Pioneer()
 
-    local_client = objsth.connect("Local", LocalClient)
-    client_mgr = StorageManager(local_client)
-    from database.models.objects import JSON
-    from database.paradigms.nosql import NoSQL
+    directory = pioneer.connect("Local", LocalClient)
+    memory = pioneer.connect("Memory", MemoryClient)
 
-    db_key = StorageKey(storage=local_client.name, path=PurePosixPath("random_db"))
-    ndb = NoSQL(local_client, db_key)
+    db_key = StorageKey(storage=directory.name, path=PurePosixPath("random_db"))
+    ndb = NoSQL(directory, db_key)
     ndb.insert("test", JSON.parse_obj({"test": "test"}))
+    indexed = IndexWrapper(directory, memory, [])
+
+    indb = NoSQL(indexed, db_key)
+    data = indb.get("test")
+
     print("")
