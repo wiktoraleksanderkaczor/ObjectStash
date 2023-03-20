@@ -23,7 +23,7 @@ class Database:
         if key not in self:
             raise KeyError(f"Key '{key}' does not exist")
         data = self.storage.get(path).__root__
-        return JSON.parse_raw(data)
+        return JSON.from_bytes(data)
 
     def __contains__(self, key: str) -> bool:
         path = self.prefix.join(key)

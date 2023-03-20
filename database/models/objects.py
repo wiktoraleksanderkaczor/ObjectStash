@@ -1,10 +1,10 @@
 """Object model for the database service."""
 import json
 import pickle
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, Optional, Set, Tuple
 
 from jsonmerge import merge
-from pydantic import BaseModel, Extra, Json, create_model
+from pydantic import BaseModel, Extra, Json
 
 from config.logger import log
 
@@ -15,7 +15,7 @@ class JSON(BaseModel):
     """
     JSON object model for database services. Takes in fields and values with ability to generate JSON schema.
     Allows merging capabilities with other JSON objects assuming valid schema, or schema input at merge-time.
-    Made to be subclassed by the user for their own database models. This includes merging of extra fields, which 
+    Made to be subclassed by the user for their own database models. This includes merging of extra fields, which
     are not defined in the schema.
 
     The schema required per-field (default being 'overwrite') in 'properties' is:
@@ -52,7 +52,7 @@ class JSON(BaseModel):
         Args:
             old (JSON): A JSON object representing the original data.
             new (JSON): A JSON object representing the new data.
-            schema (Optional[JSON], optional): An optional JSON object representing the schema for the data. Defaults to None.
+            schema (Optional[JSON]): A JSON object representing the schema for the data.
 
         Returns:
             schema (JSON): A JSON object containing the updated schema
@@ -103,6 +103,10 @@ class JSON(BaseModel):
 
     def to_bytes(self) -> bytes:
         return pickle.dumps(self, protocol=pickle.HIGHEST_PROTOCOL)
+
+    @classmethod
+    def from_bytes(cls, data: bytes) -> "JSON":
+        return pickle.loads(data)
 
 
 if __name__ == "__main__":
