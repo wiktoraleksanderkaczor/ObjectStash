@@ -50,9 +50,9 @@ class OverlayWrapper(StorageWrapper):
             return self.__wrapped__.remove(key)
         raise KeyError(f"Key '{key}' does not exist")
 
-    def list(self, key: StorageKey, recursive: bool = False) -> List[StorageKey]:
-        overlay = self.overlay.list(key, recursive=recursive)
-        wrapped = self.__wrapped__.list(key, recursive=recursive)
+    def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
+        overlay = self.overlay.list(prefix, recursive=recursive)
+        wrapped = self.__wrapped__.list(prefix, recursive=recursive)
         return list(set(overlay + wrapped))
 
     def __contains__(self, key: StorageKey) -> bool:
