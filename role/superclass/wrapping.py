@@ -11,7 +11,7 @@ class ObjectProxyMetaclass(type(WraptObjectProxy)):  # pylint: disable=too-few-p
     pass
 
 
-class DistributedObjectProxyMetaclass(type(WraptObjectProxy), type(Distributed)):
+class DistributedObjectProxyMetaclass(ObjectProxyMetaclass, type(Distributed)):
     pass
 
 
@@ -33,6 +33,12 @@ class ObjectProxy(WraptObjectProxy):
 
 
 class DistributedObjectProxy(ObjectProxy, Distributed, metaclass=DistributedObjectProxyMetaclass):
+    """
+    Base class for distributed object proxies. Wrapped class must inherit `Distributed` class
+    """
+
     def __init__(self, wrapped: Any, consumers: List[SyncObjConsumer]):
+        # Make this object a proxy for the underlying object
         ObjectProxy.__init__(self, wrapped)
-        Distributed.__init__(self, f"{self.__class__}({repr(wrapped)})", consumers=consumers)
+        # Make underlying object a distributed object
+        Distributed.__init__(self, repr(self), consumers=consumers)
