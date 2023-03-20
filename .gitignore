@@ -1,14 +1,12 @@
 # Environment
 venv/
 
-# Configuration
-.pioneer.json
-.pioneer.schema.json
+# Testing
+test/
 
 # Python caches
 *.py[cod]
 __pycache__/
-
 
 # Package distribution
 dist/
