@@ -11,7 +11,7 @@ from config.logger import log
 from role.interface.distribution import DistributedInterface
 
 
-class Distributed(DistributedInterface, SyncObj):
+class Distributed(SyncObj, DistributedInterface):
     # Peer data structure
     peers: List[AnyUrl] = env.cluster.initial_peers
     distributed_objects: List["Distributed"] = []
