@@ -4,12 +4,11 @@ from pprint import pprint
 
 from pydantic import ValidationError
 
-from config.constants import CONFIG_FNAME
+from config.constants import CONFIG_FNAME, CONFIG_SCHEMA_FNAME
 from config.models.env import Config, FormatJSON
 
 
-def make_config(fname=CONFIG_FNAME, ext="json") -> Config:
-    fname = f"{fname}.{ext}"
+def make_config(fname=CONFIG_FNAME) -> Config:
     config = Config()
     with open(fname, "w+", encoding="utf-8") as handle:
         _json = config.json(**FormatJSON().dict())
@@ -17,7 +16,7 @@ def make_config(fname=CONFIG_FNAME, ext="json") -> Config:
     return config
 
 
-def make_jsonschema(fname=CONFIG_FNAME, ext="schema.json"):
+def make_jsonschema(fname=CONFIG_SCHEMA_FNAME, ext="schema.json"):
     fname = f"{fname}.{ext}"
     config = Config()
     with open(fname, "w+", encoding="utf-8") as handle:
