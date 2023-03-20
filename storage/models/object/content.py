@@ -1,5 +1,4 @@
 """Content information for items."""
-import mimetypes
 from enum import Enum
 from hashlib import sha256
 from typing import List, Optional
@@ -51,8 +50,8 @@ class TypeSignature(BaseModel):
     @classmethod
     def validate(cls, value: "TypeSignature") -> "TypeSignature":
         # Check that v in MIME type database
-        if value.mime not in mimetypes.types_map.values():
-            raise ValueError("Invalid MIME type")
+        if not value.mime:  # not in mimetypes.types_map.values():
+            raise ValueError("Unknown or invalid MIME type")
         return value
 
 
