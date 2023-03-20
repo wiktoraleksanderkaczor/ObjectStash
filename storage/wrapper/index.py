@@ -21,7 +21,7 @@ class IndexWrapper(StorageWrapper):
     ):
         super().__init__(wrapped, consumers)
         self.storage: StorageClientInterface = storage
-        root_path = StorageKey(storage=storage.name, path=PurePosixPath("/"))
+        root_path = StorageKey(storage=storage.name, path=PurePosixPath(""))
 
         self.index = NoSQL(self.storage, StorageKey(storage=self.storage.name, path=PurePosixPath("index")))
         for item in self.__wrapped__.list(root_path, recursive=True):
