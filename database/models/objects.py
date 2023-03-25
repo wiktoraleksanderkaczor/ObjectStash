@@ -1,10 +1,9 @@
 """Object model for the database service."""
 import json
-import pickle
 from typing import Any, Dict, Optional, Set, Tuple
 
 from jsonmerge import merge
-from pydantic import BaseModel, Extra, Json
+from pydantic import BaseModel, Extra
 
 from config.logger import log
 
