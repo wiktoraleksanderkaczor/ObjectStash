@@ -12,8 +12,9 @@ from storage.models.object.path import StorageKey
 class Database:
     def insert(self, key: str, value: JSON) -> None:
         path = self.prefix.join(key)
-        # obj = Object.from_basemodel(name, value)
-        data = ObjectData(__root__=value.to_bytes())
+        json = value.json()
+        encoded = json.encode("utf-8")
+        data = ObjectData(__root__=encoded)
         content = ObjectContentInfo.from_data(data=data)
         obj = Object(name=path, content=content)
         self.storage.put(obj, data)
@@ -23,7 +24,7 @@ class Database:
         if key not in self:
             raise KeyError(f"Key '{key}' does not exist")
         data = self.storage.get(path).__root__
-        return JSON.from_bytes(data)
+        return JSON.parse_raw(data)
 
     def __contains__(self, key: str) -> bool:
         path = self.prefix.join(key)

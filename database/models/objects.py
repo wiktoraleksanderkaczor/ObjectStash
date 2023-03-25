@@ -16,20 +16,19 @@ class JSON(BaseModel):
     JSON object model for database services. Takes in fields and values with ability to generate JSON schema.
     Allows merging capabilities with other JSON objects assuming valid schema, or schema input at merge-time.
     Made to be subclassed by the user for their own database models. This includes merging of extra fields, which
-    are not defined in the schema.
+    are not defined in the schema. All fields must be JSON serializable.
+
+    The schema can be generated (sans extra fields) from the model using the 'schema' method. Use generated
+    base schema and add the extra fields to the 'properties' section.
+
+    'parse_obj' can be used to construct from dictionary while 'parse_raw' can be used for a JSON bytes/string.
 
     The schema required per-field (default being 'overwrite') in 'properties' is:
-    "mergeStrategy": "overwrite" | "discard" | "append" | "arrayMergeById" | \
-        "arrayMergeByIndex" | "objectMerge" | "version"
-
-    The schema can be generated from the model using the 'schema' method, extra fields not included. It is ecommended to
-    use the generated schema as a base for the final schema, and add the extra fields to the 'properties' field.
+    `"mergeStrategy": "overwrite" | "discard" | "append" | "arrayMergeById" | \
+        "arrayMergeByIndex" | "objectMerge" | "version"`
 
     Merging options can be defined for a field like so:
-    ```new_field: str = Field("", mergeStrategy="overwrite")```
-
-    Finally, 'parse_obj' method can be used to construct from dictionary while 'from_json' can be used to construct from
-    a JSON string.
+    `new_field: str = Field(..., mergeStrategy="overwrite")`
 
     Additional information can be found in; https://pypi.org/project/jsonmerge/
     """
@@ -96,22 +95,10 @@ class JSON(BaseModel):
     def extra_fields(self) -> Set[str]:
         return set(self.__dict__) - set(self.__fields__)
 
-    @classmethod
-    def from_json(cls, json_string: Json) -> "JSON":
-        data = json.loads(json_string)
-        return cls(**data)
-
-    def to_bytes(self) -> bytes:
-        return pickle.dumps(self, protocol=pickle.HIGHEST_PROTOCOL)
-
-    @classmethod
-    def from_bytes(cls, data: bytes) -> "JSON":
-        return pickle.loads(data)
-
 
 if __name__ == "__main__":
     base = JSON.parse_obj({"a": 1, "b": 2})
-    head = JSON.from_json(json.dumps({"a": 3, "c": 4}))
+    head = JSON.parse_raw(json.dumps({"a": 3, "c": 4}))
     print(base)
     print(head)
     print(base.dict())
