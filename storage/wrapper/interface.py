@@ -38,10 +38,12 @@ class StorageWrapper(DistributedObjectProxy, StorageClientInterface):
     def __contains__(self, key: StorageKey) -> bool:
         return key in self.__wrapped__
 
-    # Needed for Distributed initialization
-    # TODO: Look into another ObjectProxy type which exposes the __dict__... or a merger of wrapped and proxy
     @property
     def __dict__(self):
+        # Might be needed for more correct behavior later, unknown if properly writable
+        # merged = {}
+        # merged.update(super().__dict__)
+        # merged.update(self.__wrapped__.__dict__)
         return self.__wrapped__.__dict__
 
     @property
