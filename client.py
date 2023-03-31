@@ -48,8 +48,8 @@ class StorageManager:
 
 class Pioneer:
     def __init__(self):
-        self.coordinator = Coordinator()
-        self.flag = GracefulExit()
+        self.coordinator: Coordinator = Coordinator()
+        self.flag: GracefulExit = GracefulExit()
 
     def connect(
         self, config: Union[str, StorageConfig], client: Type[StorageClientInterface]
