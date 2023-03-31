@@ -1,10 +1,9 @@
 """Group model."""
-from uuid import uuid4
-
 from pydantic import BaseModel, Field, StrictStr
-from pydantic.types import UUID4
+
+from datamodel.unique import PioneerUUID
 
 
 class Group(BaseModel):
     name: StrictStr = "Pioneer"
-    uuid: UUID4 = Field(default_factory=uuid4)
+    uuid: PioneerUUID = Field(default_factory=PioneerUUID.random)

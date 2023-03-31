@@ -5,8 +5,10 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from datamodel.timedate import PioneerDateTime
+
 
 class ModificationInfo(BaseModel):
-    modified: datetime = Field(default_factory=datetime.utcnow)
-    created: datetime = Field(default_factory=datetime.utcnow)
-    accessed: datetime = Field(default_factory=datetime.utcnow)
+    modified: PioneerDateTime = Field(default_factory=datetime.utcnow)
+    created: PioneerDateTime = Field(default_factory=datetime.utcnow)
+    accessed: PioneerDateTime = Field(default_factory=datetime.utcnow)

@@ -2,7 +2,6 @@
 This module contains the implementation of a storage locking wrapper for the storage client.
 """
 from datetime import datetime
-from pathlib import PurePosixPath
 from typing import List
 
 from pysyncobj import SyncObjConsumer
@@ -11,7 +10,7 @@ from config.env import env
 from role.superclass.scheduling import scheduler
 from storage.interface.client import StorageClientInterface
 from storage.models.object.models import Object
-from storage.models.object.path import StorageKey
+from storage.models.object.path import StorageKey, StoragePath
 from storage.models.wrapper.locking import Lock
 from storage.wrapper.interface import StorageWrapper
 
@@ -20,7 +19,7 @@ class LockingWrapper(StorageWrapper):
     def __init__(
         self,
         wrapped: StorageClientInterface,
-        path: PurePosixPath,
+        path: StoragePath,
         consumers: List[SyncObjConsumer],
     ):
         super().__init__(wrapped, consumers)

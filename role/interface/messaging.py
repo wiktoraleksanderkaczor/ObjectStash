@@ -19,7 +19,7 @@ class MessagingInterface(ABC):
 
     @replicated
     @abstractmethod
-    def add_message_handler(self, name: str, selector: Callable, func: Callable):
+    def add_message_handler(self, name: str, condition: Callable, func: Callable):
         ...
 
     @abstractmethod

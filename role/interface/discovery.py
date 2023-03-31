@@ -26,7 +26,6 @@ class CoordinatorInterface(ABC):
         self.listener: ListenerInterface
         self.browser: ServiceBrowser
         self.service: ServiceInfo
-        ...
 
     @abstractmethod
     def __del__(self):

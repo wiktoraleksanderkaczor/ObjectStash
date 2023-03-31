@@ -1,24 +1,23 @@
 """
 This module contains the models for the items in the storage service.
 """
-from pathlib import PurePosixPath
 from typing import Tuple, Type
-from uuid import uuid4
 
-from pydantic import UUID4, BaseModel, Field
+from pydantic import BaseModel, Field
 
+from datamodel.unique import PioneerUUID
 from storage.models.client.key import StorageClientKey
 from storage.models.object.content import ObjectContentInfo, ObjectData
 from storage.models.object.metadata import Metadata
 from storage.models.object.ownership import OwnershipInfo
-from storage.models.object.path import StorageKey
+from storage.models.object.path import StorageKey, StoragePath
 from storage.models.object.permissions import PermissionInfo
 from storage.models.object.storage import StorageInfo
 from storage.models.object.version import VersionInfo
 
 
 class ItemModel(BaseModel):
-    uuid: UUID4 = Field(default_factory=uuid4)
+    uuid: PioneerUUID = Field(default_factory=PioneerUUID.random)
     storage: StorageInfo = StorageInfo()
     ownership: OwnershipInfo = OwnershipInfo()
     permissions: PermissionInfo = PermissionInfo()
@@ -32,7 +31,7 @@ class Object(ItemModel):
 
     @classmethod
     def create(
-        cls: Type["Object"], storage: StorageClientKey, path: PurePosixPath, raw: bytes
+        cls: Type["Object"], storage: StorageClientKey, path: StoragePath, raw: bytes
     ) -> Tuple["Object", "ObjectData"]:
         name = StorageKey(storage=storage, path=path)
         data = ObjectData(__root__=raw)

@@ -5,7 +5,6 @@ backends. It is designed to be simple to use and easy to extend.
 This module contains the main entry point for the Pioneer application.
 """
 import signal
-from pathlib import PurePosixPath
 from typing import Type, Union
 
 from config.env import env
@@ -17,7 +16,7 @@ from role.superclass.discovery import Coordinator
 from storage.client.local import LocalClient
 from storage.client.memory import MemoryClient
 from storage.interface.client import StorageClientInterface
-from storage.models.object.path import StorageKey
+from storage.models.object.path import StorageKey, StoragePath
 from storage.wrapper.index import IndexWrapper
 
 
@@ -84,7 +83,7 @@ if __name__ == "__main__":
     directory = pioneer.connect("Local", LocalClient)
     memory = pioneer.connect("Memory", MemoryClient)
 
-    db_key = StorageKey(storage=directory.name, path=PurePosixPath("random_db"))
+    db_key = StorageKey(storage=directory.name, path=StoragePath("random_db"))
     ndb = NoSQL(directory, db_key)
     ndb.insert("test", JSON.parse_obj({"test": "test"}))
     indexed = IndexWrapper(directory, memory, [])
