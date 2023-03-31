@@ -1,6 +1,7 @@
 """Object model for the database service."""
 import json
-from typing import Any, Dict, Optional, Set, Tuple
+from importlib import import_module
+from typing import Any, Dict, Optional, Set, Tuple, Union
 
 from jsonmerge import merge
 from pydantic import BaseModel, Extra
@@ -8,6 +9,44 @@ from pydantic import BaseModel, Extra
 from config.logger import log
 
 MERGE_STRATEGIES = ["overwrite", "discard", "append", "arrayMergeById", "arrayMergeByIndex", "objectMerge", "version"]
+
+
+def pioneer_json_encoder(v: Any) -> str:
+    """Custom JSON encoder (+decoder check) for Pioneer objects."""
+    if isinstance(v, BaseModel):
+        return v.json()
+    has_custom_encoder = getattr(v, "json", None)
+    has_custom_decoder = getattr(v, "from_json", None)
+    if has_custom_encoder and has_custom_decoder:
+        path: str
+        try:
+            path = f"{v.__class__.__module__}.{v.__class__.__qualname__}"
+            # README: Check for absolute path imports later... maybe even from StorageClient
+            # path = inspect.getfile(v.__class__) + "." + v.__class__.__name__
+        except (TypeError, OSError) as e:
+            raise TypeError("Object is not an instance of a JSON serializable class") from e
+        encoded = {"__type__": v.__class__.__name__, "__path__": path, "__value__": v.json()}
+        return json.dumps(encoded)
+    raise TypeError(f"Object of type {v.__class__.__name__} is not JSON serializable")
+
+
+def pioneer_json_decoder(obj: Dict[str, Any]) -> Any:
+    if "__type__" in obj:
+        mod = import_module(obj["__path__"])
+        cls = getattr(mod, obj["__type__"])
+        instance = cls.from_json(obj["__value__"])
+        return instance
+    return obj
+
+
+def pioneer_loads_json(__obj: Union[bytes, bytearray, memoryview, str]) -> Any:
+    """Custom JSON decoder for Pioneer objects."""
+    return json.loads(__obj, object_hook=pioneer_json_decoder)
+
+
+def pioneer_dumps_json(__obj: Any, **_: Any) -> str:
+    """Custom JSON encoder for Pioneer objects."""
+    return json.dumps(__obj, default=pioneer_json_encoder)
 
 
 class JSON(BaseModel):
@@ -82,6 +121,8 @@ class JSON(BaseModel):
     # Just in case
     class Config:
         extra: Extra = Extra.allow
+        json_dumps = pioneer_dumps_json
+        json_loads = pioneer_loads_json
 
         @staticmethod
         def schema_extra(schema: Dict[str, Any], _model: type["JSON"]) -> None:
