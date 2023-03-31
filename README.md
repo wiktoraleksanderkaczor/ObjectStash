@@ -1,29 +1,60 @@
-Providing highly available database services on S3 or other compatible storage. This is done by synchronising nodes in a local network to work together with PubSub updates on DB modifications and distributed locking with the requirement of all participating nodes in a single repository having communication to each-other with zeroconf. S3 or other compatible storage must be strict read-after-write and list-after-write consistent.
+# Cluster-in-a-box (ephemeral and/or stateful)
+Motivation: I got tired of maintaining reliable compute, storage and service environments, either for personal use or development work. Multiple libraries used in software development are annoying to keep up-to-date, sometimes unavailable on different platforms, etc. I also do not want to pay for cloud services where it is not necessary, and I don't want to maintain the servers required. Configurability of how uptime is maintained and somewhat weird use cases are also a factor.
 
-Supported paradigms:
-- Relational
-- Timeseries
-- Document
-- Graph
+Solution: This project aims to provide a simple, easy to use, highly available and scalable but insecure by default (for simplicity, possible development later) environment for running your own cloud, everything from a single computer to highly distributed heterogenous networks of commodity computers. It is designed to be used as a personal cloud, or as a development environment, anything from personal storage to automatically clustered machine learning. All with the reliability of a cloud provider, but with the control of a local network.
 
-Recommended setup; Local MinIO instance with replication to cloud S3 or other compatible storage for high availability, low latency and avoiding costs related to lots of IO operations. It might also be suited for low volume work directly directly on the cloud or even high volume depending on cost appetites. Finally, it has the ability to run in a serverless environment assuming an external synchronization store, since AWS lambdas would not have network communication with each other.
+What can it run on: Anything, hybrid, multi-cloud, multi-paradigm (machines, serverless, containers, VMs, etc.). Some features requiring specific backend capabilities like reliable storage, compute, networking, etc. will be disabled if no available backend supports them. For example, an external state store and at least one always-on manager is required for serverless functions.
 
-Additional info:
-- Each instance runs and uses a replicated Python object with RAFT consensus... this shares indexes which saves on storage queries, allows pubsub and distributed locking as well as caching most used data.
+Provided (or on the roadmap):
+- Compute (serverless, containers, [parallel] VMs, etc.)
+- Bootstraping (provisioning, configuration, network boot etc.)
+- Abstracted multiple-access storage (S3, NFS, etc.)
+- Multi-paradigm database (relational, timeseries, document, graph, object etc.)
+- Meshed highly-utilized multi-adapter networking 
+- Synchronization of data between nodes (replication, sharding etc.)
+- Device sharing (USB, display, audio etc.)
+- Industry-standard adapters (SQL, REST, GraphQL, Redis, etc.)
+- Enterprise services (Active Directory, proxies,  etc.)
+- Extensible (plugins, modules, etc.)
+- Authentication (private keys, certificates, etc.) and authorization (roles, permissions, etc.)
+- Security (encryption, firewall, intrusion detection, overflow attacks, MFA etc.)
+- Monitoring (metrics, logs, etc.)
+- Backup and recovery (snapshots, etc.)
+- Multi-tenancy (multiple users, organizations, etc.)
+- Geographical location aware (multiple datacenters, etc.)
+
+Principles (biased):
+- Human readable everything (if possible, storage, configuration, logs, etc.)
+- Independence, autonomy, and self-sufficiency (anything required by the cluster should be provided by the cluster)
+- Keep it simple stupid (KISS)
+- Do not repeat yourself (DRY)
+- Reinvent the wheel if necessary
+- Over-engineer for future use 
+- Do not over-optimize (premature optimization is the root of all evil)
+- Do not over-document (code should be self-documenting, or documentation should be generated from code and comments)
+- Security as a second-class citizen (holes can be patched later, better to have a working [instead of a secure] system)
+- Transparent wrapping for additional functionality
+- Functionality not provided by the backend should be provided by the software or cluster (e.g. S3 locking or streams over FUSE)
+
+Action: This is done by synchronising nodes over any network to work together, cooperatively, no masters, replicas etc. A single package of software and programming library. If you've got the authentication, you can do whatever the environment supports. 
+
+Reliability:
+- This software is not magic, if all nodes go down, the cluster is down
+- If any node is compromised, the entire cluster is compromised (at least right now)
+- RAFT consensus... it still suffers from the CAP theorem
 - Discovery of other instances for coordination of distributed object happens through ZeroConf
 - Multiple instance lock consensus is handled by RAFT, simple.
 
-https://pypi.org/project/pysyncobj/
+Configuration:
+- Centralized configuration with replication
+- As simple as possible
+- Sensible defaults but configurable
+- Changeable at runtime
 
-Database indexes are made using B-Tree or HashMap:
-https://stackoverflow.com/questions/3909602/is-there-a-b-tree-database-or-framework-in-python
-https://chartio.com/learn/databases/how-does-indexing-work/
-https://en.wikipedia.org/wiki/Database_index
-https://pypi.org/project/zeroconf/
-
-
-Additionally, the capability of mounting storage into a FUSE layer will be necessary, especially when running VMs. Caching large files will have to be worked out on the client side... and acknowledges of writes will likely not be synchronous... but that should be fine if the VM is a journaling file system?
-
-Streams will be implemented over PyFuse, too much bullshit otherwise...
+#### Developer setup
+- Ensure Linux-based system with working Docker installation
+- VSCode will take care of setup with 'devcontainers'
+- Use 'drone exec' to run pipeline locally
+- Ensure pipeline passed before commit, pipelines checked on git hook
 
 DISCLAIMER: The author takes no responsibility for costs incurred by the usage of this project, there is no explicit or implied warranty
