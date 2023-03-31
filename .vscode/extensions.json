@@ -1,8 +1,7 @@
 {
     "recommendations": [
+        "github.copilot",
         "visualstudioexptteam.vscodeintellicode",
-        "ms-python.vscode-pylance",
-        "ms-python.isort",
-        "ms-python.pylint"
+        "visualstudioexptteam.intellicode-api-usage-examples",
     ]
 }

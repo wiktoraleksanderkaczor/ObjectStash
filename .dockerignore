@@ -1,0 +1,18 @@
+# Development
+.vscode/devcontainer.json
+
+#### .gitignore ####
+
+# Environment
+venv/
+
+# Testing
+test/
+
+# Python caches
+*.py[cod]
+__pycache__/
+
+# Package distribution
+dist/
+sdist/
