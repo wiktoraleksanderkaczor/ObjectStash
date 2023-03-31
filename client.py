@@ -26,7 +26,7 @@ class GracefulExit:
         signal.signal(signal.SIGINT, self.change_state)
 
     def change_state(self, _signum, _frame):
-        print("CTRL+C captured, exiting gracefully (repeat to exit now)")
+        print("CTRL+C captured, exiting gracefully (repeat to exit unsafely)")
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.state = True
 
