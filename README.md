@@ -5,23 +5,25 @@ Solution: This project aims to provide a simple, easy to use, highly available a
 
 What can it run on: Anything, hybrid, multi-cloud, multi-paradigm (machines, serverless, containers, VMs, etc.). Some features requiring specific backend capabilities like reliable storage, compute, networking, etc. will be disabled if no available backend supports them. For example, an external state store and at least one always-on manager is required for serverless functions.
 
-Provided (or on the roadmap):
-- Compute (serverless, containers, [parallel] VMs, etc.)
-- Bootstraping (provisioning, configuration, network boot etc.)
+Features:
 - Abstracted multiple-access storage (S3, NFS, etc.)
-- Multi-paradigm database (relational, timeseries, document, graph, object etc.)
-- Meshed highly-utilized multi-adapter networking 
 - Synchronization of data between nodes (replication, sharding etc.)
+- Multi-paradigm database (relational, timeseries, document, graph, object etc.)
+
+Roadmap (ranked):
+- Compute (serverless, containers, [parallel] VMs, etc.)
+- Meshed high-utilization multi-adapter networking 
 - Device sharing (USB, display, audio etc.)
 - Industry-standard adapters (SQL, REST, GraphQL, Redis, etc.)
 - Enterprise services (Active Directory, proxies,  etc.)
-- Extensible (plugins, modules, etc.)
 - Authentication (private keys, certificates, etc.) and authorization (roles, permissions, etc.)
 - Security (encryption, firewall, intrusion detection, overflow attacks, MFA etc.)
 - Monitoring (metrics, logs, etc.)
 - Backup and recovery (snapshots, etc.)
 - Multi-tenancy (multiple users, organizations, etc.)
 - Geographical location aware (multiple datacenters, etc.)
+- Extensible (plugins, modules, etc.)
+- Bootstraping (provisioning, configuration, network boot etc.)
 
 Principles (biased):
 - Human readable everything (if possible, storage, configuration, logs, etc.)
