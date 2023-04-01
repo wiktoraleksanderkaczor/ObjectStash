@@ -3,6 +3,7 @@ WORKDIR /pioneer
 
 # Basic requirements
 RUN apt-get update && apt-get install -y \
+    git \
     curl \
     python3 \
     python3-pip \
@@ -24,6 +25,9 @@ RUN install -t /usr/local/bin drone
 ADD . .
 RUN python3 -m pip install -r requirements.txt
 
+# Git hooks setup
+RUN pre-commit autoupdate
+RUN pre-commit install
 
 # Basic run command
 CMD [ "python3" "server.py"]
