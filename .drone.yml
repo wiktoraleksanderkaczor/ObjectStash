@@ -1,0 +1,38 @@
+kind: pipeline
+type: docker
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: isort
+    image: python
+    commands:
+      - pip install -r requirements.txt
+      - isort --check --diff .
+
+  - name: black
+    image: python
+    commands:
+      - pip install -r requirements.txt
+      - black --check --diff .
+
+  - name: flake8
+    image: python
+    commands:
+      - pip install -r requirements.txt
+      - flake8
+
+  - name: pylint
+    image: python
+    commands:
+      - pip install -r requirements.txt
+      - pylint --rcfile=pyproject.toml **/*.py
+
+  # - name: test
+  #   image: python
+  #   commands:
+  #     - pip install -r requirements.txt
+  #     - pytest tests/
