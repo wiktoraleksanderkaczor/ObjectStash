@@ -12,7 +12,7 @@ Features:
 
 Roadmap (ranked):
 - Compute (serverless, containers, [parallel] VMs, etc.)
-- Meshed high-utilization multi-adapter networking 
+- Meshed high-utilization multi-adapter networking
 - Device sharing (USB, display, audio etc.)
 - Industry-standard adapters (SQL, REST, GraphQL, Redis, etc.)
 - Enterprise services (Active Directory, proxies,  etc.)
@@ -31,14 +31,14 @@ Principles (biased):
 - Keep it simple stupid (KISS)
 - Do not repeat yourself (DRY)
 - Reinvent the wheel if necessary
-- Over-engineer for future use 
+- Over-engineer for future use
 - Do not over-optimize (premature optimization is the root of all evil)
 - Do not over-document (code should be self-documenting, or documentation should be generated from code and comments)
 - Security as a second-class citizen (holes can be patched later, better to have a working [instead of a secure] system)
 - Transparent wrapping for additional functionality
 - Functionality not provided by the backend should be provided by the software or cluster (e.g. S3 locking or streams over FUSE)
 
-Action: This is done by synchronising nodes over any network to work together, cooperatively, no masters, replicas etc. A single package of software and programming library. If you've got the authentication, you can do whatever the environment supports. 
+Action: This is done by synchronising nodes over any network to work together, cooperatively, no masters, replicas etc. A single package of software and programming library. If you've got the authentication, you can do whatever the environment supports.
 
 Reliability:
 - This software is not magic, if all nodes go down, the cluster is down

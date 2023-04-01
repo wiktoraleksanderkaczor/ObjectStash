@@ -22,7 +22,7 @@ profile = "black"
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
 # run arbitrary code.
-# extension-pkg-allow-list = 
+# extension-pkg-allow-list =
 
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
@@ -142,7 +142,7 @@ class-const-naming-style = "UPPER_CASE"
 
 # Regular expression matching correct class names. Overrides class-naming-style.
 # If left empty, class names will be checked with the set naming style.
-# class-rgx = 
+# class-rgx =
 
 # Naming style matching correct constant names.
 const-naming-style = "UPPER_CASE"
@@ -538,5 +538,3 @@ ignored-argument-names = "_.*|^ignored_|^unused_"
 # List of qualified module names which can have objects that can redefine
 # builtins.
 redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", "builtins", "io"]
-
-
