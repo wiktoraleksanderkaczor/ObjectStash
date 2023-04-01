@@ -21,16 +21,18 @@ class Messaging(MessagingInterface, Distributed):
             self.handle_message(message)
 
     @replicated
-    def add_message_handler(self, name: str, filter: Callable, func: Callable):
-        self.handlers[name] = {"filter": filter, "func": func}
+    def add_message_handler(self, name: str, condition: Callable[[Any], bool], func: Callable[[Any], Any]):
+        self.handlers[name] = {"condition": condition, "func": func}
 
     def remove_message_handler(self, name: str) -> Union[str, None]:
         return self.handlers.pop(name, None)
 
     def handle_message(self, message: Any):
         for handling in self.handlers.values():
-            if handling["filter"](message):
-                return handling["func"](message)
+            condition = handling["condition"]
+            func = handling["func"]
+            if condition(message):
+                return func(message)
 
 
 messaging = Messaging("Messaging")
