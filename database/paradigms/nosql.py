@@ -1,8 +1,8 @@
 """
 NoSQL database paradigm is a database that stores data in a document structure.
 """
-from database.superclass.database import DocumentDatabase
+from database.superclass.client import DocumentDatabaseClient
 
 
-class NoSQL(DocumentDatabase):
+class NoSQL(DocumentDatabaseClient):
     pass

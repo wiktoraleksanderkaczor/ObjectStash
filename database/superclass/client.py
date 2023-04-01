@@ -2,7 +2,7 @@
 import pickle
 from typing import Any, Callable, List
 
-from database.interface.database import DatabaseInterface
+from database.interface.client import DatabaseInterface
 from database.models.objects import JSON
 from storage.interface.client import StorageClientInterface
 from storage.models.object.content import ObjectContentInfo, ObjectData
@@ -10,7 +10,7 @@ from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
 
 
-class BaseDatabase(DatabaseInterface):
+class BaseDatabaseClient(DatabaseInterface):
     def __contains__(self, key: str) -> bool:
         path = self.prefix.join(key)
         return path in self.storage
@@ -37,7 +37,7 @@ class BaseDatabase(DatabaseInterface):
         # self.lock: Lock = DatabaseLock(self.storage, self.prefix, ".lock")
 
 
-class DocumentDatabase(BaseDatabase):
+class DocumentDatabaseClient(BaseDatabaseClient):
     def insert(self, key: str, value: JSON) -> None:
         path = self.prefix.join(key)
         json = value.json()
@@ -63,7 +63,7 @@ class DocumentDatabase(BaseDatabase):
         return super().select(condition)
 
 
-class ObjectDatabase(BaseDatabase):
+class ObjectDatabaseClient(BaseDatabaseClient):
     def insert(self, key: str, value: object) -> None:
         path = self.prefix.join(key)
         encoded = pickle.dumps(value)
