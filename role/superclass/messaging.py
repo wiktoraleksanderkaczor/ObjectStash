@@ -1,3 +1,4 @@
+"""Messaging service for cluster communication handling"""
 from typing import Any, Callable, Union
 
 from pysyncobj.batteries import ReplDict, replicated
@@ -27,12 +28,13 @@ class Messaging(MessagingInterface, Distributed):
     def remove_message_handler(self, name: str) -> Union[str, None]:
         return self.handlers.pop(name, None)
 
-    def handle_message(self, message: Any):
+    def handle_message(self, message: Any) -> Union[Any, None]:
         for handling in self.handlers.values():
             condition = handling["condition"]
             func = handling["func"]
             if condition(message):
                 return func(message)
+        return None
 
 
 messaging = Messaging("Messaging")

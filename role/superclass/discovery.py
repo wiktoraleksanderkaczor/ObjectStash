@@ -66,6 +66,9 @@ class Coordinator(CoordinatorInterface):
         self.service = service
         self.zeroconf.register_service(self.service, cooperating_responders=True)
 
+    def query_service(self, type_: str, name: str) -> Union[ServiceInfo, None]:
+        return self.zeroconf.get_service_info(type_, name)
+
     def __del__(self):
         self.zeroconf.unregister_service(self.service)
         self.zeroconf.close()

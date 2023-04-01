@@ -38,8 +38,7 @@ class Distributed(SyncObj, DistributedInterface):
         def wrapper(*args, **kwargs):
             if self.is_master():
                 return func(*args, **kwargs)
-            else:
-                return lambda *args, **kwargs: None
+            return lambda *args, **kwargs: None
 
         return wrapper
 
