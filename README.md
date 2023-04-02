@@ -12,6 +12,7 @@ Features:
 
 Roadmap (ranked):
 - Compute (serverless, containers, [parallel] VMs, etc.)
+- CI/CD service (container, local exec, etc.)
 - Meshed high-utilization multi-adapter networking
 - Device sharing (USB, display, audio etc.)
 - Industry-standard adapters (SQL, REST, GraphQL, Redis, etc.)
