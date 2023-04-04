@@ -10,5 +10,6 @@ jsonmerge
 hashid
 wrapt
 dnslib
+jsonpickle
 
 -r "dev-requirements.txt"

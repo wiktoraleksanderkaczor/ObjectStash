@@ -1,5 +1,6 @@
 """Environment configuration model."""
 from datetime import timedelta
+from enum import Enum
 from typing import Dict, List, Optional, Union
 
 from pydantic import AnyUrl, BaseModel, Extra, IPvAnyAddress, SecretStr
@@ -47,6 +48,14 @@ class StorageConfig(BaseModel):
         extra: Extra = Extra.allow
 
 
+class DatabaseFallback(str, Enum):
+    JSONPICKLE = "jsonpickle"
+
+
+class Database(BaseModel):
+    fallback: Optional[DatabaseFallback] = None
+
+
 class BasicFormat(BaseModel):
     class Config:
         extra: Extra = Extra.allow
@@ -88,6 +97,7 @@ class Objects(BaseModel):
 class Config(BaseModel):
     cluster: Cluster = Cluster()
     storage: Dict[str, StorageConfig] = {"Local": StorageConfig()}
+    database: Database = Database()
     objects: Objects = Objects()
     encoding: Encoding = Encoding()
     formatting: Formatting = Formatting()

@@ -3,10 +3,18 @@ import json
 from importlib import import_module
 from typing import Any, Dict, Optional, Set, Tuple, Union
 
+import jsonpickle
+import jsonpickle.ext.numpy as jsonpickle_numpy
+import jsonpickle.ext.pandas as jsonpickle_pandas
 from jsonmerge import merge
 from pydantic import BaseModel, Extra
 
+from config.env import env
 from config.logger import log
+from config.models.env import DatabaseFallback
+
+jsonpickle_numpy.register_handlers()
+jsonpickle_pandas.register_handlers()
 
 MERGE_STRATEGIES = ["overwrite", "discard", "append", "arrayMergeById", "arrayMergeByIndex", "objectMerge", "version"]
 
@@ -27,6 +35,11 @@ def pioneer_json_encoder(v: Any) -> str:
             raise TypeError("Object is not an instance of a JSON serializable class") from e
         encoded = {"__type__": v.__class__.__name__, "__path__": path, "__value__": v.json()}
         return json.dumps(encoded)
+    if env.database.fallback:
+        match env.database.fallback:
+            case DatabaseFallback.JSONPICKLE:
+                return str(jsonpickle.encode(v))
+
     raise TypeError(f"Object of type {v.__class__.__name__} is not JSON serializable")
 
 
@@ -36,6 +49,8 @@ def pioneer_json_decoder(obj: Dict[str, Any]) -> Any:
         cls = getattr(mod, obj["__type__"])
         instance = cls.from_json(obj["__value__"])
         return instance
+    if "py/object" in obj and env.database.fallback == DatabaseFallback.JSONPICKLE:
+        return jsonpickle.decode(json.dumps(obj))
     return obj
 
 
