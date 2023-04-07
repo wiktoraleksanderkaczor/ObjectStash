@@ -33,7 +33,7 @@ class LocalClient(BaseStorageClient):
 
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         path = Path(str(prefix.path))
-        glob = path.glob("**/*" if recursive else "*")
+        glob = path.glob("*/**/*" if recursive else "*")
         files = [item for item in glob if item.is_file()]
         keys = [StorageKey(storage=self.name, path=StoragePath(str(item))) for item in files]
         return keys
