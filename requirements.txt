@@ -11,5 +11,6 @@ hashid
 wrapt
 dnslib
 jsonpickle
+typing-extensions
 
 -r "dev-requirements.txt"

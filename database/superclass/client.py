@@ -1,6 +1,7 @@
 """Database model for the database service."""
-from typing import Any, Callable, List
+from typing import Callable, List, Optional
 
+from typing_extensions import Self
 from database.interface.client import DatabaseInterface
 from database.models.objects import JSON
 from storage.interface.client import StorageClientInterface
@@ -26,9 +27,9 @@ class DatabaseClient(DatabaseInterface):
         data = self.storage.get(path).__root__
         return JSON.parse_raw(data)
 
-    def merge(self, key: str, head: JSON) -> None:
+    def merge(self, key: str, head: JSON, schema: Optional[JSON]) -> None:
         base = self.get(key)
-        _, new = JSON.merge(base, head)
+        _, new = JSON.merge(base, head, schema)
         self.insert(key, new)
 
     def __contains__(self, key: str) -> bool:
@@ -40,13 +41,27 @@ class DatabaseClient(DatabaseInterface):
         if key in self:
             self.storage.remove(path)
 
-    def items(self) -> List[str]:
-        return [item.path.name for item in self.storage.list(self.prefix)]
+    def items(self, prefix: Optional[str] = None) -> List[str]:
+        path = self.data.join(prefix) if prefix else self.data
+        return [item.path.name for item in self.storage.list(path)]
 
-    def select(self, condition: Callable[[JSON], bool]) -> List[Any]:
+    def select(self, condition: Callable[[JSON], bool]) -> List[JSON]:
         records = [self.get(key) for key in self.items()]
         records = list(filter(condition, records))
         return records
+
+    def namespace(self, name: str) -> Self:
+        """
+        Create a new namespace in the database.
+
+        Args:
+            name (str): Name of the namespace.
+            Multiple can be specified with separators.
+
+        Returns:
+            Self: A new database client of same type.
+        """
+        return self.__class__(self.storage, self.data.join(name))
 
     def __init__(self, storage: StorageClientInterface, name: StorageKey):
         self.storage: StorageClientInterface = storage
