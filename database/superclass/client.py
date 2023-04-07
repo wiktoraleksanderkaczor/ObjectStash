@@ -11,7 +11,7 @@ from storage.models.object.path import StorageKey, StoragePath
 
 class DatabaseClient(DatabaseInterface):
     def insert(self, key: str, value: JSON) -> None:
-        path = self.prefix.join(key)
+        path = self.data.join(key)
         json = value.json()
         encoded = json.encode("utf-8")
         data = ObjectData(__root__=encoded)
@@ -20,7 +20,7 @@ class DatabaseClient(DatabaseInterface):
         self.storage.put(obj, data)
 
     def get(self, key: str) -> JSON:
-        path = self.prefix.join(key)
+        path = self.data.join(key)
         if key not in self:
             raise KeyError(f"Key '{key}' does not exist")
         data = self.storage.get(path).__root__
@@ -32,11 +32,11 @@ class DatabaseClient(DatabaseInterface):
         self.insert(key, new)
 
     def __contains__(self, key: str) -> bool:
-        path = self.prefix.join(key)
+        path = self.data.join(key)
         return path in self.storage
 
     def delete(self, key: str) -> None:
-        path = self.prefix.join(key)
+        path = self.data.join(key)
         if key in self:
             self.storage.remove(path)
 
@@ -49,6 +49,6 @@ class DatabaseClient(DatabaseInterface):
         return records
 
     def __init__(self, storage: StorageClientInterface, name: StorageKey):
-        self.prefix: StorageKey = StorageKey(storage=storage.name, path=StoragePath(f"partitions/{name.path}"))
         self.storage: StorageClientInterface = storage
-        # self.lock: Lock = DatabaseLock(self.storage, self.prefix, ".lock")
+        self.root: StorageKey = StorageKey(storage=storage.name, path=StoragePath(f"database/{name.path}"))
+        self.data: StorageKey = self.root.join("data")
