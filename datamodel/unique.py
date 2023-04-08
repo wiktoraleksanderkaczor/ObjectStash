@@ -4,7 +4,7 @@ from uuid import uuid4
 from pydantic.types import UUID4
 
 
-class PioneerUUID(UUID4):
+class UniqueID(UUID4):
     def json(self):
         return self.hex
 

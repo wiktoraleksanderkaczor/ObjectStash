@@ -5,7 +5,7 @@ from typing import Tuple, Type
 
 from pydantic import BaseModel, Field
 
-from datamodel.unique import PioneerUUID
+from datamodel.unique import UniqueID
 from storage.models.client.key import StorageClientKey
 from storage.models.object.content import ObjectContentInfo, ObjectData
 from storage.models.object.metadata import Metadata
@@ -17,7 +17,7 @@ from storage.models.object.version import VersionInfo
 
 
 class ItemModel(BaseModel):
-    uuid: PioneerUUID = Field(default_factory=PioneerUUID.random)
+    uuid: UniqueID = Field(default_factory=UniqueID.random)
     storage: StorageInfo = StorageInfo()
     ownership: OwnershipInfo = OwnershipInfo()
     permissions: PermissionInfo = PermissionInfo()

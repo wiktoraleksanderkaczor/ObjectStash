@@ -1,9 +1,9 @@
 """Repository model."""
 from pydantic import BaseModel, Field
 
-from datamodel.unique import PioneerUUID
+from datamodel.unique import UniqueID
 
 
 class Repository(BaseModel):
     name: str = "Pioneer"
-    uuid: PioneerUUID = Field(default_factory=PioneerUUID.random)
+    uuid: UniqueID = Field(default_factory=UniqueID.random)

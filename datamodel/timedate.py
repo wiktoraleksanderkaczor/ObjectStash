@@ -2,7 +2,7 @@
 from datetime import datetime
 
 
-class PioneerDateTime(datetime):
+class DateTime(datetime):
     def json(self):
         return self.isoformat()
 
