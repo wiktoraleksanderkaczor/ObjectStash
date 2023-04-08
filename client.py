@@ -16,7 +16,6 @@ from role.superclass.discovery import Coordinator
 from storage.client.local import LocalClient
 from storage.client.memory import MemoryClient
 from storage.interface.client import StorageClientInterface
-from storage.models.object.path import StorageKey, StoragePath
 from storage.wrapper.index import IndexWrapper
 
 
@@ -83,12 +82,11 @@ if __name__ == "__main__":
     directory = pioneer.connect("Local", LocalClient)
     memory = pioneer.connect("Memory", MemoryClient)
 
-    db_key = StorageKey(storage=directory.name, path=StoragePath("random_db"))
-    ndb = NoSQL(directory, db_key)
+    ndb = NoSQL("random_db", directory)
     ndb.insert("test", JSON.parse_obj({"test": "test"}))
     indexed = IndexWrapper(directory, memory, [])
 
-    indb = NoSQL(indexed, db_key)
+    indb = NoSQL("random_db", indexed)
     data = indb.get("test")
 
     print("")
