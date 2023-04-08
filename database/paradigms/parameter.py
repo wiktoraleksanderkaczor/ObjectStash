@@ -4,9 +4,9 @@ Parameter database paradigm. Each parameter is stored as a key-value pair with t
 from typing import Callable, List, Tuple
 
 from database.models.objects import JSON
+from database.paradigms.nosql import NoSQL
 from database.superclass.client import DatabaseClient
 from storage.interface.client import StorageClientInterface
-from storage.models.object.path import StorageKey
 
 
 class Parameter(DatabaseClient):
@@ -55,6 +55,13 @@ class Parameter(DatabaseClient):
         records = list(filter(condition, records))
         return records
 
-    def __init__(self, storage: StorageClientInterface, name: StorageKey):
-        super().__init__(storage, name)
-        self.tags = DatabaseClient(storage, name.join("tags"))
+    def __init__(
+        self,
+        name: str,
+        storage: StorageClientInterface,
+    ):
+        super().__init__(name, storage)
+        self.tags = NoSQL(
+            f"{name}/tags",
+            storage,
+        )

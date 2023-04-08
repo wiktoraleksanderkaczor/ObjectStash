@@ -13,7 +13,6 @@ from storage.models.object.path import StorageKey
 
 class BaseStorageClient(StorageClientInterface):
     def __init__(self, config: StorageConfig):
-        self.client = None
         self.config = config
 
     def get(self, key: StorageKey) -> ObjectData:

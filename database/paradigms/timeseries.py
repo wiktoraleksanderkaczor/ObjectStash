@@ -3,10 +3,9 @@ Timeseries database paradigm is a database that stores data in a time series str
 """
 from database.superclass.client import DatabaseClient
 from storage.interface.client import StorageClientInterface
-from storage.models.object.path import StorageKey
 
 
 class Timeseries(DatabaseClient):
-    def __init__(self, storage: StorageClientInterface, name: StorageKey) -> None:
-        super().__init__(storage, name)
+    def __init__(self, name: str, storage: StorageClientInterface) -> None:
+        super().__init__(name, storage)
         raise NotImplementedError("Timeseries database has not been implemented yet")

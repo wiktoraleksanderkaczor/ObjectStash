@@ -22,7 +22,7 @@ class IndexWrapper(StorageWrapper):
         self.storage: StorageClientInterface = storage
         root_path = StorageKey(storage=storage.name, path=StoragePath(""))
 
-        self.index = NoSQL(self.storage, StorageKey(storage=self.storage.name, path=StoragePath("index")))
+        self.index = NoSQL(f"index/{self.__wrapped__.name}", self.storage)
         for item in self.__wrapped__.list(root_path, recursive=True):
             stat = self.__wrapped__.stat(item)
             self.index.insert(str(item.path), JSON.parse_obj(stat.dict()))

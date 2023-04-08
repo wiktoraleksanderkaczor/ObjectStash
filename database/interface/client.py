@@ -4,6 +4,7 @@ from typing import Any, Callable, List, Optional
 
 from typing_extensions import Self
 
+from database.models.objects import JSON
 from storage.interface.client import StorageClientInterface
 from storage.models.object.path import StorageKey
 
@@ -42,7 +43,9 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    def __init__(self, storage: StorageClientInterface, name: StorageKey):
+    def __init__(self, name: str, storage: StorageClientInterface):
+        self.name: str
         self.storage: StorageClientInterface
         self.root: StorageKey
         self.data: StorageKey
+        self.config: JSON

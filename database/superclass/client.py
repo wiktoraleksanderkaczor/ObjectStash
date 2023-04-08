@@ -2,7 +2,9 @@
 from typing import Callable, List, Optional
 
 from typing_extensions import Self
+
 from database.interface.client import DatabaseInterface
+from database.models.config import DatabaseConfig
 from database.models.objects import JSON
 from storage.interface.client import StorageClientInterface
 from storage.models.object.content import ObjectContentInfo, ObjectData
@@ -61,9 +63,14 @@ class DatabaseClient(DatabaseInterface):
         Returns:
             Self: A new database client of same type.
         """
-        return self.__class__(self.storage, self.data.join(name))
+        return self.__class__(f"{self.name}/{name}", self.storage)
 
-    def __init__(self, storage: StorageClientInterface, name: StorageKey):
+    def __init__(self, name: str, storage: StorageClientInterface):
+        self.name: str = name
         self.storage: StorageClientInterface = storage
-        self.root: StorageKey = StorageKey(storage=storage.name, path=StoragePath(f"database/{name.path}"))
+        self.root: StorageKey = StorageKey(storage=storage.name, path=StoragePath(f"database/{name}"))
         self.data: StorageKey = self.root.join("data")
+
+        # Load config
+        config_data = self.storage.get(self.root.join("config.json")).__root__
+        self.config: DatabaseConfig = DatabaseConfig.parse_raw(config_data)
