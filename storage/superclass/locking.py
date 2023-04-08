@@ -92,7 +92,7 @@ class Lock:
         self.storage = storage
         self.path = path
         self.acquire()
-        interval = env.locking.duration - env.locking.grace
+        interval = env.locking.storage.duration - env.locking.storage.grace
         scheduler.every(interval.seconds).seconds.do(self.refresh)
 
     def acquire(self) -> None:

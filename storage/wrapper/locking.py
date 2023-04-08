@@ -1,59 +1,74 @@
 """
 This module contains the implementation of a storage locking wrapper for the storage client.
 """
-from datetime import datetime
 from typing import List
 
 from pysyncobj import SyncObjConsumer
+from pysyncobj.batteries import ReplLockManager
 
 from config.env import env
 from role.superclass.scheduling import scheduler
 from storage.interface.client import StorageClientInterface
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
-from storage.models.wrapper.locking import Lock
+from storage.models.wrapper.locking import StorageLock
 from storage.wrapper.interface import StorageWrapper
 
 
-class LockingWrapper(StorageWrapper):
+# Add acquiry timeouts
+class StorageLockingWrapper(StorageWrapper):
     def __init__(
         self,
         wrapped: StorageClientInterface,
-        path: StoragePath,
         consumers: List[SyncObjConsumer],
     ):
         super().__init__(wrapped, consumers)
-        self.key = StorageKey(storage=self.__wrapped__.name, path=path)
-        self.data: Lock
-        if not self.valid():
-            self.acquire()
-        else:
-            raise RuntimeError(f"{self.__wrapped__} already locked")
+        self.key = StorageKey(storage=self.__wrapped__.name, path=StoragePath(".lock"))
+        self.storage_lock: StorageLock
+        self.acquire()
         # Refresh the lock before it expires (90% of lock duration).
-        duration_in_seconds = self.data.duration.total_seconds()
+        duration_in_seconds = self.storage_lock.duration.total_seconds()
         refresh_interval = duration_in_seconds * 0.9
         scheduler.every(int(refresh_interval)).seconds.do(self.refresh)
 
-    def valid(self) -> bool:
-        if self.key in self.__wrapped__:
-            obj = self.__wrapped__.get(self.key)
-            self.data = Lock.from_bytes(obj.__root__)
-            if self.data.timestamp + self.data.duration < datetime.utcnow():
-                return False
-            if self.data.cluster != env.cluster.name:
-                return False
-            return True
-        return False
-
-    def acquire(self) -> None:
-        self.data = Lock()
-        obj, data = Object.create(storage=self.key.storage, path=self.key.path, raw=self.data.to_bytes())
-        self.__wrapped__.put(obj, data)
+    def acquire(self, is_refresh: bool = False) -> None:
+        if self.key not in self.__wrapped__ or is_refresh:
+            self.storage_lock = StorageLock()
+            obj, data = Object.create(
+                storage=self.key.storage, path=self.key.path, raw=self.storage_lock.json().encode()
+            )
+            self.__wrapped__.put(obj, data)
+        self.storage_lock: StorageLock = StorageLock.parse_raw(self.__wrapped__.get(self.key).__root__)
+        if not self.storage_lock.valid():
+            raise RuntimeError(f"{self.__wrapped__} already locked")
 
     def release(self) -> None:
-        if self.key in self.__wrapped__:
+        if self.storage_lock.valid() and self.key in self.__wrapped__:
             self.__wrapped__.remove(self.key)
 
     def refresh(self) -> None:
-        if self.valid():
-            self.acquire()
+        if self.storage_lock.valid() and self.key in self.__wrapped__:
+            return self.acquire(is_refresh=True)
+        return self.acquire()
+
+    def __enter__(self) -> StorageLock:
+        self.acquire()
+        return self.storage_lock
+
+    def __exit__(self, *args, **kwargs):
+        self.release()
+
+
+class ObjectLockingWrapper(StorageLockingWrapper):
+    def __init__(self, wrapped: StorageClientInterface, consumers: List[SyncObjConsumer]):
+        self.object_locks = ReplLockManager(env.locking.objects.duration, self.__wrapped__.name)
+        super().__init__(wrapped, consumers)
+
+    def lock(self, path: StoragePath) -> bool:
+        is_locked = self.object_locks.tryAcquire(path.path, sync=True, timeout=env.locking.objects.grace)
+        if not is_locked:
+            return False
+        return True
+
+    def unlock(self, path: StoragePath) -> None:
+        self.object_locks.release(path.path, sync=True, timeout=env.locking.objects.grace)

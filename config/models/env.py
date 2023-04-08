@@ -20,9 +20,19 @@ class Cluster(BaseModel):
     group: Group = Group()
 
 
-class Locking(BaseModel):
+class StorageLocking(BaseModel):
     duration: timedelta = timedelta(minutes=5)
     grace: timedelta = timedelta(minutes=1)
+
+
+class ObjectLocking(BaseModel):
+    duration: timedelta = timedelta(minutes=5)
+    grace: timedelta = timedelta(minutes=1)
+
+
+class Locking(BaseModel):
+    objects: ObjectLocking = ObjectLocking()
+    storage: StorageLocking = StorageLocking()
 
 
 # class Timeouts(BaseModel):
