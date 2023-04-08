@@ -17,9 +17,6 @@ class JSONProtocol(ABC):
 
         Note:
             This method must be implemented by a subclass in order to support JSON serialization.
-
-        Raises:
-            NotImplementedError: If the subclass does not implement this method.
         """
         raise NotImplementedError("to_json() has not been implemented")
 
@@ -33,8 +30,5 @@ class JSONProtocol(ABC):
 
         Returns:
             Self: An instance of the class.
-
-        Raises:
-            NotImplementedError: If the subclass does not implement this method.
         """
         raise NotImplementedError("from_json() has not been implemented")
