@@ -1,9 +1,12 @@
 """Database model for the database service."""
-from typing import Callable, List, Optional
+from typing import Callable, Dict, List, Optional
 
 from typing_extensions import Self
 
+from compute.interface.functions import FunctionClientInterface
+from compute.models.functions.config import FunctionConfig
 from database.interface.client import DatabaseInterface
+from database.models.client import FieldPath
 from database.models.config import DatabaseConfig
 from database.models.objects import JSON
 from storage.interface.client import StorageClientInterface
@@ -65,7 +68,7 @@ class DatabaseClient(DatabaseInterface):
         """
         return self.__class__(f"{self.name}/{name}", self.storage)
 
-    def __init__(self, name: str, storage: StorageClientInterface):
+    def __init__(self, name: str, storage: StorageClientInterface, compute: Optional[FunctionClientInterface] = None):
         self.name: str = name
         self.storage: StorageClientInterface = storage
         self.root: StorageKey = StorageKey(storage=storage.name, path=StoragePath(f"database/{name}"))
@@ -74,3 +77,10 @@ class DatabaseClient(DatabaseInterface):
         # Load config
         config_data = self.storage.get(self.root.join("config.json")).__root__
         self.config: DatabaseConfig = DatabaseConfig.parse_raw(config_data)
+
+        # Load operations
+        self.operations: Dict[FieldPath, FunctionConfig] = self.config.operations
+        if self.operations and not compute:
+            raise ValueError("Database has calculated fields but no function client was provided")
+        if compute:
+            self.compute: FunctionClientInterface = compute

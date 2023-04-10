@@ -1,10 +1,10 @@
 """Database configuration model."""
-from typing import Dict, List, Union
+from typing import Dict
 
-from compute.interface.functions.interface import FunctionInterface
+from compute.models.functions.config import FunctionConfig
 from database.models.client import FieldPath
 from database.models.objects import JSON
 
 
 class DatabaseConfig(JSON):
-    calculated: Dict[Union[FieldPath, List[FieldPath]], FunctionInterface]
+    operations: Dict[FieldPath, FunctionConfig]  # README: Calculated fields and constraints
