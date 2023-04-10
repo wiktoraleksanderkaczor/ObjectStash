@@ -35,17 +35,6 @@ class Locking(BaseModel):
     storage: StorageLocking = StorageLocking()
 
 
-# class Timeouts(BaseModel):
-#     storage: Lock = Lock()
-#     object: Lock = Lock()
-#     action: Lock = Lock()
-
-
-# class Locking(BaseModel):
-#     duration: timedelta = timedelta(minutes=1)
-#     filename: str = ".lock"
-
-
 class StorageConfig(BaseModel):
     endpoint: Union[AnyUrl, IPvAnyAddress] = AnyUrl("pioneer://localhost", scheme="pioneer")
     repository: Repository = Repository()
@@ -58,12 +47,8 @@ class StorageConfig(BaseModel):
         extra: Extra = Extra.allow
 
 
-class DatabaseFallback(str, Enum):
+class SerializationFallback(str, Enum):
     JSONPICKLE = "jsonpickle"
-
-
-class Database(BaseModel):
-    fallback: Optional[DatabaseFallback] = None
 
 
 class BasicFormat(BaseModel):
@@ -100,15 +85,19 @@ class Formatting(BaseModel):
     JSON: FormatJSON = FormatJSON()
 
 
+class Serialization(BaseModel):
+    encoding: Encoding = Encoding()
+    formatting: Formatting = Formatting()
+    fallback: Optional[SerializationFallback] = None
+
+
 class Objects(BaseModel):
     pass
 
 
 class Config(BaseModel):
     cluster: Cluster = Cluster()
+    serialization: Serialization = Serialization()
     storage: Dict[str, StorageConfig] = {"Local": StorageConfig()}
-    database: Database = Database()
     objects: Objects = Objects()
-    encoding: Encoding = Encoding()
-    formatting: Formatting = Formatting()
     locking: Locking = Locking()
