@@ -9,6 +9,11 @@ from storage.models.client.key import StorageClientKey
 
 
 class StoragePath:
+    """
+    StoragePath is a model that represents a path to a file or directory in a storage.
+    No wildcard, regex or unsafe append, that's handled by the operating system
+    """
+
     def __init__(self, path: str) -> None:
         self.path = path
 
