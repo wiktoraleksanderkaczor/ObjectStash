@@ -25,6 +25,14 @@ class DatabaseClient(DatabaseInterface):
         obj = Object(name=path, content=content)
         self.storage.put(obj, data)
 
+    def update(self, key: str, value: JSON) -> None:
+        self.remove(key)
+        self.insert(key, value)
+
+    def remove(self, key: str) -> None:
+        path = self.data.join(key)
+        self.storage.remove(path)
+
     def get(self, key: str) -> JSON:
         path = self.data.join(key)
         if key not in self:

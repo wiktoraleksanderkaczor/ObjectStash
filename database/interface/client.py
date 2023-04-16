@@ -15,6 +15,14 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
+    def update(self, key: str, value: JSON) -> None:
+        ...
+
+    @abstractmethod
+    def remove(self, key: str) -> None:
+        ...
+
+    @abstractmethod
     def get(self, key: str) -> Any:
         pass
 
