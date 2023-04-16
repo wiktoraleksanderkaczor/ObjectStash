@@ -1,10 +1,11 @@
 """Object model for the database service."""
 import json
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Generator, Iterable, List, Mapping, Optional, Tuple
 
 from jsonmerge import merge
 
 from config.logger import log
+from database.models.client import FieldPath
 from datamodel.data import PioneerBaseModel
 
 MERGE_STRATEGIES = ["overwrite", "discard", "append", "arrayMergeById", "arrayMergeByIndex", "objectMerge", "version"]
@@ -79,6 +80,26 @@ class JSON(PioneerBaseModel):
         result = merge(old.dict(), new.dict(), filled_schema)
         return cls(**filled_schema), cls(**result)
 
+    def flatten(self) -> List[Tuple[FieldPath, Any]]:
+        """
+        A method that flattens the JSON object into a list of tuples containing the field path and value.
+
+        Returns:
+            List[Tuple[FieldPath, Any]]: A list of tuples containing the field path and value.
+        """
+
+        def flattened(path: FieldPath, val: Any) -> Generator[Tuple[FieldPath, Any], None, None]:
+            if isinstance(val, Mapping):
+                for k, v in val.items():
+                    yield from flattened(path + k, v)
+            elif isinstance(val, Iterable):
+                for i, v in enumerate(val):
+                    yield from flattened(path + [i], v)
+            else:
+                yield (path, val)
+
+        return list(flattened([], self.dict()))
+
     # Just in case
     class Config(PioneerBaseModel.Config):
         @staticmethod
@@ -105,4 +126,6 @@ if __name__ == "__main__":
             "c": {"mergeStrategy": "overwrite"},
         }
     }
-    print(JSON.merge(base, head, JSON.parse_obj(merge_schema)))
+    _schema, merged = JSON.merge(base, head, JSON.parse_obj(merge_schema))
+    print(merged)
+    print(merged.flatten())
