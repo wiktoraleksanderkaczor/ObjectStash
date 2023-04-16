@@ -80,6 +80,27 @@ class JSON(PioneerBaseModel):
         result = merge(old.dict(), new.dict(), filled_schema)
         return cls(**filled_schema), cls(**result)
 
+    def get(self, path: FieldPath) -> Any:
+        """
+        A method that gets a value from the JSON object using a field path.
+
+        Args:
+            path (FieldPath): A field path to the value.
+
+        Returns:
+            Any: The value at the field path.
+        """
+        first = str(path.pop(0))
+        result: Any = self.dict().get(first)
+        for item in path:
+            if isinstance(item, int) and isinstance(result, Iterable):
+                result = list(result)[item]
+            elif isinstance(item, str) and isinstance(result, Mapping):
+                result = result.get(item)
+            else:
+                raise ValueError(f"Invalid field path: {path}")
+        return result
+
     def flatten(self) -> List[Tuple[FieldPath, Any]]:
         """
         A method that flattens the JSON object into a list of tuples containing the field path and value.
