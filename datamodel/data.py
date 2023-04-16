@@ -67,6 +67,7 @@ class PioneerBaseModel(BaseModel):
     classmethod will be serialized and deserialized using those methods. The rest will be serialized using the default
     JSON encoder, followed by the fallback method (if set). The 'json' method should return a normal JSON Encoder
     serializable object and 'from_json' should expect the same object as input while returning an instance of the class.
+    This also ensures all keys are strings per requirement for JSON. Nested keys handled by Pydantic.
     """
 
     # Just in case
