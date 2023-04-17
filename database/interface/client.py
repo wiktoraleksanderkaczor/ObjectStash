@@ -1,14 +1,16 @@
 """Database model for the database service."""
 from abc import ABC, abstractmethod
-from typing import Any, Callable, List, Optional
+from typing import Any, List, Optional
 
 from typing_extensions import Self
 
 from database.models.objects import JSON
+from database.models.query import Query
 from storage.interface.client import StorageClientInterface
 from storage.models.object.path import StorageKey
 
 
+# Might need upsert method
 class DatabaseInterface(ABC):
     @abstractmethod
     def insert(self, key: str, value: Any) -> None:
@@ -39,7 +41,7 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    def select(self, condition: Callable[[Any], bool]) -> List[Any]:
+    def query(self, query: Query) -> List[Any]:
         pass
 
     @abstractmethod

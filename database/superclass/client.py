@@ -1,5 +1,5 @@
 """Database model for the database service."""
-from typing import Callable, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
@@ -9,6 +9,7 @@ from database.interface.client import DatabaseInterface
 from database.models.client import FieldPath
 from database.models.config import DatabaseConfig
 from database.models.objects import JSON
+from database.models.query import Query
 from storage.interface.client import StorageClientInterface
 from storage.models.object.content import ObjectContentInfo, ObjectData
 from storage.models.object.models import Object
@@ -58,10 +59,13 @@ class DatabaseClient(DatabaseInterface):
         path = self.data.join(prefix) if prefix else self.data
         return [item.path.name for item in self.storage.list(path)]
 
-    def select(self, condition: Callable[[JSON], bool]) -> List[JSON]:
-        records = [self.get(key) for key in self.items()]
-        records = list(filter(condition, records))
-        return records
+    def query(self, query: Query) -> List[JSON]:
+        results = []
+        for item in self.items():
+            data = self.get(item)
+            if query(data):
+                results.extend(data)
+        return results
 
     def namespace(self, name: str) -> Self:
         """
