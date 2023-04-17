@@ -1,5 +1,6 @@
 """Object model for the database service."""
 import json
+from abc import abstractmethod
 from typing import Any, Dict, Generator, Iterable, List, Mapping, Optional, Tuple
 
 from jsonmerge import merge
@@ -100,6 +101,27 @@ class JSON(PioneerBaseModel):
             else:
                 raise ValueError(f"Invalid field path: {path}")
         return result
+
+    # Implement setting value at arbitrary field path, including within iterables
+    @abstractmethod
+    def set(self, path: FieldPath, value: Any) -> None:
+        """
+        A method that sets a value in the JSON object using a field path.
+
+        Args:
+            path (FieldPath): A field path to the value.
+            value (Any): The value to set at the field path.
+        """
+
+    # Implement the equivalent of a dict.update() method
+    @abstractmethod
+    def update(self, value: "JSON") -> None:
+        """
+        A method that updates the JSON object with another JSON object.
+
+        Args:
+            value (JSON): The JSON object to update with.
+        """
 
     def flatten(self) -> List[Tuple[FieldPath, Any]]:
         """
