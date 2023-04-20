@@ -7,4 +7,10 @@ from database.models.objects import JSON
 
 
 class DatabaseConfig(JSON):
-    operations: Dict[FieldPath, FunctionConfig]  # README: Calculated fields and constraints
+    operations: Dict[FieldPath, FunctionConfig]  # Calculated fields
+    # triggers: Dict[FieldPath, str]  # Triggers
+    # constraints: Dict[FieldPath, str]  # Constraints
+    # foreign: Dict[FieldPath, str]  # Foreign keys
+    # views: Dict[FieldPath, str]  # Views
+    # triggers: Dict[FieldPath, str]  # Triggers
+    # logging: Dict[FieldPath, str]  # Logging
