@@ -5,4 +5,5 @@ Given the following data, extracting the first name of the first person in the l
 """
 from typing import List, Union
 
-FieldPath = List[Union[str, int]]
+FieldKey = Union[str, int]
+FieldPath = List[FieldKey]

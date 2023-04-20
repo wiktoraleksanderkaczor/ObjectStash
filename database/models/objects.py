@@ -1,12 +1,11 @@
 """Object model for the database service."""
 import json
-from abc import abstractmethod
-from typing import Any, Dict, Generator, Iterable, List, Mapping, Optional, Tuple
+from typing import Any, Dict, Generator, Iterable, List, Mapping, Optional, Tuple, Union
 
 from jsonmerge import merge
 
 from config.logger import log
-from database.models.client import FieldPath
+from database.models.client import FieldKey, FieldPath
 from datamodel.data import PioneerBaseModel
 
 MERGE_STRATEGIES = ["overwrite", "discard", "append", "arrayMergeById", "arrayMergeByIndex", "objectMerge", "version"]
@@ -103,25 +102,84 @@ class JSON(PioneerBaseModel):
         return result
 
     # Implement setting value at arbitrary field path, including within iterables
-    @abstractmethod
-    def set(self, path: FieldPath, value: Any) -> None:
+    def set(self, path: FieldPath, value: Any, create: bool = True) -> None:
         """
         A method that sets a value in the JSON object using a field path.
+        Optionally creates the field path if it does not exist.
 
         Args:
             path (FieldPath): A field path to the value.
             value (Any): The value to set at the field path.
+            create (bool): Whether to create the field path if it does not exist.
         """
+        if len(path) < 1 or not isinstance(path[0], str):
+            raise ValueError(f"Invalid field path: {path}")
 
-    # Implement the equivalent of a dict.update() method
-    @abstractmethod
-    def update(self, value: "JSON") -> None:
+        # Handle setting the root value only
+        # if len(path) == 1:
+        #     setattr(self, path[0], value)
+        #     return
+
+        # Group into pairs of keys
+        paired: List[Union[FieldKey, None]] = list(path)
+        if len(paired) % 2 != 0:
+            paired.append(None)
+        pairs = zip(paired[::2], paired[1::2])
+
+        item: Any = self
+        for k, n in pairs:
+            # Default of new object:
+            next_item = None
+            if isinstance(n, str):
+                next_item = {}
+            elif isinstance(n, int):
+                next_item = []
+            else:
+                raise ValueError(f"Invalid field path: {path}")
+
+            # If key already exists
+            if isinstance(k, str) and isinstance(item, Mapping):
+                if k in item:
+                    item = dict(item)[k]
+                    continue
+                if create:
+                    setattr(item, k, next_item)
+                    item = item[k]
+                    continue
+                raise ValueError(f"Invalid field path: {path}")
+
+            if isinstance(k, int) and isinstance(item, Iterable):
+                # If key in list
+                item = list(item)
+                if k in range(len(item)):
+                    item = item[k]
+                    continue
+                if create:
+                    item.insert(k, next_item)
+                    item = item[k]
+                    continue
+                raise ValueError(f"Invalid field path: {path}")
+
+            # If item does not exist
+            raise ValueError(f"Invalid field path: {path}")
+
+        # Set the value at the end of the path
+        item = value
+
+    def update(self, value: "JSON", nested: bool = True) -> None:
         """
-        A method that updates the JSON object with another JSON object.
+        A method that updates the JSON object with another JSON object. Matching nested fields by default.
 
         Args:
             value (JSON): The JSON object to update with.
+            nested (bool): Whether to update nested fields.
         """
+        if not nested:
+            for k, v in value.dict().items():
+                self.set([k], v)
+        else:
+            for k, v in value.flatten():
+                self.set(k, v)
 
     def flatten(self) -> List[Tuple[FieldPath, Any]]:
         """
