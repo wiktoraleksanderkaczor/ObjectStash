@@ -42,6 +42,12 @@ class LocalClient(BaseStorageClient):
         shutil.rmtree(obj)
         shutil.rmtree(str(key.path))
 
+    def change(self, key: StorageKey, obj: Object) -> None:
+        path = self.meta.joinpath(str(key.path))
+        path.unlink()
+        path.touch(exist_ok=False)
+        path.write_bytes(obj.json().encode())
+
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         path = Path(str(prefix.path))
         glob = path.glob("*/**/*" if recursive else "*")

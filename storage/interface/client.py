@@ -31,6 +31,10 @@ class StorageClientInterface(ABC):
         ...
 
     @abstractmethod
+    def change(self, key: StorageKey, obj: Object) -> None:
+        ...
+
+    @abstractmethod
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         ...
 

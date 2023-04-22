@@ -35,3 +35,6 @@ class MemoryClient(BaseStorageClient):
         if not recursive:
             return [key for key in prefixed if key.path.parent == prefix.path]
         return prefixed
+
+    def change(self, key: StorageKey, obj: Object) -> None:
+        self.storage[key] = (obj, self.storage[key][1])

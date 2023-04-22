@@ -32,6 +32,9 @@ class StorageWrapper(DistributedObjectProxy, StorageClientInterface):
     def remove(self, key: StorageKey) -> None:
         return self.__wrapped__.remove(key)
 
+    def change(self, key: StorageKey, obj: Object) -> None:
+        return self.__wrapped__.change(key, obj)
+
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         return self.__wrapped__.list(prefix, recursive)
 

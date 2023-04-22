@@ -27,6 +27,9 @@ class BaseStorageClient(StorageClientInterface):
     def remove(self, key: StorageKey) -> None:
         ...
 
+    def change(self, key: StorageKey, obj: Object) -> None:
+        ...
+
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         ...
 
