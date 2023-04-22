@@ -21,6 +21,12 @@ class StoragePath:
         new = os.path.join(self.path, path)
         return StoragePath(new)
 
+    def prefix(self, prefix: str):
+        return StoragePath(prefix + self.path)
+
+    def postfix(self, suffix: str):
+        return StoragePath(self.path + suffix)
+
     @property
     def parent(self):
         return os.path.dirname(self.path)
