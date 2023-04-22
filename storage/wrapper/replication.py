@@ -25,7 +25,7 @@ class ReplicationWrapper(StorageWrapper):
     def put(self, obj: Object, data: ObjectData) -> None:
         self.__wrapped__.put(obj, data)
         copy_name = StorageKey(storage=self.replica.name, path=obj.name.path)
-        copy_obj = Object(name=copy_name, content=obj.content)
+        copy_obj = Object(uuid=obj.uuid, name=copy_name, content=obj.content, metadata=obj.metadata)
         self.replica.put(copy_obj, data)
 
     def remove(self, key: StorageKey) -> None:

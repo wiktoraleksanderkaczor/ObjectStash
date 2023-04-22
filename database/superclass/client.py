@@ -11,7 +11,6 @@ from database.models.config import DatabaseConfig
 from database.models.objects import JSON
 from database.models.query import Query
 from storage.interface.client import StorageClientInterface
-from storage.models.object.content import ObjectContentInfo, ObjectData
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
 
@@ -21,9 +20,7 @@ class DatabaseClient(DatabaseInterface):
         path = self.data.join(key)
         json = value.json()
         encoded = json.encode("utf-8")
-        data = ObjectData(__root__=encoded)
-        content = ObjectContentInfo.from_data(data=data)
-        obj = Object(name=path, content=content)
+        obj, data = Object.create(path, encoded)
         self.storage.put(obj, data)
 
     def update(self, key: str, value: JSON) -> None:
