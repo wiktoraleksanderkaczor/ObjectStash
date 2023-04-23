@@ -53,3 +53,9 @@ class Object(BaseModel):
             metadata=Metadata(),
             item=Folder(),
         )
+
+    def is_file(self) -> bool:
+        return isinstance(self.item, File)
+
+    def is_folder(self) -> bool:
+        return isinstance(self.item, Folder)
