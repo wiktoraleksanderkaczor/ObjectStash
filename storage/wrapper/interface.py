@@ -7,7 +7,8 @@ from pysyncobj import SyncObjConsumer
 
 from role.superclass.wrapping import DistributedObjectProxy
 from storage.interface.client import StorageClientInterface
-from storage.models.object.content import ObjectData
+from storage.models.object.file.info import FileData
+from storage.models.object.metadata import Metadata
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey
 
@@ -20,20 +21,20 @@ class StorageWrapper(DistributedObjectProxy, StorageClientInterface):
     def __repr__(self):
         return f"{self.__class__.__name__}({repr(self.__wrapped__)})"
 
-    def get(self, key: StorageKey) -> ObjectData:
+    def get(self, key: StorageKey) -> FileData:
         return self.__wrapped__.get(key)
 
     def stat(self, key: StorageKey) -> Object:
         return self.__wrapped__.stat(key)
 
-    def put(self, obj: Object, data: ObjectData) -> None:
+    def put(self, obj: Object, data: FileData) -> None:
         return self.__wrapped__.put(obj, data)
 
     def remove(self, key: StorageKey) -> None:
         return self.__wrapped__.remove(key)
 
-    def change(self, key: StorageKey, obj: Object) -> None:
-        return self.__wrapped__.change(key, obj)
+    def change(self, key: StorageKey, metadata: Metadata) -> None:
+        return self.__wrapped__.change(key, metadata)
 
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         return self.__wrapped__.list(prefix, recursive)

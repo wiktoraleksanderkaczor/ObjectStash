@@ -20,7 +20,7 @@ class DatabaseClient(DatabaseInterface):
         path = self.data.join(key)
         json = value.json()
         encoded = json.encode("utf-8")
-        obj, data = Object.create(path, encoded)
+        obj, data = Object.create_file(path, encoded)
         self.storage.put(obj, data)
 
     def update(self, key: str, value: JSON) -> None:

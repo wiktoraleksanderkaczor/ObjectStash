@@ -8,7 +8,7 @@ from pysyncobj import SyncObjConsumer
 from database.models.objects import JSON
 from database.paradigms.nosql import NoSQL
 from storage.interface.client import StorageClientInterface
-from storage.models.object.content import ObjectData
+from storage.models.object.file.info import FileData
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
 from storage.wrapper.interface import StorageWrapper
@@ -27,7 +27,7 @@ class IndexWrapper(StorageWrapper):
             stat = self.__wrapped__.stat(item)
             self.index.insert(str(item.path), JSON.parse_obj(stat.dict()))
 
-    def put(self, obj: Object, data: ObjectData) -> None:
+    def put(self, obj: Object, data: FileData) -> None:
         self.__wrapped__.put(obj, data)
         self.index.insert(str(obj.name.path), JSON.parse_obj(obj.dict()))
 

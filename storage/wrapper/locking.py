@@ -34,7 +34,7 @@ class StorageLockingWrapper(StorageWrapper):
     def acquire(self, is_refresh: bool = False) -> None:
         if self.key not in self.__wrapped__ or is_refresh:
             self.storage_lock = StorageLock()
-            obj, data = Object.create(name=self.key, raw=self.storage_lock.json().encode())
+            obj, data = Object.create_file(name=self.key, raw=self.storage_lock.json().encode())
             self.__wrapped__.put(obj, data)
         self.storage_lock: StorageLock = StorageLock.parse_raw(self.__wrapped__.get(self.key).__root__)
         if not self.storage_lock.valid():

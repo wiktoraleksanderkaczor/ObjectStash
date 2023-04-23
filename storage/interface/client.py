@@ -5,7 +5,9 @@ from typing import List
 from config.models.env import StorageConfig
 from storage.models.client.key import StorageClientKey
 from storage.models.client.medium import Medium
-from storage.models.object import Object, ObjectData
+from storage.models.object.file.data import FileData
+from storage.models.object.metadata import Metadata
+from storage.models.object.models import Object
 from storage.models.object.path import StorageKey
 
 
@@ -15,7 +17,7 @@ class StorageClientInterface(ABC):
         self.config: StorageConfig
 
     @abstractmethod
-    def get(self, key: StorageKey) -> ObjectData:
+    def get(self, key: StorageKey) -> FileData:
         ...
 
     @abstractmethod
@@ -23,7 +25,7 @@ class StorageClientInterface(ABC):
         ...
 
     @abstractmethod
-    def put(self, obj: Object, data: ObjectData) -> None:
+    def put(self, obj: Object, data: FileData) -> None:
         ...
 
     @abstractmethod
@@ -31,7 +33,7 @@ class StorageClientInterface(ABC):
         ...
 
     @abstractmethod
-    def change(self, key: StorageKey, obj: Object) -> None:
+    def change(self, key: StorageKey, metadata: Metadata) -> None:
         ...
 
     @abstractmethod

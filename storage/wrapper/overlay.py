@@ -6,7 +6,7 @@ from typing import List
 from pysyncobj import SyncObjConsumer
 
 from storage.interface.client import StorageClientInterface
-from storage.models.object.content import ObjectData
+from storage.models.object.file.info import FileData
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey
 from storage.wrapper.interface import StorageWrapper
@@ -24,7 +24,7 @@ class OverlayWrapper(StorageWrapper):
         self.overlay: StorageClientInterface = overlay
         self.symmetric: bool = symmetric
 
-    def get(self, key: StorageKey) -> ObjectData:
+    def get(self, key: StorageKey) -> FileData:
         if key in self.overlay:
             return self.overlay.get(key)
         if key in self.__wrapped__:
@@ -38,7 +38,7 @@ class OverlayWrapper(StorageWrapper):
             return self.__wrapped__.stat(key)
         raise KeyError(f"Key '{key}' does not exist")
 
-    def put(self, obj: Object, data: ObjectData) -> None:
+    def put(self, obj: Object, data: FileData) -> None:
         if self.symmetric:
             self.__wrapped__.put(obj, data)
         return self.overlay.put(obj, data)
