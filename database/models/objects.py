@@ -201,6 +201,19 @@ class JSON(PioneerBaseModel):
 
         return list(flattened([], self.dict()))
 
+    @classmethod
+    def from_flattened(cls, flat: List[Tuple[FieldPath, Any]]) -> "JSON":
+        """
+        A method that updates the JSON object with a list of tuples containing the field path and value.
+
+        Args:
+            flat (List[Tuple[FieldPath, Any]]): A list of tuples containing the field path and value.
+        """
+        data = cls()
+        for path, value in flat:
+            data.set(path, value)
+        return data
+
     # Just in case
     class Config(PioneerBaseModel.Config):
         @staticmethod
