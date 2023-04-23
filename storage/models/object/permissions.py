@@ -1,7 +1,7 @@
 """Item permissions model."""
-from typing import Dict
+from typing import Tuple
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from auth.models.group import Group
 from auth.models.user import User
@@ -12,11 +12,21 @@ class PermissionFlags(BaseModel):
     read: bool = True
     write: bool = True
     execute: bool = False
-    # list
+
+    @classmethod
+    def user(cls) -> "PermissionFlags":
+        return PermissionFlags(read=True, write=True, execute=False)
+
+    @classmethod
+    def group(cls) -> "PermissionFlags":
+        return PermissionFlags(read=True, write=True, execute=False)
+
+    @classmethod
+    def others(cls) -> "PermissionFlags":
+        return PermissionFlags(read=True, write=False, execute=False)
 
 
 class PermissionInfo(BaseModel):
-    owner: User = env.cluster.user
-    group: Group = env.cluster.group
-
-    mapping: Dict[str, PermissionFlags] = {env.cluster.user.uuid.hex: PermissionFlags()}  # UUID to permissions
+    owner: Tuple[User, PermissionFlags] = Field(default_factory=lambda: (env.cluster.user, PermissionFlags.user()))
+    group: Tuple[Group, PermissionFlags] = Field(default_factory=lambda: (env.cluster.group, PermissionFlags.group()))
+    others: PermissionFlags = Field(default_factory=PermissionFlags.others)
