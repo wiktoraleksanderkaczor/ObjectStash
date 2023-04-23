@@ -5,6 +5,7 @@ WORKDIR /pioneer
 RUN apt-get update && apt-get install -y \
     git \
     curl \
+    fuse \
     python3 \
     python3-pip \
     python3-dev \
