@@ -5,13 +5,13 @@ from typing import Set
 
 from pydantic import BaseModel, Field
 
-from storage.models.object.modification import ModificationInfo
-from storage.models.object.permissions import PermissionInfo
-from storage.models.object.storage import StorageInfo
+from storage.models.object.properties.access import AccessTimeInfo
+from storage.models.object.properties.permissions import PermissionInfo
+from storage.models.object.properties.retention import RetentionInfo
 
 
-class ObjectMetadata(BaseModel):
-    storage: StorageInfo = StorageInfo()
+class Metadata(BaseModel):
+    storage: RetentionInfo = RetentionInfo()
     permissions: PermissionInfo = PermissionInfo()
-    when: ModificationInfo = ModificationInfo()
+    access: AccessTimeInfo = AccessTimeInfo()
     tags: Set[str] = Field(default_factory=set)

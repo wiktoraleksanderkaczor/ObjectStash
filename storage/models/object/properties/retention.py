@@ -4,12 +4,12 @@ from enum import Enum
 from pydantic import BaseModel
 
 
-class StorageClass(str, Enum):
+class RetentionClass(str, Enum):
     HOT = "HOT"
     WARM = "WARM"
     COLD = "COLD"
     GLACIER = "GLACIER"
 
 
-class StorageInfo(BaseModel):
-    storage_class: StorageClass = StorageClass.HOT
+class RetentionInfo(BaseModel):
+    storage_class: RetentionClass = RetentionClass.HOT

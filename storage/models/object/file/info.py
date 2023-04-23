@@ -6,13 +6,10 @@ from typing import List, Optional
 import magic
 from hashid import HashID, HashInfo
 from magic import MagicException
-from pydantic import BaseModel, ByteSize, StrictBytes, StrictStr
+from pydantic import BaseModel, ByteSize, StrictStr
 
-from storage.models.object.encryption import EncryptionAlgorithm
-
-
-class ObjectData(BaseModel):
-    __root__: StrictBytes
+from storage.models.object.file.data import FileData
+from storage.models.object.file.encryption import EncryptionAlgorithm
 
 
 class CompressionAlgorithm(str, Enum):
@@ -30,7 +27,7 @@ class SizeInfo(BaseModel):
     compressed_bytes: Optional[ByteSize] = None
 
     @classmethod
-    def from_data(cls, data: "ObjectData") -> "SizeInfo":
+    def from_data(cls, data: FileData) -> "SizeInfo":
         return cls(raw_bytes=ByteSize(len(data.__root__)))
 
 
@@ -38,7 +35,7 @@ class TypeSignature(BaseModel):
     mime: StrictStr = "application/octet-stream"
 
     @classmethod
-    def from_data(cls, buffer: "ObjectData") -> "TypeSignature":
+    def from_data(cls, buffer: FileData) -> "TypeSignature":
         mime = None
         try:
             mime = magic.from_buffer(buffer.__root__, mime=True)
@@ -60,7 +57,7 @@ class HashSignature(BaseModel):
     signature: str
 
     @classmethod
-    def from_data(cls, buffer: "ObjectData") -> "HashSignature":
+    def from_data(cls, buffer: FileData) -> "HashSignature":
         signature = sha256(buffer.__root__).hexdigest()
         return cls(signature=signature)
 
@@ -73,7 +70,7 @@ class HashSignature(BaseModel):
         return value
 
 
-class ObjectContentInfo(BaseModel):
+class ObjectInfo(BaseModel):
     size: SizeInfo  # Size of data in bytes or all items in directory
     mime_type: TypeSignature  # MIME type for content
     signature: HashSignature  # Hash for integrity
@@ -81,7 +78,7 @@ class ObjectContentInfo(BaseModel):
     encryption: Optional[EncryptionAlgorithm] = None
 
     @classmethod
-    def from_data(cls, data: "ObjectData") -> "ObjectContentInfo":
+    def from_data(cls, data: FileData) -> "ObjectInfo":
         size = SizeInfo.from_data(data)
         mime_type = TypeSignature.from_data(data)
         signature = HashSignature.from_data(data)
