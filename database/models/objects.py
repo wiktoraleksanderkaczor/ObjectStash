@@ -102,7 +102,7 @@ class JSON(PioneerBaseModel):
         return result
 
     # Implement setting value at arbitrary field path, including within iterables
-    def set(self, path: FieldPath, value: Any, create: bool = True) -> None:
+    def put(self, path: FieldPath, value: Any, create: bool = True) -> None:
         """
         A method that sets a value in the JSON object using a field path.
         Optionally creates the field path if it does not exist.
@@ -176,10 +176,10 @@ class JSON(PioneerBaseModel):
         """
         if not nested:
             for k, v in value.dict().items():
-                self.set([k], v)
+                self.put([k], v)
         else:
             for k, v in value.flatten():
-                self.set(k, v)
+                self.put(k, v)
 
     def flatten(self) -> List[Tuple[FieldPath, Any]]:
         """
@@ -211,7 +211,7 @@ class JSON(PioneerBaseModel):
         """
         data = cls()
         for path, value in flat:
-            data.set(path, value)
+            data.put(path, value)
         return data
 
     # Just in case

@@ -170,7 +170,7 @@ class Query(BaseModel):
                 field, data = new
                 # If field specified, just place the data there.
                 if field:
-                    value.set(field, data)
+                    value.put(field, data)
                 else:
                     # Otherwise, update the value with the data.
                     if isinstance(data, list):
