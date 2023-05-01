@@ -2,8 +2,7 @@
 from typing import Dict
 
 from compute.models.functions.config import FunctionConfig
-from database.models.client import FieldPath
-from database.models.objects import JSON
+from datamodel.data import JSON, FieldPath
 
 
 class DatabaseConfig(JSON):

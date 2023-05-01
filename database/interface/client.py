@@ -4,8 +4,8 @@ from typing import Any, List, Optional
 
 from typing_extensions import Self
 
-from database.models.objects import JSON
 from database.models.query import Query
+from datamodel.data import JSON
 from storage.interface.client import StorageClientInterface
 from storage.models.object.path import StorageKey
 

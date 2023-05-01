@@ -5,12 +5,11 @@ from typing import Any, Iterable, List, Optional, Set, Tuple, Union
 
 from pydantic import BaseModel
 
-from database.models.client import FieldPath
-from database.models.objects import JSON
-from database.superclass.client import DatabaseClient
+# from database.interface.client import DatabaseInterface
+from datamodel.data import JSON, FieldPath
 
 
-class Operator(Enum, str):
+class Operator(str, Enum):
     IS_EQUAL = "=="
     NOT_EQUAL = "!="
     GREATER_THAN = ">"
@@ -20,12 +19,12 @@ class Operator(Enum, str):
     ALL = "any"
 
 
-class Conjunction(Enum, str):
+class Conjunction(str, Enum):
     AND = "and"
     OR = "or"
 
 
-class Modifier(Enum, str):
+class Modifier(str, Enum):
     NOT = "not"
 
 
@@ -126,10 +125,10 @@ class Query(BaseModel):
     A Query class for building, representing and manipulating database queries.
 
     This class provides methods to create and modify queries for databases, supporting common query operations such as
-    select, where, join, limit, offset, order_by, group_by, distinct, union, and intersect. Queries
-    can be executed through the use of DatabaseClient objects, and the class also provides utility methods to obtain a
-    list of fields used in the query and check its validity. Any sum, avg, min, max, or count operations can be
-    performed on the results of the query.
+    select, where, join, limit, offset, order_by, group_by, distinct, union, and intersect. Queries can be executed
+    through the use of DatabaseInterface objects, and the class also provides utility methods to obtain a list of
+    fields used in the query and check its validity. Any sum, avg, min, max, or count operations can be performed on
+    the results of the query.
 
     Attributes:
     outputs (List[FieldPath]): A list of output field paths for the query.
@@ -140,7 +139,7 @@ class Query(BaseModel):
     Methods:
     select(*outputs: FieldPath) -> "Query": Adds output fields to the query.
     where(*conditions: Condition) -> "Query": Adds conditions to the query.
-    join(foreign: Optional[FieldPath], data: DatabaseClient, query: "Query") -> "Query": Adds a join operation
+    join(foreign: Optional[FieldPath], data: DatabaseInterface, query: "Query") -> "Query": Adds a join operation
         to the query.
     limit(limit: int) -> "Query": Adds a limit to the number of rows returned in the query.
     offset(offset: int) -> "Query": Skips a specified number of rows before returning results.
@@ -192,13 +191,14 @@ class Query(BaseModel):
         self.conditions = self.conditions + list(conditions)
         return self
 
-    def join(self, foreign: Optional[FieldPath], data: DatabaseClient, query: "Query") -> "Query":
+    # Avoiding circular import, temporary by data: Any instead of data: DatabaseInterface
+    def join(self, foreign: Optional[FieldPath], data: Any, query: "Query") -> "Query":
         """
         Performs a join operation between two data sources.
 
         Args:
             foreign (FieldPath): The field path to put the foreign data.
-            data (DatabaseClient): The client for the foreign data source.
+            data (DatabaseInterface): The client for the foreign data source.
             query (Query): The query object for foreign data selection.
 
         Returns:

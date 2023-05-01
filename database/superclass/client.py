@@ -6,10 +6,9 @@ from typing_extensions import Self
 from compute.interface.functions import FunctionClientInterface
 from compute.models.functions.config import FunctionConfig
 from database.interface.client import DatabaseInterface
-from database.models.client import FieldPath
 from database.models.config import DatabaseConfig
-from database.models.objects import JSON
 from database.models.query import Query
+from datamodel.data import JSON, FieldPath
 from storage.interface.client import StorageClientInterface
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath

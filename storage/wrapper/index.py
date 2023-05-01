@@ -5,8 +5,8 @@ from typing import List
 
 from pysyncobj import SyncObjConsumer
 
-from database.models.objects import JSON
 from database.paradigms.nosql import NoSQL
+from datamodel.data import JSON
 from storage.interface.client import StorageClientInterface
 from storage.models.object.file.info import FileData
 from storage.models.object.models import Object

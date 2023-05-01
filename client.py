@@ -10,8 +10,8 @@ from typing import Type, Union
 from config.env import env
 from config.logger import log
 from config.models.env import StorageConfig
-from database.models.objects import JSON
 from database.paradigms.nosql import NoSQL
+from datamodel.data import JSON
 from role.superclass.discovery import Coordinator
 from storage.client.local import LocalClient
 from storage.client.memory import MemoryClient

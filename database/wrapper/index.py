@@ -1,10 +1,10 @@
 """Index wrapper for database client."""
 from typing import List
 
-from database.models.objects import JSON
 from database.models.query import Query
 from database.superclass.client import DatabaseClient
 from database.wrapper.interface import DatabaseWrapper
+from datamodel.data import JSON
 
 
 class IndexWrapper(DatabaseWrapper):

@@ -6,9 +6,9 @@ from typing import List, Optional
 from pysyncobj import SyncObjConsumer
 from typing_extensions import Self
 
-from database.models.objects import JSON
 from database.models.query import Query
 from database.superclass.client import DatabaseClient
+from datamodel.data import JSON
 from role.superclass.wrapping import DistributedObjectProxy
 from storage.interface.client import StorageClientInterface
 

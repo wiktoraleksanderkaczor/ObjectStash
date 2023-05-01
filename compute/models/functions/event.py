@@ -1,10 +1,10 @@
 """Function event models for request and response."""
-from datamodel.data import PioneerBaseModel
+from datamodel.data import JSON
 
 
-class FunctionEvent(PioneerBaseModel):
+class FunctionEvent(JSON):
     pass
 
 
-class FunctionResponse(PioneerBaseModel):
+class FunctionResponse(JSON):
     pass

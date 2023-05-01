@@ -1,6 +1,6 @@
 """Client status model."""
-from datamodel.data import PioneerBaseModel
+from datamodel.data import JSON
 
 
-class FunctionClientStatus(PioneerBaseModel):
+class FunctionClientStatus(JSON):
     pass
