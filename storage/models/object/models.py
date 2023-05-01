@@ -5,7 +5,6 @@ from typing import Tuple, Type, Union
 
 from pydantic import BaseModel
 
-from datamodel.unique import UniqueID
 from storage.models.object.file.data import FileData
 from storage.models.object.file.info import ObjectInfo
 from storage.models.object.metadata import Metadata
@@ -28,7 +27,6 @@ class Folder(BaseModel):
 
 class Object(BaseModel):
     name: StorageKey
-    uuid: UniqueID
     metadata: Metadata
     item: Union[File, Folder]
 
@@ -38,7 +36,6 @@ class Object(BaseModel):
         return (
             Object(
                 name=name,
-                uuid=UniqueID(),
                 metadata=Metadata(),
                 item=file,
             ),
@@ -49,7 +46,6 @@ class Object(BaseModel):
     def create_folder(cls: Type["Object"], name: StorageKey) -> "Object":
         return Object(
             name=name,
-            uuid=UniqueID(),
             metadata=Metadata(),
             item=Folder(),
         )
