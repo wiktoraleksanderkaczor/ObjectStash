@@ -11,6 +11,8 @@ hashid
 wrapt
 dnslib
 jsonpickle
+numpy
+pandas
 typing-extensions
 
 -r "dev-requirements.txt"
