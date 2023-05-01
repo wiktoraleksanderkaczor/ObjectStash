@@ -51,7 +51,6 @@ repos:
         entry: pylint
         args:
           - --rcfile=pyproject.toml
-          - --recursive=yes
         language: python
         types: [python]
         require_serial: true
