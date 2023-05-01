@@ -11,6 +11,7 @@ hashid
 wrapt
 dnslib
 jsonpickle
+xattr
 numpy
 pandas
 typing-extensions
