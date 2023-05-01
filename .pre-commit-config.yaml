@@ -51,6 +51,8 @@ repos:
         entry: pylint
         args:
           - --rcfile=pyproject.toml
+          - ../pioneer/
+        pass_filenames: false
         language: python
         types: [python]
         require_serial: true
