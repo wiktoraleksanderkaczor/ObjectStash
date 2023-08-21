@@ -10,7 +10,6 @@ from storage.models.client.info import StorageInfo
 from storage.models.client.key import StorageClientKey
 from storage.models.client.medium import Medium
 from storage.models.object.file.data import FileData
-from storage.models.object.metadata import Metadata
 from storage.models.object.models import Folder, Object
 from storage.models.object.path import StorageKey, StoragePath
 
@@ -40,20 +39,12 @@ class BaseStorageClient(StorageClientInterface):
         ...
 
     def stat(self, key: StorageKey) -> Object:
-        header = self.head(key)
+        header = self.header(key)
         return header[key]
-
-    def change(self, key: StorageKey, metadata: Metadata) -> None:
-        head_key = self._get_head_key(key)
-        header = self.head(head_key)
-        header[key].metadata = metadata
-        encoded = json.dumps(header).encode()
-        obj, data = Object.create_file(head_key, encoded)
-        self.put(obj, data)
 
     # Might add depth limit parameter, decrease by 1 each recursive call
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
-        header = self.head(prefix)
+        header = self.header(prefix)
         items = list(header.keys())
         if recursive:
             folders = [k for k, v in header.items() if isinstance(v, Folder)]
@@ -61,12 +52,20 @@ class BaseStorageClient(StorageClientInterface):
             items.extend(*new)
         return items
 
-    def head(self, key: StorageKey) -> Dict[StorageKey, Object]:
+    def header(self, key: StorageKey) -> Dict[StorageKey, Object]:
         head_key = self._get_head_key(key)
         data = self.get(head_key)
         loaded: Dict[str, Any] = json.loads(data.__root__)
         header = {StorageKey(storage=self.name, path=StoragePath(k)): Object.parse_obj(v) for k, v in loaded.items()}
         return header
+
+    def update(self, obj: Object) -> None:
+        head_key = self._get_head_key(obj.key)
+        header = self.header(obj.key)
+        header[obj.key] = obj
+        encoded = json.dumps(header).encode()
+        obj, data = Object.create_file(head_key, encoded)
+        self.put(obj, data)
 
     def exists(self, key: StorageKey) -> bool:
         return key in self

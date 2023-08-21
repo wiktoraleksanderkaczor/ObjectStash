@@ -42,7 +42,7 @@ class StorageLockingWrapper(StorageWrapper):
             return
         self._lock = StorageLock()
         encoded = self._lock.json().encode()
-        obj, data = Object.create_file(name=self._lock_key, raw=encoded)
+        obj, data = Object.create_file(key=self._lock_key, raw=encoded)
         self.__wrapped__.put(obj, data)
 
     def unlock(self) -> None:
@@ -76,7 +76,7 @@ class ObjectLockingWrapper(StorageLockingWrapper):
         return resp
 
     def put(self, obj: Object, data: FileData) -> None:
-        lock_id = str(obj.name.path)
+        lock_id = str(obj.key.path)
         is_locked = self._lock_manager.tryAcquire(lock_id, sync=True)
         if not is_locked:
             raise RuntimeError(f"Could not acquire lock for {lock_id}")

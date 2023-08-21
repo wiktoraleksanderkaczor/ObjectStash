@@ -22,14 +22,14 @@ class LocalClient(BaseStorageClient):
 
     def put(self, obj: Object, data: FileData) -> None:
         # Resolve path
-        path = self.root.join(str(obj.name.path))
+        path = self.root.join(str(obj.key.path))
         handle = Path(str(path))
         # Write object to disk
         handle.parent.mkdir(parents=True, exist_ok=True)
         handle.touch(exist_ok=True)
         handle.write_bytes(data.__root__)
         # Set metadata
-        self.change(obj.name, obj.metadata)
+        self.update(obj)
 
     def remove(self, key: StorageKey) -> None:
         path = self.root.join(str(key.path))

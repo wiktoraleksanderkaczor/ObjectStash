@@ -21,7 +21,7 @@ class MemoryClient(BaseStorageClient):
         return self.storage[key][1]
 
     def put(self, obj: Object, data: FileData) -> None:
-        self.storage[obj.name] = (obj, data)
+        self.storage[obj.key] = (obj, data)
 
     def remove(self, key: StorageKey) -> None:
         self.storage.pop(key)

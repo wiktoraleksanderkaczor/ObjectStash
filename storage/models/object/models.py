@@ -30,16 +30,16 @@ class Folder(BaseModel):
 
 
 class Object(BaseModel):
-    name: StorageKey
+    key: StorageKey
     metadata: Metadata
     item: Union[File, Folder]  # , Device]
 
     @classmethod
-    def create_file(cls: Type["Object"], name: StorageKey, raw: bytes) -> Tuple["Object", "FileData"]:
+    def create_file(cls: Type["Object"], key: StorageKey, raw: bytes) -> Tuple["Object", "FileData"]:
         file, data = File.create(raw)
         return (
             Object(
-                name=name,
+                key=key,
                 metadata=Metadata(),
                 item=file,
             ),
@@ -47,9 +47,9 @@ class Object(BaseModel):
         )
 
     @classmethod
-    def create_folder(cls: Type["Object"], name: StorageKey) -> "Object":
+    def create_folder(cls: Type["Object"], key: StorageKey) -> "Object":
         return Object(
-            name=name,
+            key=key,
             metadata=Metadata(),
             item=Folder(),
         )

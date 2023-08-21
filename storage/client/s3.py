@@ -48,7 +48,7 @@ class S3Client(BaseStorageClient):
         content_type = obj.item.content.mime_type.mime
         self.client.put_object(
             bucket_name=self.bucket,
-            object_name=str(obj.name.path),
+            object_name=str(obj.key.path),
             data=data.__root__,
             length=len(data.__root__),
             content_type=content_type,

@@ -29,7 +29,7 @@ class IndexWrapper(StorageWrapper):
 
     def put(self, obj: Object, data: FileData) -> None:
         self.__wrapped__.put(obj, data)
-        self.index.insert(str(obj.name.path), JSON.parse_obj(obj.dict()))
+        self.index.insert(str(obj.key.path), JSON.parse_obj(obj.dict()))
 
     def remove(self, key: StorageKey) -> None:
         self.__wrapped__.remove(key)

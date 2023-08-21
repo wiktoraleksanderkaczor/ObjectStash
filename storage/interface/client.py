@@ -6,7 +6,6 @@ from storage.models.client.info import StorageInfo
 from storage.models.client.key import StorageClientKey
 from storage.models.client.medium import Medium
 from storage.models.object.file.data import FileData
-from storage.models.object.metadata import Metadata
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
 
@@ -35,15 +34,15 @@ class StorageClientInterface(ABC):
         ...
 
     @abstractmethod
-    def change(self, key: StorageKey, metadata: Metadata) -> None:
-        ...
-
-    @abstractmethod
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         ...
 
     @abstractmethod
-    def head(self, key: StorageKey) -> Dict[StorageKey, Object]:
+    def header(self, key: StorageKey) -> Dict[StorageKey, Object]:
+        ...
+
+    @abstractmethod
+    def update(self, obj: Object) -> None:
         ...
 
     @abstractmethod

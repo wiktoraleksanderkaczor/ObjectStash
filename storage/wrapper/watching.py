@@ -22,8 +22,8 @@ class WatchingWrapper(StorageWrapper):
 
     def put(self, obj: Object, data: FileData) -> None:
         super().put(obj, data)
-        if obj.name in self.callbacks:
-            self.callbacks[obj.name](obj.name)
+        if obj.key in self.callbacks:
+            self.callbacks[obj.key](obj.key)
 
     def remove(self, key: StorageKey) -> None:
         super().remove(key)

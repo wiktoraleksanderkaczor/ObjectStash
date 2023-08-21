@@ -11,7 +11,6 @@ from storage.models.client.info import StorageInfo
 from storage.models.client.key import StorageClientKey
 from storage.models.client.medium import Medium
 from storage.models.object.file.info import FileData
-from storage.models.object.metadata import Metadata
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
 
@@ -40,14 +39,14 @@ class StorageWrapper(DistributedObjectProxy, StorageClientInterface):
     def stat(self, key: StorageKey) -> Object:
         return self.__wrapped__.stat(key)
 
-    def change(self, key: StorageKey, metadata: Metadata) -> None:
-        return self.__wrapped__.change(key, metadata)
-
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         return self.__wrapped__.list(prefix, recursive)
 
-    def head(self, key: StorageKey) -> Dict[StorageKey, Object]:
-        return self.__wrapped__.head(key)
+    def header(self, key: StorageKey) -> Dict[StorageKey, Object]:
+        return self.__wrapped__.header(key)
+
+    def update(self, obj: Object) -> None:
+        return self.__wrapped__.update(obj)
 
     def exists(self, key: StorageKey) -> bool:
         return self.__wrapped__.exists(key)
