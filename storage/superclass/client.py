@@ -3,7 +3,7 @@ Base class for storage clients.
 """
 import json
 from abc import abstractmethod
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from storage.interface.client import StorageClientInterface
 from storage.models.client.info import StorageInfo
@@ -64,7 +64,8 @@ class BaseStorageClient(StorageClientInterface):
     def head(self, key: StorageKey) -> Dict[StorageKey, Object]:
         head_key = self._get_head_key(key)
         data = self.get(head_key)
-        header = json.loads(data.__root__)
+        loaded: Dict[str, Any] = json.loads(data.__root__)
+        header = {StorageKey(storage=self.name, path=StoragePath(k)): Object.parse_obj(v) for k, v in loaded.items()}
         return header
 
     def exists(self, key: StorageKey) -> bool:
@@ -77,7 +78,7 @@ class BaseStorageClient(StorageClientInterface):
             return False
         return True
 
-    def _get_head_key(self, key: StorageKey):
+    def _get_head_key(self, key: StorageKey) -> StorageKey:
         dir_path = key.path.parent if self.stat(key).is_file() else key.path
         dir_key = StorageKey(storage=self.name, path=dir_path)
         file_key = dir_key.join("._head.json")
