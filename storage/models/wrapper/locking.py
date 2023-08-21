@@ -12,9 +12,15 @@ class StorageLock(BaseModel):
     timestamp: DateTime = Field(default_factory=datetime.utcnow)
     duration: timedelta = env.locking.storage.duration
 
+    def is_expired(self) -> bool:
+        return self.timestamp + self.duration < datetime.utcnow()
+
+    def is_owned(self) -> bool:
+        return self.cluster == env.cluster.name
+
     def valid(self) -> bool:
-        if self.timestamp + self.duration < datetime.utcnow():
+        if self.is_expired():
             return False
-        if self.cluster != env.cluster.name:
+        if self.is_owned():
             return False
         return True
