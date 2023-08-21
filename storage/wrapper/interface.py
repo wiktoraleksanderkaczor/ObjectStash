@@ -1,12 +1,15 @@
 """
 Interface for storage wrapper.
 """
-from typing import List
+from typing import Dict, List
 
 from pysyncobj import SyncObjConsumer
 
 from role.superclass.wrapping import DistributedObjectProxy
 from storage.interface.client import StorageClientInterface
+from storage.models.client.info import StorageInfo
+from storage.models.client.key import StorageClientKey
+from storage.models.client.medium import Medium
 from storage.models.object.file.info import FileData
 from storage.models.object.metadata import Metadata
 from storage.models.object.models import Object
@@ -24,20 +27,26 @@ class StorageWrapper(DistributedObjectProxy, StorageClientInterface):
     def get(self, key: StorageKey) -> FileData:
         return self.__wrapped__.get(key)
 
-    def stat(self, key: StorageKey) -> Object:
-        return self.__wrapped__.stat(key)
-
     def put(self, obj: Object, data: FileData) -> None:
         return self.__wrapped__.put(obj, data)
 
     def remove(self, key: StorageKey) -> None:
         return self.__wrapped__.remove(key)
 
+    def stat(self, key: StorageKey) -> Object:
+        return self.__wrapped__.stat(key)
+
     def change(self, key: StorageKey, metadata: Metadata) -> None:
         return self.__wrapped__.change(key, metadata)
 
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         return self.__wrapped__.list(prefix, recursive)
+
+    def head(self, key: StorageKey) -> Dict[StorageKey, Object]:
+        return self.__wrapped__.head(key)
+
+    def exists(self, key: StorageKey) -> bool:
+        return self.__wrapped__.exists(key)
 
     def __contains__(self, key: StorageKey) -> bool:
         return key in self.__wrapped__
@@ -51,9 +60,13 @@ class StorageWrapper(DistributedObjectProxy, StorageClientInterface):
         return self.__wrapped__.__dict__
 
     @property
-    def name(self) -> str:
+    def name(self) -> StorageClientKey:
         return self.__wrapped__.name
 
     @property
-    def medium(self) -> str:
+    def info(self) -> StorageInfo:
+        return self.__wrapped__.info
+
+    @property
+    def medium(self) -> Medium:
         return self.__wrapped__.medium

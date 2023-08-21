@@ -5,17 +5,16 @@ backends. It is designed to be simple to use and easy to extend.
 This module contains the main entry point for the Pioneer application.
 """
 import signal
-from typing import Type, Union
 
-from config.env import env
-from config.logger import log
-from config.models.env import StorageConfig
+# from config.env import env
+# from config.logger import log
 from database.paradigms.nosql import NoSQL
 from datamodel.data import JSON
 from role.superclass.discovery import Coordinator
 from storage.client.local import LocalClient
 from storage.client.memory import MemoryClient
 from storage.interface.client import StorageClientInterface
+from storage.models.object.path import StoragePath
 from storage.wrapper.index import IndexWrapper
 
 
@@ -33,54 +32,15 @@ class GracefulExit:
         return self.state
 
 
-class StorageManager:
-    def __init__(self, client: StorageClientInterface):
-        self.client: StorageClientInterface = client
-        log.debug("Initializing with the %s repository", client.config.repository)
-
-    def database(self):
-        pass
-
-    def filesystem(self):
-        pass
-
-
-class Pioneer:
-    def __init__(self):
-        self.coordinator: Coordinator = Coordinator()
-        self.flag: GracefulExit = GracefulExit()
-
-    def connect(
-        self, config: Union[str, StorageConfig], client: Type[StorageClientInterface]
-    ) -> StorageClientInterface:
-        settings: Union[StorageConfig, None] = None
-        if isinstance(config, str):
-            settings = env.storage.get(config, None)
-        else:
-            settings = config
-
-        if not settings:
-            raise KeyError(f"{config} not found in settings or arguments")
-
-        if not client:
-            raise KeyError(f"{config} not found in available storage clients")
-
-        try:
-            instance: StorageClientInterface = client(settings)
-            return instance
-        except Exception as e:
-            raise RuntimeError(f"{client.__name__} initialisation failed: {e}") from e
-
-    def __del__(self):
-        del self.coordinator
-        return self.flag
-
-
 if __name__ == "__main__":
-    pioneer = Pioneer()
+    # Start discovery and coordination
+    coordinator: Coordinator = Coordinator()
 
-    directory = pioneer.connect("Local", LocalClient)
-    memory = pioneer.connect("Memory", MemoryClient)
+    # Handle shutdowns
+    flag: GracefulExit = GracefulExit()
+
+    directory: StorageClientInterface = LocalClient(StoragePath("./local_data"))
+    memory: StorageClientInterface = MemoryClient()
 
     ndb = NoSQL("random_db", directory)
     ndb.insert("test", JSON.parse_obj({"test": "test"}))

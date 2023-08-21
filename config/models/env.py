@@ -1,13 +1,12 @@
 """Environment configuration model."""
 from datetime import timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import List, Optional
 
-from pydantic import AnyUrl, BaseModel, Extra, IPvAnyAddress, SecretStr
+from pydantic import AnyUrl, BaseModel, Extra
 
 from auth.models.group import Group
 from auth.models.user import User
-from storage.models.client.repository import Repository
 
 
 class Cluster(BaseModel):
@@ -33,18 +32,6 @@ class ObjectLocking(BaseModel):
 class Locking(BaseModel):
     objects: ObjectLocking = ObjectLocking()
     storage: StorageLocking = StorageLocking()
-
-
-class StorageConfig(BaseModel):
-    endpoint: Union[AnyUrl, IPvAnyAddress] = AnyUrl("pioneer://localhost", scheme="pioneer")
-    repository: Repository = Repository()
-    region: Optional[str] = None
-    secure: bool = True
-    access_key: Optional[SecretStr] = None
-    secret_key: Optional[SecretStr] = None
-
-    class Config:
-        extra: Extra = Extra.allow
 
 
 class SerializationFallback(str, Enum):
@@ -98,6 +85,5 @@ class Objects(BaseModel):
 class Config(BaseModel):
     cluster: Cluster = Cluster()
     serialization: Serialization = Serialization()
-    storage: Dict[str, StorageConfig] = {"Local": StorageConfig()}
     objects: Objects = Objects()
     locking: Locking = Locking()

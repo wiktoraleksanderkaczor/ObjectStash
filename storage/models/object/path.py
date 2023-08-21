@@ -2,6 +2,7 @@
 StorageKey is a model that represents a path to a file or directory in a storage.
 """
 import os.path
+from typing import List, Union
 
 from pydantic import BaseModel
 
@@ -17,34 +18,39 @@ class StoragePath:
     def __init__(self, path: str) -> None:
         self.path = path
 
-    def joinpath(self, path: str) -> "StoragePath":
-        new = os.path.join(self.path, path)
-        return StoragePath(new)
+    def join(self, path: Union[str, "StoragePath"]) -> "StoragePath":
+        if isinstance(path, StoragePath):
+            path = str(path)
+        return StoragePath(os.path.join(self.path, path))
 
-    def prefix(self, prefix: str):
+    def prefix(self, prefix: Union[str, "StoragePath"]) -> "StoragePath":
+        if isinstance(prefix, StoragePath):
+            return prefix.join(self.path)
         return StoragePath(prefix + self.path)
 
-    def postfix(self, suffix: str):
+    def postfix(self, suffix: Union[str, "StoragePath"]):
+        if isinstance(suffix, StoragePath):
+            return self.join(suffix)
         return StoragePath(self.path + suffix)
 
     @property
-    def parent(self):
-        return os.path.dirname(self.path)
+    def parent(self) -> "StoragePath":
+        return StoragePath(path=os.path.dirname(self.path))
 
     @property
-    def parts(self):
+    def parts(self) -> List[str]:
         return self.path.split("/")
 
     @property
-    def suffix(self):
+    def suffix(self) -> str:
         return os.path.splitext(self.path)[1]
 
     @property
-    def suffixes(self):
+    def suffixes(self) -> List[str]:
         return self.name.split(".")[1:]
 
     @property
-    def name(self):
+    def name(self) -> str:
         return os.path.basename(self.path)
 
     def __str__(self):
@@ -68,13 +74,13 @@ class StorageKey(BaseModel):
     def __hash__(self):
         return hash(f"{self.path}@{self.storage}")
 
-    def join(self, path: str):
-        return StorageKey(storage=self.storage, path=self.path.joinpath(path))
+    def join(self, path: Union[str, StoragePath]):
+        return StorageKey(storage=self.storage, path=self.path.join(path))
 
 
 if __name__ == "__main__":
     a: StoragePath = StoragePath(path="test")
-    b = a.joinpath("test")
+    b = a.join("test")
     print(str(b))
     import json
 

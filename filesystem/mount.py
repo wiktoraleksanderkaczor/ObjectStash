@@ -1,7 +1,6 @@
 """Mount a StorageClient as a filesystem."""
 from fuse import FUSE, LoggingMixIn, Operations
 
-from client import Pioneer
 from storage.client.local import LocalClient
 from storage.interface.client import StorageClientInterface
 from storage.models.object.path import StorageKey, StoragePath
@@ -14,8 +13,6 @@ class StorageOperations(LoggingMixIn, Operations):
 
 
 if __name__ == "__main__":
-    pioneer = Pioneer()
-
-    local_client = pioneer.connect("Local", LocalClient)
+    local_client = LocalClient(StoragePath("./local_data"))
     operations = StorageOperations(local_client)
     fuse = FUSE(operations, "/tmp/pioneer")

@@ -22,13 +22,17 @@ class File(BaseModel):
 
 
 class Folder(BaseModel):
-    pass
+    num_items: int = 0
+
+
+# class Device(BaseModel):
+#     pass
 
 
 class Object(BaseModel):
     name: StorageKey
     metadata: Metadata
-    item: Union[File, Folder]
+    item: Union[File, Folder]  # , Device]
 
     @classmethod
     def create_file(cls: Type["Object"], name: StorageKey, raw: bytes) -> Tuple["Object", "FileData"]:
