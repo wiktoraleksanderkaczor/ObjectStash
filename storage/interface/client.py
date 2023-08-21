@@ -12,7 +12,7 @@ from storage.models.object.path import StorageKey, StoragePath
 
 
 class StorageClientInterface(ABC):
-    RESERVEED: List[StoragePath]
+    RESERVED: List[StoragePath]
 
     @abstractmethod
     def __init__(self, *args, **kwargs) -> None:
