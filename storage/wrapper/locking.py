@@ -6,9 +6,9 @@ from typing import List
 from pysyncobj import SyncObjConsumer
 from pysyncobj.batteries import ReplLockManager
 
-from config.env import env
 from network.superclass.scheduling import scheduler
 from storage.interface.client import StorageClientInterface
+from storage.models.object.file.info import FileData
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
 from storage.models.wrapper.locking import StorageLock
@@ -58,15 +58,31 @@ class StorageLockingWrapper(StorageWrapper):
 
 
 class ObjectLockingWrapper(StorageLockingWrapper):
-    def __init__(self, wrapped: StorageClientInterface, consumers: List[SyncObjConsumer]):
-        self.object_locks = ReplLockManager(env.locking.objects.duration, self.__wrapped__.name)
+    def __init__(self, wrapped: StorageClientInterface, consumers: List[SyncObjConsumer], timeout: int = 30):
         super().__init__(wrapped, consumers)
+        self._lock_manager = ReplLockManager(timeout)  # , self.__wrapped__.name)
 
-    def lock(self, path: StoragePath) -> bool:
-        is_locked = self.object_locks.tryAcquire(path.path, sync=True, timeout=env.locking.objects.grace)
+    def get(self, key: StorageKey) -> FileData:
+        lock_id = str(key.path)
+        is_locked = self._lock_manager.tryAcquire(str(key.path), sync=True)
         if not is_locked:
-            return False
-        return True
+            raise RuntimeError(f"Could not acquire lock for {key}")
+        resp = super().get(key)
+        self._lock_manager.release(lock_id, sync=True)
+        return resp
 
-    def unlock(self, path: StoragePath) -> None:
-        self.object_locks.release(path.path, sync=True, timeout=env.locking.objects.grace)
+    def put(self, obj: Object, data: FileData) -> None:
+        lock_id = str(obj.name.path)
+        is_locked = self._lock_manager.tryAcquire(lock_id, sync=True)
+        if not is_locked:
+            raise RuntimeError(f"Could not acquire lock for {lock_id}")
+        super().put(obj, data)
+        self._lock_manager.release(lock_id, sync=True)
+
+    def remove(self, key: StorageKey) -> None:
+        lock_id = str(key.path)
+        is_locked = self._lock_manager.tryAcquire(lock_id, sync=True)
+        if not is_locked:
+            raise RuntimeError(f"Could not acquire lock for {lock_id}")
+        super().remove(key)
+        self._lock_manager.release(lock_id, sync=True)
