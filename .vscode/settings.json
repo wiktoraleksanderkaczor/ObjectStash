@@ -1,34 +1,33 @@
 {
-    "python.formatting.provider": "black",
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": true
-    },
-    "python.linting.flake8Enabled": true,
-    "python.linting.lintOnSave": true,
-    "python.analysis.diagnosticMode": "workspace",
-    "python.analysis.autoImportCompletions": true,
-    "python.analysis.autoSearchPaths": true,
-    "python.analysis.completeFunctionParens": true,
     "search.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
         "**/.vscode": true,
-        "**/venv": true,
+        "**/.venv": true,
     },
     "files.exclude": {
         "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
-        "**/venv": true
+        "**/.venv": true
     },
     "editor.rulers": [
         120
     ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        },
+    },
     "python.analysis.typeCheckingMode": "basic",
-    "python.linting.pylintEnabled": true,
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.completeFunctionParens": true,
     "pylint.args": [
         "--rcfile=pyproject.toml"
-    ]
+    ],
 }
