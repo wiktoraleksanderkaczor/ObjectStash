@@ -8,7 +8,7 @@ from pysyncobj.batteries import replicated
 from config.discovery import host_ip
 from config.env import env
 from config.logger import log
-from role.interface.distribution import DistributedInterface
+from network.interface.distribution import DistributedInterface
 
 
 class Distributed(SyncObj, DistributedInterface):

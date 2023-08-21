@@ -2,7 +2,7 @@
 This contains the models for the locking mechanism in the storage service.
 """
 from config.env import env
-from role.superclass.scheduling import scheduler
+from network.superclass.scheduling import scheduler
 from storage.interface.client import StorageClientInterface
 from storage.models.object.path import StorageKey
 

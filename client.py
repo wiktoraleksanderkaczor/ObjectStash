@@ -10,7 +10,7 @@ import signal
 # from config.logger import log
 from database.paradigms.nosql import NoSQL
 from datamodel.data import JSON
-from role.superclass.discovery import Coordinator
+from network.superclass.discovery import Coordinator
 from storage.client.local import LocalClient
 from storage.client.memory import MemoryClient
 from storage.interface.client import StorageClientInterface

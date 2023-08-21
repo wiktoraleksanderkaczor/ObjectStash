@@ -5,7 +5,7 @@ from typing import Dict, List
 
 from pysyncobj import SyncObjConsumer
 
-from role.superclass.wrapping import DistributedObjectProxy
+from network.superclass.wrapping import DistributedObjectProxy
 from storage.interface.client import StorageClientInterface
 from storage.models.client.info import StorageInfo
 from storage.models.client.key import StorageClientKey

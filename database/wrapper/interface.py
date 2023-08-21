@@ -9,7 +9,7 @@ from typing_extensions import Self
 from database.models.query import Query
 from database.superclass.client import DatabaseClient
 from datamodel.data import JSON
-from role.superclass.wrapping import DistributedObjectProxy
+from network.superclass.wrapping import DistributedObjectProxy
 from storage.interface.client import StorageClientInterface
 
 # Text can be stored with a binary (k-tree?) tree and a number of binary values for which path to go

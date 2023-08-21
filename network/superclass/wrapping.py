@@ -4,7 +4,7 @@ from typing import Any, List
 from pysyncobj import SyncObjConsumer
 from wrapt import ObjectProxy as WraptObjectProxy
 
-from role.superclass.distribution import Distributed
+from network.superclass.distribution import Distributed
 
 
 class ObjectProxyMetaclass(type(WraptObjectProxy)):  # pylint: disable=too-few-public-methods

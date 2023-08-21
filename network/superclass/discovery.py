@@ -8,8 +8,8 @@ from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf
 
 from config.discovery import service
 from config.env import env
-from role.interface.discovery import CoordinatorInterface, ListenerInterface
-from role.superclass.distribution import Distributed
+from network.interface.discovery import CoordinatorInterface, ListenerInterface
+from network.superclass.distribution import Distributed
 
 
 class Listener(ListenerInterface, ServiceListener):

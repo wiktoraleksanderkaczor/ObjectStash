@@ -3,8 +3,8 @@ from typing import Any, Callable, Union
 
 from pysyncobj.batteries import ReplDict, replicated
 
-from role.interface.messaging import MessagingInterface
-from role.superclass.distribution import Distributed
+from network.interface.messaging import MessagingInterface
+from network.superclass.distribution import Distributed
 
 
 class Messaging(MessagingInterface, Distributed):

@@ -7,7 +7,7 @@ from pysyncobj import SyncObjConsumer
 from pysyncobj.batteries import ReplLockManager
 
 from config.env import env
-from role.superclass.scheduling import scheduler
+from network.superclass.scheduling import scheduler
 from storage.interface.client import StorageClientInterface
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
