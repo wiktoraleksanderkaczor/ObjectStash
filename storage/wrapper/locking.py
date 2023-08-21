@@ -17,44 +17,48 @@ from storage.wrapper.interface import StorageWrapper
 
 # Add acquiry timeouts
 class StorageLockingWrapper(StorageWrapper):
+    RESERVED: List[StoragePath] = [StoragePath(".lock")]
+
     def __init__(
         self,
         wrapped: StorageClientInterface,
         consumers: List[SyncObjConsumer],
+        interval: int = 300,
+        grace: int = 30,
     ):
         super().__init__(wrapped, consumers)
-        self.key = StorageKey(storage=self.__wrapped__.name, path=StoragePath(".lock"))
-        self.storage_lock: StorageLock
-        self.acquire()
-        # Refresh the lock before it expires (90% of lock duration).
-        duration_in_seconds = self.storage_lock.duration.total_seconds()
-        refresh_interval = duration_in_seconds * 0.9
-        scheduler.every(int(refresh_interval)).seconds.do(self.refresh)
+        self._lock: StorageLock
+        if self._lock_key in self.__wrapped__:
+            decoded = self.__wrapped__.get(self._lock_key).to_text()
+            self._lock = StorageLock.parse_raw(decoded)
+            if not self._lock.is_owned() and not self._lock.is_expired():
+                raise RuntimeError(f"{self.__wrapped__} already locked")
 
-    def acquire(self, is_refresh: bool = False) -> None:
-        if self.key not in self.__wrapped__ or is_refresh:
-            self.storage_lock = StorageLock()
-            obj, data = Object.create_file(name=self.key, raw=self.storage_lock.json().encode())
-            self.__wrapped__.put(obj, data)
-        self.storage_lock: StorageLock = StorageLock.parse_raw(self.__wrapped__.get(self.key).__root__)
-        if not self.storage_lock.valid():
-            raise RuntimeError(f"{self.__wrapped__} already locked")
+        self.lock()
+        self.monitor = scheduler.every((interval - grace)).seconds.do(self.refresh)
 
-    def release(self) -> None:
-        if self.storage_lock.valid() and self.key in self.__wrapped__:
-            self.__wrapped__.remove(self.key)
+    def lock(self) -> None:
+        if not self.is_master():
+            return
+        self._lock = StorageLock()
+        encoded = self._lock.json().encode()
+        obj, data = Object.create_file(name=self._lock_key, raw=encoded)
+        self.__wrapped__.put(obj, data)
+
+    def unlock(self) -> None:
+        if self._lock.valid() and self.is_master():
+            self.__wrapped__.remove(self._lock_key)
 
     def refresh(self) -> None:
-        if self.storage_lock.valid() and self.key in self.__wrapped__:
-            return self.acquire(is_refresh=True)
-        return self.acquire()
+        if not self.is_master():
+            return
+        if self._lock.valid():
+            return
+        raise RuntimeError(f"{self.__wrapped__} lock invalid")
 
-    def __enter__(self) -> StorageLock:
-        self.acquire()
-        return self.storage_lock
-
-    def __exit__(self, *args, **kwargs):
-        self.release()
+    @property
+    def _lock_key(self) -> StorageKey:
+        return StorageKey(storage=self.__wrapped__.name, path=StoragePath(".lock"))
 
 
 class ObjectLockingWrapper(StorageLockingWrapper):
