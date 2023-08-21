@@ -236,20 +236,15 @@ class JSON(BaseModel):
         # Set the value at the end of the path
         item = value
 
-    def update(self, value: "JSON", nested: bool = True) -> None:
+    def update(self, value: "JSON") -> None:
         """
         A method that updates the data object with another data object. Matching nested fields by default.
 
         Args:
             value (JSON): The JSON object to update with.
-            nested (bool): Whether to update nested fields.
         """
-        if not nested:
-            for k, v in value.dict().items():
-                self.put([k], v)
-        else:
-            for k, v in value.flatten():
-                self.put(k, v)
+        for k, v in value.flatten():
+            self.put(k, v)
 
     def flatten(self) -> List[Tuple[FieldPath, Any]]:
         """
@@ -272,7 +267,7 @@ class JSON(BaseModel):
         return list(flattened([], self.dict()))
 
     @classmethod
-    def from_flattened(cls, flat: List[Tuple[FieldPath, Any]]) -> "JSON":
+    def inflate(cls, flat: List[Tuple[FieldPath, Any]]) -> "JSON":
         """
         A method that updates the data object with a list of tuples containing the field path and value.
 
