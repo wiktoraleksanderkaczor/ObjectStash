@@ -17,7 +17,7 @@ from typing import (
 import jsonpickle
 import jsonpickle.ext.numpy as jsonpickle_numpy
 import jsonpickle.ext.pandas as jsonpickle_pandas
-from jsonmerge import merge
+from jsonmerge import merge as jmerge
 from pydantic import BaseModel, Extra
 
 from config.env import env
@@ -148,11 +148,11 @@ class JSON(BaseModel):
         # Merge provided schemas
         old_schema = old.schema()
         new_schema = new.schema()
-        merged_schema = merge(old_schema, new_schema)
-        filled_schema = merge(merged_schema, schema.dict())
+        merged_schema = jmerge(old_schema, new_schema)
+        filled_schema = jmerge(merged_schema, schema.dict())
 
         # Merge and fill out schema in new object
-        result = merge(old.dict(), new.dict(), filled_schema)
+        result = jmerge(old.dict(), new.dict(), filled_schema)
         return cls(**filled_schema), cls(**result)
 
     def get(self, path: FieldPath) -> Any:
