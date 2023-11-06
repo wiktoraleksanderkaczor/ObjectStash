@@ -13,6 +13,7 @@
         "**/.venv": true
     },
     "editor.rulers": [
+        80,
         120
     ],
     "[python]": {
