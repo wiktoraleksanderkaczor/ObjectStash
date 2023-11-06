@@ -31,7 +31,7 @@ class Modifier(str, Enum):
 Operand = Union[str, int, float, bool, List[Union[str, int, float, bool, "Operand"]]]
 
 
-class Operation(BaseModel):
+class Operation(JSON):
     field: FieldPath
     operator: Operator
     operand: Optional[Any]

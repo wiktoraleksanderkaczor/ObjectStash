@@ -1,11 +1,10 @@
 """Function configuration model."""
-from pydantic import BaseModel
-
+from datamodel.data import JSON
 from datamodel.timedate import TimeDelta
 from storage.models.client.key import StorageClientKey
 
 
-class FunctionConfig(BaseModel):
+class FunctionConfig(JSON):
     name: str
     storage: StorageClientKey
     timeout: TimeDelta
