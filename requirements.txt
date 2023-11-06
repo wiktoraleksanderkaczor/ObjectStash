@@ -15,5 +15,6 @@ xattr
 numpy
 pandas
 typing-extensions
+Pyro5
 
 -r "dev-requirements.txt"
