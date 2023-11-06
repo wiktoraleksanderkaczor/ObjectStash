@@ -18,11 +18,10 @@ import jsonpickle
 import jsonpickle.ext.numpy as jsonpickle_numpy
 import jsonpickle.ext.pandas as jsonpickle_pandas
 from jsonmerge import merge as jmerge
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel
+from typing_extensions import Self
 
-from config.env import env
-from config.logger import log
-from config.models.env import SerializationFallback
+from logger import log
 
 jsonpickle_numpy.register_handlers()
 jsonpickle_pandas.register_handlers()
@@ -49,12 +48,10 @@ def pioneer_json_encoder(v: Any) -> str:
             raise TypeError("Object is not an instance of a JSON serializable class") from e
         encoded = {"__type__": v.__class__.__name__, "__path__": path, "__value__": v.json()}
         return json.dumps(encoded)
-    if env.serialization.fallback:
-        match env.serialization.fallback:
-            case SerializationFallback.JSONPICKLE:
-                return str(jsonpickle.encode(v))
-
-    raise TypeError(f"Object of type {v.__class__.__name__} is not JSON serializable")
+    try:
+        return str(jsonpickle.encode(v))
+    except Exception as e:
+        raise TypeError(f"Object of type {v.__class__.__name__} is not JSON serializable") from e
 
 
 def pioneer_json_decoder(obj: Dict[str, Any]) -> Any:
@@ -63,7 +60,7 @@ def pioneer_json_decoder(obj: Dict[str, Any]) -> Any:
         cls = getattr(mod, obj["__type__"])
         instance = cls.from_json(obj["__value__"])
         return instance
-    if "py/object" in obj and env.serialization.fallback == SerializationFallback.JSONPICKLE:
+    if "py/object" in obj:
         return jsonpickle.decode(json.dumps(obj))
     return obj
 
@@ -81,8 +78,8 @@ def pioneer_dumps_json(__obj: Any, **_: Any) -> str:
 class JSON(BaseModel):
     """
     JSON object model for Pioneer services. Made to be subclassed by the user or within the library for their
-    own data models. All fields must be JSON serializable. 'parse_obj' can be used to construct from dictionary
-    while 'parse_raw' can be used for a JSON bytes/string.
+    own data models. All fields must be JSON serializable. 'from_obj' can be used to construct from dictionary
+    while 'from_raw' can be used for a JSON bytes/string.
 
     This is a subclass of Pydantic's BaseModel and allows defining custom JSON encoders and decoders for Python objects.
     Anything that implements a `json` method and a `from_json` classmethod will be serialized and deserialized using
@@ -133,8 +130,8 @@ class JSON(BaseModel):
             item (JSON): A JSON object containing the merged JSON object data
         """
         if not schema:
-            schema = JSON.parse_obj({})
-        properties = schema.dict().get("properties", {})
+            schema = JSON.from_obj({})
+        properties = schema.to_dict().get("properties", {})
 
         # Check missing merge strategies in schema for extra fields
         extra_fields = old.extra_fields | new.extra_fields
@@ -146,13 +143,13 @@ class JSON(BaseModel):
             )
 
         # Merge provided schemas
-        old_schema = old.schema()
-        new_schema = new.schema()
+        old_schema = old.model_json_schema()
+        new_schema = new.model_json_schema()
         merged_schema = jmerge(old_schema, new_schema)
-        filled_schema = jmerge(merged_schema, schema.dict())
+        filled_schema = jmerge(merged_schema, schema.to_dict())
 
         # Merge and fill out schema in new object
-        result = jmerge(old.dict(), new.dict(), filled_schema)
+        result = jmerge(old.to_dict(), new.to_dict(), filled_schema)
         return cls(**filled_schema), cls(**result)
 
     def get(self, path: FieldPath) -> Any:
@@ -166,7 +163,7 @@ class JSON(BaseModel):
             Any: The value at the field path.
         """
         first = str(path.pop(0))
-        result: Any = self.dict().get(first)
+        result: Any = self.to_dict().get(first)
         for item in path:
             if isinstance(item, int) and isinstance(result, Iterable):
                 result = list(result)[item]
@@ -258,16 +255,16 @@ class JSON(BaseModel):
             if isinstance(val, Mapping):
                 for k, v in val.items():
                     yield from flattened(path + [k], v)
-            elif isinstance(val, Iterable):
+            elif isinstance(val, Iterable) and not isinstance(val, (str, bytes)):
                 for i, v in enumerate(val):
                     yield from flattened(path + [i], v)
             else:
                 yield (path, val)
 
-        return list(flattened([], self.dict()))
+        return list(flattened([], self.to_dict()))
 
     @classmethod
-    def inflate(cls, flat: List[Tuple[FieldPath, Any]]) -> "JSON":
+    def inflate(cls, flat: List[Tuple[FieldPath, Any]]) -> Self:
         """
         A method that updates the data object with a list of tuples containing the field path and value.
 
@@ -279,14 +276,35 @@ class JSON(BaseModel):
             data.put(path, value)
         return data
 
+    @classmethod
+    def from_obj(cls, __obj: Any) -> Self:
+        """Construct a JSON object from a Python object."""
+        return cls.model_validate(__obj)
+
+    @classmethod
+    def from_raw(cls, __obj: Union[bytes, bytearray, memoryview, str]) -> Self:
+        """Construct a JSON object from a raw JSON string."""
+        return cls.model_validate_json(__obj)
+
+    def to_json(self) -> str:
+        """Converts the object to a JSON-compatible representation."""
+        return self.model_dump_json()
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.model_dump()
+
+    def to_schema(self) -> Dict[str, Any]:
+        """Returns the schema for the object."""
+        return self.model_json_schema()
+
     # Just in case
     class Config:
-        extra: Extra = Extra.allow
+        extra: str = "allow"
         json_dumps = pioneer_dumps_json
         json_loads = pioneer_loads_json
 
         @staticmethod
-        def schema_extra(schema: Dict[str, Any], _model: type["JSON"]) -> None:
+        def json_schema_extra(schema: Dict[str, Any], _model: type["JSON"]) -> None:
             schema["description"] = "Data model for database service"  # _model.__doc__
             for prop in schema.get("properties", {}).values():
                 if "mergeStrategy" not in prop:
@@ -294,18 +312,19 @@ class JSON(BaseModel):
 
     @property
     def extra_fields(self) -> Set[str]:
-        return set(self.__dict__) - set(self.__fields__)
+        return set(self.__dict__) - self.model_fields_set
 
 
 if __name__ == "__main__":
-    base = JSON.parse_obj({"a": 1, "b": 2})
-    head = JSON.parse_raw(json.dumps({"a": 3, "c": 4}))
-    print(base)
-    print(head)
-    print(base.dict())
-    print(base.json())
-    print(base.schema())
-    print(head.schema())
+    obj1 = JSON.from_obj({"a": 1, "b": 2})
+    obj2 = JSON.from_raw(json.dumps({"a": 3, "c": 4}))
+
+    obj1_dict = obj1.to_dict()
+    obj2_dict = obj2.to_dict()
+
+    obj1_schema = obj1.to_schema()
+    obj2_schema = obj2.to_schema()
+
     merge_schema = {
         "properties": {
             "a": {"mergeStrategy": "overwrite"},
@@ -313,6 +332,9 @@ if __name__ == "__main__":
             "c": {"mergeStrategy": "overwrite"},
         }
     }
-    _schema, merged = JSON.merge(base, head, JSON.parse_obj(merge_schema))
-    print(merged)
-    print(merged.flatten())
+    merge_schema, merge = JSON.merge(obj1, obj2, JSON.from_obj(merge_schema))
+
+    print(merge)
+    print(merge.flatten())
+    print(merge_schema)
+    print(merge_schema.flatten())
