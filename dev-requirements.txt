@@ -1,5 +1,6 @@
 wheel
 black
+pytest
 flake8
 Flake8-pyproject
 pylint
