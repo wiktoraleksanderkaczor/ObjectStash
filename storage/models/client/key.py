@@ -1,6 +1,8 @@
 """StorageClientKey model."""
 import re
 
+from pydantic import BaseModel
+
 CLIENT_REGEX = re.compile(
     (
         r"^(?P<client>\w+)@"
@@ -10,18 +12,20 @@ CLIENT_REGEX = re.compile(
 )
 
 
-class StorageClientKey(str):
+class StorageClientKey(BaseModel):
+    value: str
+
     @classmethod
-    def validate(cls, value: str) -> "StorageClientKey":
+    def validate(cls, value: "StorageClientKey") -> "StorageClientKey":
         if not value:
             raise ValueError("ClientKey cannot be empty")
         # Regex from matching something like "client_type@UUID"
-        if not re.match(CLIENT_REGEX, value):
+        if not re.match(CLIENT_REGEX, value.value):
             raise ValueError("ClientKey must be in format client_type@UUID")
-        return cls(value)
+        return value
 
     def _get_match(self) -> dict:
-        match = re.match(CLIENT_REGEX, self)
+        match = re.match(CLIENT_REGEX, self.value)
         if not match:
             raise ValueError("ClientKey must be in format client_type@UUID")
         return match.groupdict()
