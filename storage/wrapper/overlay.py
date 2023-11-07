@@ -3,8 +3,6 @@ This module contains the implementation of an overlay wrapper for the storage cl
 """
 from typing import List
 
-from pysyncobj import SyncObjConsumer
-
 from storage.interface.client import StorageClientInterface
 from storage.models.object.file.info import FileData
 from storage.models.object.models import Object
@@ -17,10 +15,9 @@ class OverlayWrapper(StorageWrapper):
         self,
         wrapped: StorageClientInterface,
         overlay: StorageClientInterface,
-        consumers: List[SyncObjConsumer],
         symmetric: bool = False,
     ):
-        super().__init__(wrapped, consumers)
+        super().__init__(wrapped)
         self.overlay: StorageClientInterface = overlay
         self.symmetric: bool = symmetric
 

@@ -1,9 +1,6 @@
 """
 This module contains the implementation of an overlay wrapper for the storage client.
 """
-from typing import List
-
-from pysyncobj import SyncObjConsumer
 
 from storage.interface.client import StorageClientInterface
 from storage.models.object.file.info import FileData
@@ -17,9 +14,8 @@ class ReplicationWrapper(StorageWrapper):
         self,
         wrapped: StorageClientInterface,
         replica: StorageClientInterface,
-        consumers: List[SyncObjConsumer],
     ):
-        super().__init__(wrapped, consumers)
+        super().__init__(wrapped)
         self.replica: StorageClientInterface = replica
 
     def put(self, obj: Object, data: FileData) -> None:

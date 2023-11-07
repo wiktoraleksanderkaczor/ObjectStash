@@ -1,8 +1,9 @@
 """MinIO Storage Client"""
+from io import BytesIO
 from typing import Union
 
 from minio import Minio
-from urllib3.response import HTTPResponse as S3Response
+from urllib3.response import BaseHTTPResponse as S3Response
 
 from storage.models.client.medium import Medium
 from storage.models.object.file.data import FileData
@@ -37,7 +38,7 @@ class S3Client(BaseStorageClient):
         return Medium.REMOTE
 
     def get(self, key: StorageKey) -> FileData:
-        resp: S3Response = self.client.get_object(self.bucket, key.path)
+        resp: S3Response = self.client.get_object(self.bucket, str(key.path))
         return FileData(__root__=resp.read())
 
     # Creating empty folders possible in '._head' only
@@ -49,10 +50,11 @@ class S3Client(BaseStorageClient):
         self.client.put_object(
             bucket_name=self.bucket,
             object_name=str(obj.key.path),
-            data=data.__root__,
+            data=BytesIO(data.__root__),
             length=len(data.__root__),
             content_type=content_type,
         )
+        super().put(obj, data)
 
     def remove(self, key: StorageKey) -> None:
         self.client.remove_object(self.bucket, str(key.path))

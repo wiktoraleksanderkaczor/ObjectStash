@@ -1,9 +1,8 @@
 """
 Interface for storage wrapper.
 """
-from typing import Dict, List
-
-from pysyncobj import SyncObjConsumer
+from contextlib import contextmanager
+from typing import Any, Dict, Generator, List, Union
 
 from network.superclass.wrapping import DistributedObjectProxy
 from storage.interface.client import StorageClientInterface
@@ -18,8 +17,8 @@ from storage.models.object.path import StorageKey, StoragePath
 class StorageWrapper(DistributedObjectProxy, StorageClientInterface):
     RESERVED: List[StoragePath]
 
-    def __init__(self, wrapped: StorageClientInterface, consumers: List[SyncObjConsumer]):
-        super().__init__(wrapped, consumers)
+    def __init__(self, wrapped: StorageClientInterface):
+        super().__init__(wrapped)
         self.__wrapped__: StorageClientInterface = wrapped  # typing fix
         self.RESERVED = self.__wrapped__.RESERVED  # pylint: disable=invalid-name
 
@@ -73,3 +72,8 @@ class StorageWrapper(DistributedObjectProxy, StorageClientInterface):
     @property
     def medium(self) -> Medium:
         return self.__wrapped__.medium
+
+    @contextmanager
+    def transact(self, key: Union[StorageKey, List[StorageKey]]) -> Generator[None, Any, Any]:
+        self.__wrapped__.transact(key)
+        yield

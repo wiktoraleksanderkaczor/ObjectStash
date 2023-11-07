@@ -1,30 +1,99 @@
 """
 Base class for storage clients.
 """
-import json
 from abc import abstractmethod
-from typing import Any, Dict, List
+from contextlib import contextmanager
+from typing import Any, Generator, List, Union
 
+from pydantic import BaseModel
+from pysyncobj.batteries import ReplLockManager
+
+from distribution.superclass.distributed import Distributed
+from network.superclass.scheduling import scheduler
 from storage.interface.client import StorageClientInterface
 from storage.models.client.info import StorageInfo
 from storage.models.client.key import StorageClientKey
 from storage.models.client.medium import Medium
+from storage.models.header.models import Header
 from storage.models.object.file.data import FileData
 from storage.models.object.models import Folder, Object
 from storage.models.object.path import StorageKey, StoragePath
+from storage.models.wrapper.locking import StorageLock
 
 
-class BaseStorageClient(StorageClientInterface):
+class LockConfig(BaseModel):
+    interval: int = 300
+    timeout: int = 30
+    grace: int = 30
+
+
+class BaseStorageClient(StorageClientInterface, Distributed):
     RESERVED = [
-        StoragePath("._mount.json"),
-        StoragePath("._info.json"),
-        # StoragePath("._meta"),
-        StoragePath("._header.json"),
+        StoragePath(path="._mount.json"),
+        StoragePath(path="._root.json"),
+        StoragePath(path="._header.json"),
+        StoragePath(path="._lock.json"),
     ]
 
     @abstractmethod
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, interval: int = 300, grace: int = 30, timeout: int = 30, **kwargs) -> None:
         super().__init__()
+        self._lock: StorageLock
+        if self._lock_key in self:
+            decoded = self.get(self._lock_key).to_text()
+            self._lock = StorageLock.model_validate_json(decoded)
+            if not self._lock.is_owned() and not self._lock.is_expired():
+                raise RuntimeError(f"{self} already locked")
+
+        self.lock()
+        self.monitor = scheduler.every((interval - grace)).seconds.do(self.refresh)
+        self._lock_manager = ReplLockManager(timeout)
+
+    @property
+    def _lock_key(self) -> StorageKey:
+        return StorageKey(storage=self.name, path=StoragePath(path=".lock"))
+
+    def lock(self) -> None:
+        if not self.is_master():
+            return
+        self._lock = StorageLock()
+        encoded = self._lock.json().encode()
+        obj, data = Object.create_file(key=self._lock_key, raw=encoded)
+        self.put(obj, data)
+
+    def unlock(self) -> None:
+        if self._lock.valid() and self.is_master():
+            self.remove(self._lock_key)
+
+    def refresh(self) -> None:
+        if not self.is_master():
+            return
+        if self._lock.valid():
+            return
+        raise RuntimeError(f"{self} lock invalid")
+
+    @contextmanager
+    def locked(self, key: Union[StorageKey, List[StorageKey]]) -> Generator[None, Any, Any]:
+        if isinstance(key, StorageKey):
+            key = [key]
+        try:
+            for k in key:
+                is_locked = self._lock_manager.tryAcquire(str(k), sync=True)
+                if not is_locked:
+                    raise RuntimeError(f"Could not acquire lock for {k}")
+            yield
+        finally:
+            for k in key:
+                self._lock_manager.release(str(k), sync=True)
+
+    @contextmanager
+    def transact(self, key: Union[StorageKey, List[StorageKey]]) -> Generator[None, Any, Any]:
+        try:
+            with self.locked(key):
+                yield
+        except Exception as e:
+            # Rollback changes here
+            raise e
 
     @abstractmethod
     def get(self, key: StorageKey) -> FileData:
@@ -32,7 +101,7 @@ class BaseStorageClient(StorageClientInterface):
 
     @abstractmethod
     def put(self, obj: Object, data: FileData) -> None:
-        ...
+        self.update(obj)
 
     @abstractmethod
     def remove(self, key: StorageKey) -> None:
@@ -40,31 +109,32 @@ class BaseStorageClient(StorageClientInterface):
 
     def stat(self, key: StorageKey) -> Object:
         header = self.header(key)
-        return header[key]
+        return header.objects[key]
 
     # Might add depth limit parameter, decrease by 1 each recursive call
     def list(self, prefix: StorageKey, recursive: bool = False) -> List[StorageKey]:
         header = self.header(prefix)
-        items = list(header.keys())
+        items = list(header.objects.keys())
         if recursive:
-            folders = [k for k, v in header.items() if isinstance(v, Folder)]
+            folders = [k for k, v in header.objects.items() if isinstance(v, Folder)]
             new = [self.list(folder, recursive) for folder in folders]
             items.extend(*new)
         return items
 
-    def header(self, key: StorageKey) -> Dict[StorageKey, Object]:
-        head_key = self._get_head_key(key)
+    def header(self, key: StorageKey) -> Header:
+        """
+        Headers are per directory, not including subdirectories apart from their existence.
+        """
+        dir_path = key.path.parent if self.stat(key).is_file() else key.path
+        head_key = StorageKey(storage=key.storage, path=dir_path).join("._head.json")
         data = self.get(head_key)
-        loaded: Dict[str, Any] = json.loads(data.__root__)
-        header = {StorageKey(storage=self.name, path=StoragePath(k)): Object.parse_obj(v) for k, v in loaded.items()}
+        header = Header.model_validate_json(data.__root__)
         return header
 
     def update(self, obj: Object) -> None:
-        head_key = self._get_head_key(obj.key)
         header = self.header(obj.key)
-        header[obj.key] = obj
-        encoded = json.dumps(header).encode()
-        obj, data = Object.create_file(head_key, encoded)
+        header.objects[obj.key] = obj
+        obj, data = header.create_file()
         self.put(obj, data)
 
     def exists(self, key: StorageKey) -> bool:
@@ -77,25 +147,19 @@ class BaseStorageClient(StorageClientInterface):
             return False
         return True
 
-    def _get_head_key(self, key: StorageKey) -> StorageKey:
-        dir_path = key.path.parent if self.stat(key).is_file() else key.path
-        dir_key = StorageKey(storage=self.name, path=dir_path)
-        file_key = dir_key.join("._head.json")
-        return file_key
-
     @property
     def name(self) -> StorageClientKey:
-        return StorageClientKey(repr(self))
+        return StorageClientKey(value=repr(self))
 
     @property
     def info(self) -> StorageInfo:
-        key = StorageKey(storage=self.name, path=StoragePath("._info.json"))
+        key = StorageKey(storage=self.name, path=StoragePath(path="._info.json"))
         if key not in self:
             encoded = StorageInfo().json().encode()
             obj, data = Object.create_file(key, encoded)
             self.put(obj, data)
         decoded = self.get(key).to_text()
-        return StorageInfo.parse_raw(decoded)
+        return StorageInfo.model_validate_json(decoded)
 
     @property
     def medium(self) -> Medium:

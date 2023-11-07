@@ -28,7 +28,7 @@ class LocalClient(BaseStorageClient):
         handle.parent.mkdir(parents=True, exist_ok=True)
         handle.touch(exist_ok=True)
         handle.write_bytes(data.__root__)
-        # Set metadata
+        # Set header
         self.update(obj)
 
     def remove(self, key: StorageKey) -> None:

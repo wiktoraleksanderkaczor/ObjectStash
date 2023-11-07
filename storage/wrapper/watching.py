@@ -1,9 +1,7 @@
 """
 This module contains the implementation of an overlay wrapper for the storage client.
 """
-from typing import Callable, Dict, List
-
-from pysyncobj import SyncObjConsumer
+from typing import Callable, Dict
 
 from storage.interface.client import StorageClientInterface
 from storage.models.object.file.info import FileData
@@ -13,8 +11,8 @@ from storage.wrapper.interface import StorageWrapper
 
 
 class WatchingWrapper(StorageWrapper):
-    def __init__(self, wrapped: StorageClientInterface, consumers: List[SyncObjConsumer]):
-        super().__init__(wrapped, consumers)
+    def __init__(self, wrapped: StorageClientInterface):
+        super().__init__(wrapped)
         self.callbacks: Dict[StorageKey, Callable[[StorageKey], None]] = {}
 
     def watch(self, key: StorageKey, callback: Callable[[StorageKey], None]) -> None:

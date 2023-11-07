@@ -1,7 +1,9 @@
 """Storage client interface."""
 from abc import ABC, abstractmethod
-from typing import Dict, List
+from contextlib import contextmanager
+from typing import Any, Dict, Generator, List, Union
 
+from distribution.interface.distributed import DistributedInterface
 from storage.models.client.info import StorageInfo
 from storage.models.client.key import StorageClientKey
 from storage.models.client.medium import Medium
@@ -10,7 +12,7 @@ from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
 
 
-class StorageClientInterface(ABC):
+class StorageClientInterface(DistributedInterface, ABC):
     RESERVED: List[StoragePath]
 
     @abstractmethod
@@ -76,4 +78,9 @@ class StorageClientInterface(ABC):
     # String representation for pathing
     @abstractmethod
     def __repr__(self) -> str:
+        ...
+
+    @abstractmethod
+    @contextmanager
+    def transact(self, key: Union[StorageKey, List[StorageKey]]) -> Generator[None, Any, Any]:
         ...
