@@ -1,11 +1,10 @@
 """Item permissions model."""
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Optional, Union
 
 from pydantic import BaseModel, Field
 
 from auth.models.group import Group
 from auth.models.user import User
-from config.env import env
 
 
 class PermissionFlags(BaseModel):
@@ -32,7 +31,7 @@ class AccessControl(BaseModel):
 
 
 class PermissionInfo(BaseModel):
-    owner: Tuple[User, PermissionFlags] = Field(default_factory=lambda: (env.cluster.user, PermissionFlags.user()))
-    group: Tuple[Group, PermissionFlags] = Field(default_factory=lambda: (env.cluster.group, PermissionFlags.group()))
+    owner: Dict[Union[User, None], PermissionFlags] = Field(default_factory=lambda: (None, PermissionFlags.user()))
+    group: Dict[Union[Group, None], PermissionFlags] = Field(default_factory=lambda: (None, PermissionFlags.group()))
     others: PermissionFlags = Field(default_factory=PermissionFlags.others)
     acl: Optional[AccessControl] = None
