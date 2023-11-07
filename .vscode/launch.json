@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/client.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "cwd": "${workspaceFolder}/test",
+            "cwd": "${workspaceFolder}/.data",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }
@@ -23,7 +23,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "cwd": "${workspaceFolder}/test",
+            "cwd": "${workspaceFolder}/.data",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }
@@ -35,6 +35,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
+            "cwd": "${workspaceFolder}/.data",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }
