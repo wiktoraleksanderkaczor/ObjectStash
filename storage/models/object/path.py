@@ -2,36 +2,49 @@
 StorageKey is a model that represents a path to a file or directory in a storage.
 """
 import os.path
-from typing import List, Union
+import re
+from typing import List, Pattern, Union
 
 from pydantic import BaseModel
 
 from storage.models.client.key import StorageClientKey
 
+VALID_PATH: Pattern = re.compile(r"^[a-zA-Z0-9_\-\.\/]+$")
 
-class StoragePath:
+
+class StoragePath(BaseModel):
     """
     StoragePath is a model that represents a path to a file or directory in a storage.
     No wildcard, regex or unsafe append, that's handled by the operating system
     """
 
-    def __init__(self, path: str) -> None:
-        self.path = path
+    path: str
+
+    @classmethod
+    def validate(cls, value: "StoragePath") -> "StoragePath":
+        if not value:
+            raise ValueError("StoragePath cannot be empty")
+        if not isinstance(value, StoragePath):
+            raise ValueError("StoragePath is invalid")
+        if VALID_PATH.match(value.path) is None:
+            raise ValueError("StoragePath contains illegal characters")
+
+        return value
 
     def join(self, path: Union[str, "StoragePath"]) -> "StoragePath":
         if isinstance(path, StoragePath):
             path = str(path)
-        return StoragePath(os.path.join(self.path, path))
+        return StoragePath(path=os.path.join(self.path, path))
 
     def prefix(self, prefix: Union[str, "StoragePath"]) -> "StoragePath":
         if isinstance(prefix, StoragePath):
             return prefix.join(self.path)
-        return StoragePath(prefix + self.path)
+        return StoragePath(path=prefix + self.path)
 
     def postfix(self, suffix: Union[str, "StoragePath"]):
         if isinstance(suffix, StoragePath):
             return self.join(suffix)
-        return StoragePath(self.path + suffix)
+        return StoragePath(path=self.path + suffix)
 
     @property
     def parent(self) -> "StoragePath":
@@ -56,18 +69,8 @@ class StoragePath:
     def __str__(self):
         return self.path
 
-    def json(self):
-        return str(self)
-
-    @classmethod
-    def from_json(cls, value):
-        return cls(value)
-
 
 class StorageKey(BaseModel):
-    class Config:
-        arbitrary_types_allowed = True
-
     storage: StorageClientKey
     path: StoragePath
 
