@@ -1,10 +1,9 @@
 """Base class for wrapping objects using 'wrapt' module"""
-from typing import Any, List
+from typing import Any
 
-from pysyncobj import SyncObjConsumer
 from wrapt import ObjectProxy as WraptObjectProxy
 
-from network.superclass.distribution import Distributed
+from distribution.superclass.distributed import Distributed
 
 
 class ObjectProxyMetaclass(type(WraptObjectProxy)):  # pylint: disable=too-few-public-methods
@@ -37,8 +36,8 @@ class DistributedObjectProxy(ObjectProxy, Distributed, metaclass=DistributedObje
     Base class for distributed object proxies. Wrapped class must inherit `Distributed` class
     """
 
-    def __init__(self, wrapped: Any, consumers: List[SyncObjConsumer]):
+    def __init__(self, wrapped: Any):
         # Make this object a proxy for the underlying object
         ObjectProxy.__init__(self, wrapped)
         # Make underlying object a distributed object
-        Distributed.__init__(self, repr(self), consumers=consumers)
+        Distributed.__init__(self)
