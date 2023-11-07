@@ -9,10 +9,10 @@ from storage.models.object.path import StorageKey, StoragePath
 class StorageOperations(LoggingMixIn, Operations):
     def __init__(self, storage: StorageClientInterface):
         self.storage: StorageClientInterface = storage
-        self.root = StorageKey(storage=self.storage.name, path=StoragePath("filesystem/"))
+        self.root = StorageKey(storage=self.storage.name, path=StoragePath(path="filesystem/"))
 
 
 if __name__ == "__main__":
-    local_client = LocalClient(StoragePath("./local_data"))
+    local_client = LocalClient(StoragePath(path="./local_data"))
     operations = StorageOperations(local_client)
     fuse = FUSE(operations, "/tmp/pioneer")
