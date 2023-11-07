@@ -1,5 +1,8 @@
 """Pioneer setup script."""
+import re
 import sys
+from pathlib import Path
+from typing import List
 
 import setuptools
 from setuptools import find_packages
@@ -21,6 +24,15 @@ What can it do:
 - It allows masterless peer-to-peer coordination for different distribution strategies.
 - All of this with the ability to cache, replicate and shard as desired on any of the storage clients.
 """
+RGX_REQUIREMENT = re.compile(r"^(?P<package>[^=<>~]+)(?P<condition>[=<>~].*)?$")
+
+requires: List[str] = []
+rfile = Path("requirements.txt").read_text(encoding="utf-8").splitlines()
+for line in rfile:
+    match = RGX_REQUIREMENT.match(line)
+    if match:
+        requires.append(match.group("package"))
+
 setuptools.setup(
     name="Pioneer",
     version="0.1.0",
@@ -31,17 +43,7 @@ setuptools.setup(
     long_description=LONG_DESCRIPTION,
     packages=find_packages(exclude=["tests"]),
     python_requires=">3.8.0",
-    install_requires=[
-        "minio",
-        "zeroconf",
-        "pysyncobj",
-        "pyfuse",
-        "pydantic",
-        "PyYAML",
-        "schedule",
-        "python-magic",
-        "jsonmerge",
-    ],
+    install_requires=requires,
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
