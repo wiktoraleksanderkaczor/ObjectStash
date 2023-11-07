@@ -1,12 +1,15 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
 {
-	"name": "Existing Dockerfile",
+	"name": "Dockerfile",
 	"build": {
 		// Sets the run context to one level up instead of the .devcontainer folder.
 		"context": "..",
 		// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
-		"dockerfile": "../Dockerfile"
+		"dockerfile": "./Dockerfile",
+		"args": {
+			"USERNAME": "${localEnv:USER}"
+		}
 	},
 	// Mirror production mount
 	"workspaceFolder": "/pioneer",
@@ -22,7 +25,7 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Uncomment the next line to run commands after the container is created.
-	// "postCreateCommand": "cat /etc/os-release",
+	// "postCreateCommand": "pre-commit install",
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
@@ -41,10 +44,15 @@
 				// Development
 				"donjayamanne.githistory",
 				"gruntfuggly.todo-tree",
-				"redhat.vscode-yaml"
+				"redhat.vscode-yaml",
+				// Generative
+				"github.copilot",
+				"visualstudioexptteam.vscodeintellicode",
+				"visualstudioexptteam.intellicode-api-usage-examples"
 			]
 		}
-	}
-	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "devcontainer"
+	},
+	// Connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "${localEnv:USER}",
+    "updateRemoteUserUID": true
 }
