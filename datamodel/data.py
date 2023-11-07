@@ -21,7 +21,7 @@ from jsonmerge import merge as jmerge
 from pydantic import BaseModel
 from typing_extensions import Self
 
-from logger import log
+from reporting.logger import logger
 
 jsonpickle_numpy.register_handlers()
 jsonpickle_pandas.register_handlers()
@@ -138,7 +138,7 @@ class JSON(BaseModel):
         extra_strategies = {field: properties.get(field, {}).get("mergeStrategy", "") for field in extra_fields}
         missing_strategies = [field for field, strategy in extra_strategies.items() if strategy not in MERGE_STRATEGIES]
         if missing_strategies:
-            log.warning(
+            logger.warning(
                 "Missing or wrong 'mergeStrategy' for extra fields, 'overwrite' will be used: %s", missing_strategies
             )
 
