@@ -35,7 +35,7 @@ class DatabaseClient(DatabaseInterface):
         if key not in self:
             raise KeyError(f"Key '{key}' does not exist")
         data = self.storage.get(path).__root__
-        return JSON.parse_raw(data)
+        return JSON.from_raw(data)
 
     def merge(self, key: str, head: JSON, schema: Optional[JSON]) -> None:
         base = self.get(key)
@@ -79,12 +79,12 @@ class DatabaseClient(DatabaseInterface):
     def __init__(self, name: str, storage: StorageClientInterface, compute: Optional[FunctionClientInterface] = None):
         self.name: str = name
         self.storage: StorageClientInterface = storage
-        self.root: StorageKey = StorageKey(storage=storage.name, path=StoragePath(f"database/{name}"))
+        self.root: StorageKey = StorageKey(storage=storage.name, path=StoragePath(path=f"database/{name}"))
         self.data: StorageKey = self.root.join("data")
 
         # Load config
         config_data = self.storage.get(self.root.join("config.json")).__root__
-        self.config: DatabaseConfig = DatabaseConfig.parse_raw(config_data)
+        self.config: DatabaseConfig = DatabaseConfig.from_raw(config_data)
 
         # Load operations
         self.operations: Dict[FieldPath, FunctionConfig] = self.config.operations

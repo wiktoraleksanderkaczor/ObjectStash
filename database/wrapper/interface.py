@@ -3,7 +3,6 @@ Interface for database wrapper.
 """
 from typing import List, Optional
 
-from pysyncobj import SyncObjConsumer
 from typing_extensions import Self
 
 from database.models.query import Query
@@ -20,8 +19,8 @@ from storage.interface.client import StorageClientInterface
 # Might need a huffman coding wrapper for text database
 # It could be in the StorageClient for text MIME types ^
 class DatabaseWrapper(DistributedObjectProxy, StorageClientInterface):
-    def __init__(self, wrapped: DatabaseClient, consumers: List[SyncObjConsumer]):
-        super().__init__(wrapped, consumers)
+    def __init__(self, wrapped: DatabaseClient):
+        super().__init__(wrapped)
         self.__wrapped__: DatabaseClient = wrapped  # typing fix
 
     def insert(self, key: str, value: JSON) -> None:
@@ -46,7 +45,7 @@ class DatabaseWrapper(DistributedObjectProxy, StorageClientInterface):
         return self.__wrapped__.query(query)
 
     def namespace(self, name: str) -> Self:
-        return self.__class__(self.__wrapped__.namespace(name), [])
+        return self.__class__(self.__wrapped__.namespace(name))
 
     @property
     def __dict__(self):

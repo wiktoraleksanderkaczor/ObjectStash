@@ -1,8 +1,6 @@
 """Index wrapper for database client."""
 from typing import List
 
-from pysyncobj import SyncObjConsumer
-
 from database.models.query import Query
 from database.superclass.client import DatabaseClient
 from database.wrapper.interface import DatabaseWrapper
@@ -10,8 +8,8 @@ from datamodel.data import JSON
 
 
 class IndexWrapper(DatabaseWrapper):
-    def __init__(self, wrapped: DatabaseClient, storage: DatabaseClient, consumers: List[SyncObjConsumer]):
-        super().__init__(wrapped, consumers)
+    def __init__(self, wrapped: DatabaseClient, storage: DatabaseClient):
+        super().__init__(wrapped)
         self.index: DatabaseClient = storage
 
     def insert(self, key: str, value: JSON) -> None:
