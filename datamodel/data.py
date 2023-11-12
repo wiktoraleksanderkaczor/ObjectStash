@@ -32,10 +32,10 @@ FieldPath = List[FieldKey]
 MERGE_STRATEGIES = ["overwrite", "discard", "append", "arrayMergeById", "arrayMergeByIndex", "objectMerge", "version"]
 
 
-def pioneer_json_encoder(v: Any) -> str:
+def custom_json_encoder(v: Any) -> str:
     """Custom JSON encoder (+decoder check) for Pioneer objects."""
     if isinstance(v, BaseModel):
-        return v.json()
+        return v.model_dump_json()
     has_custom_encoder = getattr(v, "json", None)
     has_custom_decoder = getattr(v, "from_json", None)
     if has_custom_encoder and has_custom_decoder:
@@ -54,7 +54,7 @@ def pioneer_json_encoder(v: Any) -> str:
         raise TypeError(f"Object of type {v.__class__.__name__} is not JSON serializable") from e
 
 
-def pioneer_json_decoder(obj: Dict[str, Any]) -> Any:
+def custom_json_decoder(obj: Dict[str, Any]) -> Any:
     if "__type__" in obj:
         mod = import_module(obj["__path__"])
         cls = getattr(mod, obj["__type__"])
@@ -65,14 +65,14 @@ def pioneer_json_decoder(obj: Dict[str, Any]) -> Any:
     return obj
 
 
-def pioneer_loads_json(__obj: Union[bytes, bytearray, memoryview, str]) -> Any:
+def custom_loads_json(__obj: Union[bytes, bytearray, memoryview, str]) -> Any:
     """Custom JSON decoder for Pioneer objects."""
-    return json.loads(__obj, object_hook=pioneer_json_decoder)
+    return json.loads(__obj, object_hook=custom_json_decoder)
 
 
-def pioneer_dumps_json(__obj: Any, **_: Any) -> str:
+def custom_dumps_json(__obj: Any, **_: Any) -> str:
     """Custom JSON encoder for Pioneer objects."""
-    return json.dumps(__obj, default=pioneer_json_encoder)
+    return json.dumps(__obj, default=custom_json_encoder)
 
 
 class JSON(BaseModel):
@@ -300,8 +300,8 @@ class JSON(BaseModel):
     # Just in case
     class Config:
         extra: str = "allow"
-        json_dumps = pioneer_dumps_json
-        json_loads = pioneer_loads_json
+        json_dumps = custom_dumps_json
+        json_loads = custom_loads_json
 
         @staticmethod
         def json_schema_extra(schema: Dict[str, Any], _model: type["JSON"]) -> None:
