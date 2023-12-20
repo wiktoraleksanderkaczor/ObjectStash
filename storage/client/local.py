@@ -29,7 +29,14 @@ class LocalClient(BaseStorageClient):
         handle.touch(exist_ok=True)
         handle.write_bytes(data)
         # Set header
-        self.update(obj)
+        header = self.header(obj.key)
+        header.objects[obj.key] = obj
+        hobj, hdata = header.create_file()
+        # Write header to disk
+        hpath = self.root.join(str(hobj.key.path))
+        hhandle = Path(str(hpath))
+        hhandle.touch(exist_ok=True)
+        hhandle.write_bytes(hdata)
 
     def remove(self, key: StorageKey) -> None:
         path = self.root.join(str(key.path))

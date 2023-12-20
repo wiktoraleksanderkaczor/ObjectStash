@@ -101,7 +101,7 @@ class BaseStorageClient(StorageClientInterface, Distributed):
 
     @abstractmethod
     def put(self, obj: Object, data: FileData) -> None:
-        self.update(obj)
+        ...
 
     @abstractmethod
     def remove(self, key: StorageKey) -> None:
@@ -130,12 +130,6 @@ class BaseStorageClient(StorageClientInterface, Distributed):
         data = self.get(head_key)
         header = Header.model_validate_json(data)
         return header
-
-    def update(self, obj: Object) -> None:
-        header = self.header(obj.key)
-        header.objects[obj.key] = obj
-        obj, data = header.create_file()
-        self.put(obj, data)
 
     def exists(self, key: StorageKey) -> bool:
         return key in self

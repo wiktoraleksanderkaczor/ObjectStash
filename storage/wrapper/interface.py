@@ -44,9 +44,6 @@ class StorageWrapper(DistributedObjectProxy, StorageClientInterface):
     def header(self, key: StorageKey) -> Dict[StorageKey, Object]:
         return self.__wrapped__.header(key)
 
-    def update(self, obj: Object) -> None:
-        return self.__wrapped__.update(obj)
-
     def exists(self, key: StorageKey) -> bool:
         return self.__wrapped__.exists(key)
 

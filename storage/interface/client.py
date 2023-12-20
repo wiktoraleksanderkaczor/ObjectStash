@@ -44,10 +44,6 @@ class StorageClientInterface(DistributedInterface, ABC):
         ...
 
     @abstractmethod
-    def update(self, obj: Object) -> None:
-        ...
-
-    @abstractmethod
     def exists(self, key: StorageKey) -> bool:
         ...
 
