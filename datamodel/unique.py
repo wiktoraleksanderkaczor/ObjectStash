@@ -1,13 +1,17 @@
-"""Custom UUID type for Pioneer.""" ""
+"""
+Custom UUID data type
+"""
 from typing import Optional
 from uuid import UUID, uuid4
 
 
 class UniqueID(UUID):
     def __init__(self, value: Optional[str] = None):
+        if value is None:
+            value = self.random().hex
         super().__init__(hex=value, version=4)
 
-    def json(self):
+    def to_data(self):
         return self.hex
 
     @property
@@ -15,7 +19,7 @@ class UniqueID(UUID):
         return str(self)
 
     @classmethod
-    def from_json(cls, value):
+    def from_data(cls, value):
         return cls(value)
 
     @classmethod
