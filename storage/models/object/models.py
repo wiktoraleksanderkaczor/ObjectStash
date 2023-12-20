@@ -16,9 +16,8 @@ class File(BaseModel):
 
     @classmethod
     def create(cls: Type["File"], raw: bytes) -> Tuple["File", "FileData"]:
-        data = FileData(__root__=raw)
-        content = ObjectInfo.from_data(data)
-        return File(content=content), data
+        content = ObjectInfo.from_buffer(raw)
+        return File(content=content), raw
 
 
 class Folder(BaseModel):

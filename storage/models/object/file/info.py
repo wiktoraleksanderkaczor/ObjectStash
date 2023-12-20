@@ -27,18 +27,18 @@ class SizeInfo(BaseModel):
     compressed_bytes: Optional[ByteSize] = None
 
     @classmethod
-    def from_data(cls, data: FileData) -> "SizeInfo":
-        return cls(raw_bytes=ByteSize(len(data.__root__)))
+    def from_buffer(cls, buffer: FileData) -> "SizeInfo":
+        return cls(raw_bytes=ByteSize(len(buffer)))
 
 
 class TypeSignature(BaseModel):
     mime: StrictStr = "application/octet-stream"
 
     @classmethod
-    def from_data(cls, buffer: FileData) -> "TypeSignature":
+    def from_buffer(cls, buffer: FileData) -> "TypeSignature":
         mime = None
         try:
-            mime = magic.from_buffer(buffer.__root__, mime=True)
+            mime = magic.from_buffer(buffer, mime=True)
             mime = str(mime)
         except MagicException:
             pass
@@ -57,8 +57,8 @@ class HashSignature(BaseModel):
     signature: str
 
     @classmethod
-    def from_data(cls, buffer: FileData) -> "HashSignature":
-        signature = sha256(buffer.__root__).hexdigest()
+    def from_buffer(cls, buffer: FileData) -> "HashSignature":
+        signature = sha256(buffer).hexdigest()
         return cls(signature=signature)
 
     @classmethod
@@ -78,8 +78,8 @@ class ObjectInfo(BaseModel):
     encryption: Optional[EncryptionAlgorithm] = None
 
     @classmethod
-    def from_data(cls, data: FileData) -> "ObjectInfo":
-        size = SizeInfo.from_data(data)
-        mime_type = TypeSignature.from_data(data)
-        signature = HashSignature.from_data(data)
+    def from_buffer(cls, buffer: FileData) -> "ObjectInfo":
+        size = SizeInfo.from_buffer(buffer)
+        mime_type = TypeSignature.from_buffer(buffer)
+        signature = HashSignature.from_buffer(buffer)
         return cls(size=size, mime_type=mime_type, signature=signature)

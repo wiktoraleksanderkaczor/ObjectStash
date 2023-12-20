@@ -5,7 +5,7 @@ from enum import Enum
 from typing import List
 
 from storage.interface.client import StorageClientInterface
-from storage.models.object.file.info import FileData
+from storage.models.object.file.data import FileData
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey
 from storage.wrapper.interface import StorageWrapper

@@ -9,7 +9,7 @@ from storage.interface.client import StorageClientInterface
 from storage.models.client.info import StorageInfo
 from storage.models.client.key import StorageClientKey
 from storage.models.client.medium import Medium
-from storage.models.object.file.info import FileData
+from storage.models.object.file.data import FileData
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
 

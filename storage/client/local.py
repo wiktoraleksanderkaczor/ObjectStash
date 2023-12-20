@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 
 from storage.models.client.medium import Medium
-from storage.models.object.file.info import FileData
+from storage.models.object.file.data import FileData
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
 from storage.superclass.client import BaseStorageClient
@@ -18,7 +18,7 @@ class LocalClient(BaseStorageClient):
     def get(self, key: StorageKey) -> FileData:
         path = self.root.join(str(key.path))
         handle = Path(str(path))
-        return FileData(__root__=handle.read_bytes())
+        return handle.read_bytes()
 
     def put(self, obj: Object, data: FileData) -> None:
         # Resolve path
@@ -27,7 +27,7 @@ class LocalClient(BaseStorageClient):
         # Write object to disk
         handle.parent.mkdir(parents=True, exist_ok=True)
         handle.touch(exist_ok=True)
-        handle.write_bytes(data.__root__)
+        handle.write_bytes(data)
         # Set header
         self.update(obj)
 

@@ -39,7 +39,7 @@ class S3Client(BaseStorageClient):
 
     def get(self, key: StorageKey) -> FileData:
         resp: S3Response = self.client.get_object(self.bucket, str(key.path))
-        return FileData(__root__=resp.read())
+        return resp.read()
 
     # Creating empty folders possible in '._head' only
     def put(self, obj: Object, data: FileData) -> None:
@@ -50,8 +50,8 @@ class S3Client(BaseStorageClient):
         self.client.put_object(
             bucket_name=self.bucket,
             object_name=str(obj.key.path),
-            data=BytesIO(data.__root__),
-            length=len(data.__root__),
+            data=BytesIO(data),
+            length=len(data),
             content_type=content_type,
         )
         super().put(obj, data)
