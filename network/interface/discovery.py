@@ -1,6 +1,6 @@
 """Discovery role interfaces."""
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Optional
 
 from pydantic import AnyUrl
 from zeroconf import ServiceBrowser, ServiceInfo, Zeroconf
@@ -29,7 +29,7 @@ class CoordinatorInterface(ABC):
         self.service: ServiceInfo
 
     @abstractmethod
-    def query_service(self, type_: str, name: str) -> Union[ServiceInfo, None]:
+    def query_service(self, type_: str, name: str) -> Optional[ServiceInfo]:
         ...
 
     @abstractmethod

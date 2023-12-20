@@ -2,7 +2,7 @@
 Messaging Interface
 """
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Union
+from typing import Any, Callable, Optional
 
 from pysyncobj.batteries import ReplDict, replicated
 
@@ -23,7 +23,7 @@ class MessagingInterface(ABC):
         ...
 
     @abstractmethod
-    def remove_message_handler(self, name: str) -> Union[str, None]:
+    def remove_message_handler(self, name: str) -> Optional[str]:
         ...
 
     @abstractmethod

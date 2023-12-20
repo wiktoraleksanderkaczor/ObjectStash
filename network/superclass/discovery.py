@@ -4,7 +4,7 @@ Discovery role superclass
 import ipaddress
 import logging
 import socket
-from typing import Dict, Union
+from typing import Dict, Optional
 
 from pydantic import AnyUrl
 from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf
@@ -24,18 +24,18 @@ class Listener(ListenerInterface, ServiceListener):
         super().__init__()
 
     def update_service(self, zc: Zeroconf, type_: str, name: AnyUrl) -> None:
-        info: Union[ServiceInfo, None] = zc.get_service_info(type_, str(name))
+        info: Optional[ServiceInfo] = zc.get_service_info(type_, str(name))
         if info:
             print(f"Service {name} updated, service info: {info}")
 
     def remove_service(self, zc: Zeroconf, type_: str, name: AnyUrl) -> None:
-        info: Union[ServiceInfo, None] = zc.get_service_info(type_, str(name))
+        info: Optional[ServiceInfo] = zc.get_service_info(type_, str(name))
         if info:
             print(f"Service {name} removed, service info: {info}")
             Distributed.peers.remove(name)
 
     def add_service(self, zc: Zeroconf, type_: str, name: AnyUrl) -> None:
-        info: Union[ServiceInfo, None] = zc.get_service_info(type_, str(name))
+        info: Optional[ServiceInfo] = zc.get_service_info(type_, str(name))
         if not info:
             return
 
@@ -50,7 +50,7 @@ class Listener(ListenerInterface, ServiceListener):
             return
 
         # Decode properties
-        properties: Dict[str, Union[str, None]] = {}
+        properties: Dict[str, Optional[str]] = {}
         for k, v in info.properties.items():
             if isinstance(k, bytes):
                 k = k.decode()
@@ -92,7 +92,7 @@ class Coordinator(CoordinatorInterface):
         # Register service
         self.zeroconf.register_service(self.service, cooperating_responders=True)
 
-    def query_service(self, type_: str, name: str) -> Union[ServiceInfo, None]:
+    def query_service(self, type_: str, name: str) -> Optional[ServiceInfo]:
         return self.zeroconf.get_service_info(type_, name)
 
     def __del__(self):
