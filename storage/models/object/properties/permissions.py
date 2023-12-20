@@ -32,7 +32,7 @@ class AccessControl(Data):
 
 
 class PermissionInfo(Data):
-    owner: Dict[Union[User, None], PermissionFlags] = Field(default_factory=lambda: (None, PermissionFlags.user()))
-    group: Dict[Union[Group, None], PermissionFlags] = Field(default_factory=lambda: (None, PermissionFlags.group()))
+    owner: Dict[Optional[User], PermissionFlags] = Field(default_factory=lambda: (None, PermissionFlags.user()))
+    group: Dict[Optional[Group], PermissionFlags] = Field(default_factory=lambda: (None, PermissionFlags.group()))
     others: PermissionFlags = Field(default_factory=PermissionFlags.others)
     acl: Optional[AccessControl] = None
