@@ -20,7 +20,7 @@ PyroConfig.SERVERTYPE = "multiplex"  # type: ignore
 
 class Distributed(DistributedInterface, ABC):
     daemon: Pyro5.server.Daemon = Pyro5.server.Daemon("0.0.0.0", 8080)
-    nameserver: Pyro5.nameserver.NameServer = Pyro5.core.locate_ns()
+    nameserver: Pyro5.nameserver.NameServer = Pyro5.core.locate_ns(port=8080)
     thread: Thread = Thread(target=daemon.requestLoop)
     peers: Set[AnyUrl] = set()
 
