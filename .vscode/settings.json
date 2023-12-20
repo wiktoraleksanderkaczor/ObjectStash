@@ -20,7 +20,7 @@
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-            "source.organizeImports": true
+            "source.organizeImports": "explicit"
         },
     },
     "python.analysis.typeCheckingMode": "basic",
@@ -32,9 +32,9 @@
         "--rcfile=pyproject.toml"
     ],
     "python.testing.pytestArgs": [
-        "tests"
+        "-v", "tests"
     ],
-    "python.testing.cwd": "${workspaceFolder}/.data",
+    "python.testing.cwd": "${workspaceFolder}",
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
 }
