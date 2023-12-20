@@ -13,16 +13,17 @@ from pydantic import AnyUrl
 from Pyro5 import config as PyroConfig
 
 from distribution.interface.distributed import DistributedInterface
+from settings import config
 
 PyroConfig.COMPRESSION = True  # type: ignore
 PyroConfig.SERVERTYPE = "multiplex"  # type: ignore
 
 
 class Distributed(DistributedInterface, ABC):
-    daemon: Pyro5.server.Daemon = Pyro5.server.Daemon("0.0.0.0", 8080)
-    nameserver: Pyro5.nameserver.NameServer = Pyro5.core.locate_ns(port=8080)
+    daemon: Pyro5.server.Daemon = Pyro5.server.Daemon("0.0.0.0", config.distribution.port)
+    nameserver: Pyro5.nameserver.NameServer = Pyro5.core.locate_ns(port=config.distribution.port)
     thread: Thread = Thread(target=daemon.requestLoop)
-    peers: Set[AnyUrl] = set()
+    peers: Set[AnyUrl] = set(config.distribution.peers)
 
     def __init__(self) -> None:
         # Register this instance with the daemon

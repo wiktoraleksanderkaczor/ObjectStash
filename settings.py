@@ -1,50 +1,53 @@
 """
 This module contains the configuration for the application.
 """
-from dataclasses import _MISSING_TYPE, MISSING, dataclass, field
+import os
 from datetime import timedelta
-from typing import Union
+
+from datamodel.data.model import Data, Field
 
 
-@dataclass
-class ClusterConfig:
+class ClusterConfig(Data):
     name: str = "default"
 
 
-@dataclass
-class LockingConfig:
+class LockingConfig(Data):
     duration: timedelta = timedelta(seconds=5)
 
 
-@dataclass
-class StorageConfig:
-    _target_: Union[_MISSING_TYPE, str] = MISSING
-    locking: LockingConfig = field(default_factory=LockingConfig)
+class StorageConfig(Data):
+    _target_: str = "storage.client.memory.MemoryClient"
+    locking: LockingConfig = Field(default_factory=LockingConfig)
 
 
-@dataclass
-class DatabaseConfig:
-    storage: StorageConfig = field(default_factory=StorageConfig)
+class DatabaseConfig(Data):
+    storage: StorageConfig = Field(default_factory=StorageConfig)
 
 
-@dataclass
-class InterfaceConfig:
+class InterfaceConfig(Data):
     port: int = 9090
 
 
-@dataclass
-class DistributionConfig:
+class DistributionConfig(Data):
     port: int = 9091
-    peers: list = field(default_factory=list)
+    peers: list = Field(default_factory=list)
 
 
-@dataclass
-class Config:
-    cluster: ClusterConfig = field(default_factory=ClusterConfig)
-    storage: StorageConfig = field(default_factory=StorageConfig)
-    database: DatabaseConfig = field(default_factory=DatabaseConfig)
-    interface: InterfaceConfig = field(default_factory=InterfaceConfig)
-    distribution: DistributionConfig = field(default_factory=DistributionConfig)
+class RuntimeConfig(Data):
+    debug: bool = False
 
 
-config: Config = Config()
+class Config(Data):
+    cluster: ClusterConfig = Field(default_factory=ClusterConfig)
+    storage: StorageConfig = Field(default_factory=StorageConfig)
+    database: DatabaseConfig = Field(default_factory=DatabaseConfig)
+    interface: InterfaceConfig = Field(default_factory=InterfaceConfig)
+    distribution: DistributionConfig = Field(default_factory=DistributionConfig)
+    runtime: RuntimeConfig = Field(default_factory=RuntimeConfig)
+
+
+config_file: str = os.environ.get("VINT_CONFIG_FILE", "config.json")
+config: Config
+
+with open(config_file, "r", encoding="utf-8") as handle:
+    config = Config.from_raw(handle.read())

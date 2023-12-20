@@ -66,7 +66,7 @@ class StorageClientInterface(DistributedInterface, ABC):
     def __contains__(self, key: StorageKey) -> bool:
         ...
 
-    # Hash for Pioneer client management set replacement
+    # Hash for project client management set replacement
     @abstractmethod
     def __hash__(self):
         ...

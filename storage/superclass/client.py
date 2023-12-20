@@ -159,7 +159,7 @@ class BaseStorageClient(StorageClientInterface, Distributed):
     def medium(self) -> Medium:
         ...
 
-    # Hash for Pioneer client management set replacement
+    # Hash for project client management set replacement
     def __hash__(self):
         return hash(self.name)
 

@@ -15,4 +15,4 @@ class StorageOperations(LoggingMixIn, Operations):
 if __name__ == "__main__":
     local_client = LocalClient(StoragePath(path="./local_data"))
     operations = StorageOperations(local_client)
-    fuse = FUSE(operations, "/tmp/pioneer")
+    fuse = FUSE(operations, "/tmp/vint")

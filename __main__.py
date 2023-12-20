@@ -1,8 +1,5 @@
 """
-Pioneer is a simple object storage system that allows you to store and retrieve objects from a variety of storage
-backends. It is designed to be simple to use and easy to extend.
-
-This module contains the main entry point for the Pioneer application.
+Main entry point for the project.
 """
 import signal
 

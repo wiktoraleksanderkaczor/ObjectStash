@@ -1,4 +1,4 @@
-"""Pioneer setup script."""
+"""Project setup script."""
 import re
 import sys
 from pathlib import Path
@@ -15,7 +15,7 @@ DESCRIPTION = (
 )
 
 LONG_DESCRIPTION = """
-Pioneer is a serverless distribution-capable database, caching, and FUSE layer self-contained package.
+Virtual interface (vint) is a serverless distribution-capable database, caching, and FUSE layer self-contained package.
 
 What can it do:
 - It can act like a filesystem, mounted wherever needed for interfacing with legacy applications.
@@ -34,7 +34,7 @@ for line in rfile:
         requires.append(match.group("package"))
 
 setuptools.setup(
-    name="Pioneer",
+    name="vint",
     version="0.1.0",
     url="https://github.com/wiktoraleksanderkaczor/Pioneer",
     author="Wiktor Kaczor",

@@ -81,12 +81,12 @@ def custom_json_decoder(obj: Dict[str, Any]) -> Any:
 
 
 def custom_loads_json(__obj: Union[bytes, bytearray, memoryview, str]) -> Any:
-    """Custom JSON decoder for Pioneer objects."""
+    """Custom JSON decoder for data objects."""
     return json.loads(__obj, object_hook=custom_json_decoder)
 
 
 def custom_dumps_json(__obj: Any, **_: Any) -> str:
-    """Custom JSON encoder for Pioneer objects."""
+    """Custom JSON encoder for data objects."""
     return json.dumps(__obj, default=custom_json_encoder)
 
 

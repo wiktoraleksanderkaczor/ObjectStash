@@ -10,6 +10,6 @@ from datamodel.unique import UniqueID
 
 
 class User(Data):
-    name: StrictStr = "Pioneer"
+    name: StrictStr = "Default"
     uuid: UniqueID = Field(default_factory=UniqueID.random)
     membership: List[Group] = [Group()]

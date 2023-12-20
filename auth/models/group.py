@@ -6,5 +6,5 @@ from datamodel.unique import UniqueID
 
 
 class Group(Data):
-    name: StrictStr = "Pioneer"
+    name: StrictStr = "Users"
     uuid: UniqueID = Field(default_factory=UniqueID.random)
