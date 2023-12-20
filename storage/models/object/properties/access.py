@@ -1,12 +1,13 @@
 """
 Modification info model
 """
-from pydantic import BaseModel, Field
+from pydantic import Field
 
+from datamodel.data.model import Data
 from datamodel.timedate import DateTime
 
 
-class AccessTimeInfo(BaseModel):
+class AccessTimeInfo(Data):
     modified: DateTime = Field(default_factory=DateTime.utcnow)
     created: DateTime = Field(default_factory=DateTime.utcnow)
     accessed: DateTime = Field(default_factory=DateTime.utcnow)

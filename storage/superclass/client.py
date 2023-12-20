@@ -5,9 +5,9 @@ from abc import abstractmethod
 from contextlib import contextmanager
 from typing import Any, Generator, List, Union
 
-from pydantic import BaseModel
 from pysyncobj.batteries import ReplLockManager
 
+from datamodel.data.model import Data
 from distribution.superclass.distributed import Distributed
 from network.superclass.scheduling import scheduler
 from storage.interface.client import StorageClientInterface
@@ -21,7 +21,7 @@ from storage.models.object.path import StorageKey, StoragePath
 from storage.models.wrapper.locking import StorageLock
 
 
-class LockConfig(BaseModel):
+class LockConfig(Data):
     interval: int = 300
     timeout: int = 30
     grace: int = 30
@@ -40,8 +40,8 @@ class BaseStorageClient(StorageClientInterface, Distributed):
         super().__init__()
         self._lock: StorageLock
         if self._lock_key in self:
-            decoded = self.get(self._lock_key).to_text()
-            self._lock = StorageLock.model_validate_json(decoded)
+            raw = self.get(self._lock_key)
+            self._lock = StorageLock.from_raw(raw)
             if not self._lock.is_owned() and not self._lock.is_expired():
                 raise RuntimeError(f"{self} already locked")
 
@@ -57,7 +57,7 @@ class BaseStorageClient(StorageClientInterface, Distributed):
         if not self.is_master():
             return
         self._lock = StorageLock()
-        encoded = self._lock.json().encode()
+        encoded = self._lock.to_json().encode()
         obj, data = Object.create_file(key=self._lock_key, raw=encoded)
         self.put(obj, data)
 
@@ -128,7 +128,7 @@ class BaseStorageClient(StorageClientInterface, Distributed):
         dir_path = key.path.parent if self.stat(key).is_file() else key.path
         head_key = StorageKey(storage=key.storage, path=dir_path).join("._head.json")
         data = self.get(head_key)
-        header = Header.model_validate_json(data.__root__)
+        header = Header.model_validate_json(data)
         return header
 
     def update(self, obj: Object) -> None:
@@ -155,11 +155,11 @@ class BaseStorageClient(StorageClientInterface, Distributed):
     def info(self) -> StorageInfo:
         key = StorageKey(storage=self.name, path=StoragePath(path="._info.json"))
         if key not in self:
-            encoded = StorageInfo().json().encode()
+            encoded = StorageInfo().to_json().encode()
             obj, data = Object.create_file(key, encoded)
             self.put(obj, data)
-        decoded = self.get(key).to_text()
-        return StorageInfo.model_validate_json(decoded)
+        raw = self.get(key)
+        return StorageInfo.from_raw(raw)
 
     @property
     def medium(self) -> Medium:

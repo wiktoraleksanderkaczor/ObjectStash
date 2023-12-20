@@ -1,7 +1,7 @@
 """StorageClientKey model."""
 import re
 
-from pydantic import BaseModel
+from datamodel.data.model import Data
 
 CLIENT_REGEX = re.compile(
     (
@@ -12,7 +12,7 @@ CLIENT_REGEX = re.compile(
 )
 
 
-class StorageClientKey(BaseModel):
+class StorageClientKey(Data):
     value: str
 
     @classmethod

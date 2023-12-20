@@ -1,10 +1,10 @@
 """Function configuration model."""
-from datamodel.data import JSON
+from datamodel.data.model import Data
 from datamodel.timedate import TimeDelta
 from storage.models.client.key import StorageClientKey
 
 
-class FunctionConfig(JSON):
+class FunctionConfig(Data):
     name: str
     storage: StorageClientKey
     timeout: TimeDelta

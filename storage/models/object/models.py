@@ -3,15 +3,14 @@ This module contains the models for the items in the storage service.
 """
 from typing import Tuple, Type, Union
 
-from pydantic import BaseModel
-
+from datamodel.data.model import Data
 from storage.models.object.file.data import FileData
 from storage.models.object.file.info import ObjectInfo
 from storage.models.object.metadata import Metadata
 from storage.models.object.path import StorageKey
 
 
-class File(BaseModel):
+class File(Data):
     content: ObjectInfo
 
     @classmethod
@@ -20,15 +19,15 @@ class File(BaseModel):
         return File(content=content), raw
 
 
-class Folder(BaseModel):
+class Folder(Data):
     num_items: int = 0
 
 
-# class Device(BaseModel):
+# class Device(Data):
 #     pass
 
 
-class Object(BaseModel):
+class Object(Data):
     key: StorageKey
     metadata: Metadata
     item: Union[File, Folder]  # , Device]

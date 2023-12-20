@@ -5,7 +5,8 @@ from typing import Any, List, Optional
 from typing_extensions import Self
 
 from database.models.query import Query
-from datamodel.data import JSON
+from datamodel.data.model import Data
+from repository.client.data import DataRepository
 from storage.interface.client import StorageClientInterface
 from storage.models.object.path import StorageKey
 
@@ -17,7 +18,7 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    def update(self, key: str, value: JSON) -> None:
+    def update(self, key: str, value: Data) -> None:
         ...
 
     @abstractmethod
@@ -57,5 +58,5 @@ class DatabaseInterface(ABC):
         self.name: str
         self.storage: StorageClientInterface
         self.root: StorageKey
-        self.data: StorageKey
-        self.config: JSON
+        self.data: DataRepository
+        self.config: Data

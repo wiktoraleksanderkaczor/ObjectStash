@@ -1,5 +1,5 @@
 """Database model for the database service."""
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from typing_extensions import Self
 
@@ -8,57 +8,55 @@ from compute.models.functions.config import FunctionConfig
 from database.interface.client import DatabaseInterface
 from database.models.config import DatabaseConfig
 from database.models.query import Query
-from datamodel.data import JSON, FieldPath
+from datamodel.data.model import Data
+from datamodel.data.path import FieldPath
+from repository.client.data import DataRepository
 from storage.interface.client import StorageClientInterface
-from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
 
 
 class DatabaseClient(DatabaseInterface):
-    def insert(self, key: str, value: JSON) -> None:
-        path = self.data.join(key)
-        json = value.json()
-        encoded = json.encode("utf-8")
-        obj, data = Object.create_file(path, encoded)
-        self.storage.put(obj, data)
+    def insert(self, key: str, value: Data) -> None:
+        if key in self:
+            raise KeyError(f"Key '{key}' already exists")
+        self.data[key] = value
 
-    def update(self, key: str, value: JSON) -> None:
-        self.remove(key)
-        self.insert(key, value)
-
-    def remove(self, key: str) -> None:
-        path = self.data.join(key)
-        self.storage.remove(path)
-
-    def get(self, key: str) -> JSON:
-        path = self.data.join(key)
+    def update(self, key: str, value: Data) -> None:
         if key not in self:
             raise KeyError(f"Key '{key}' does not exist")
-        data = self.storage.get(path).__root__
-        return JSON.from_raw(data)
+        self.data[key] = value
 
-    def merge(self, key: str, head: JSON, schema: Optional[JSON]) -> None:
-        base = self.get(key)
-        _, new = JSON.merge(base, head, schema)
+    def remove(self, key: str) -> None:
+        if key not in self:
+            raise KeyError(f"Key '{key}' does not exist")
+        del self.data[key]
+
+    def get(self, key: str, default: Any = None) -> Optional[Data]:
+        return self.data.get(key, default)
+
+    def merge(self, key: str, head: Data, schema: Optional[Data]) -> None:
+        if key not in self:
+            raise KeyError(f"Key '{key}' does not exist")
+        base = self.data[key]
+        _, new = Data.merge(base, head, schema)
         self.insert(key, new)
 
     def __contains__(self, key: str) -> bool:
-        path = self.data.join(key)
-        return path in self.storage
+        return key in self.data
 
     def delete(self, key: str) -> None:
-        path = self.data.join(key)
-        if key in self:
-            self.storage.remove(path)
+        if key not in self:
+            raise KeyError(f"Key '{key}' does not exist")
+        del self.data[key]
 
     def items(self, prefix: Optional[str] = None) -> List[str]:
-        path = self.data.join(prefix) if prefix else self.data
-        return [item.path.name for item in self.storage.list(path)]
+        keys = [key for key in self.data.keys() if key.startswith(prefix)] if prefix else self.data.keys()
+        return keys
 
-    def query(self, query: Query) -> List[JSON]:
+    def query(self, query: Query) -> List[Data]:
         results = []
         for item in self.items():
-            data = self.get(item)
+            data = self.data[item]
             if query(data):
                 results.extend(data)
         return results
@@ -79,11 +77,13 @@ class DatabaseClient(DatabaseInterface):
     def __init__(self, name: str, storage: StorageClientInterface, compute: Optional[FunctionClientInterface] = None):
         self.name: str = name
         self.storage: StorageClientInterface = storage
-        self.root: StorageKey = StorageKey(storage=storage.name, path=StoragePath(path=f"database/{name}"))
-        self.data: StorageKey = self.root.join("data")
+
+        prefix: str = f"database/{name}"
+        self.root: StorageKey = StorageKey(storage=storage.name, path=StoragePath(path=prefix))
+        self.data: DataRepository = DataRepository(name=f"{prefix}/data", storage=storage)
 
         # Load config
-        config_data = self.storage.get(self.root.join("config.json")).__root__
+        config_data = self.storage.get(self.root.join("._database.json"))
         self.config: DatabaseConfig = DatabaseConfig.from_raw(config_data)
 
         # Load operations

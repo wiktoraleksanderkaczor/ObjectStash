@@ -1,8 +1,9 @@
 """Repository model."""
-from pydantic import BaseModel, Field
+from pydantic import Field
 
+from datamodel.data.model import Data
 from datamodel.unique import UniqueID
 
 
-class StorageInfo(BaseModel):
+class StorageInfo(Data):
     uuid: UniqueID = Field(default_factory=UniqueID.random)

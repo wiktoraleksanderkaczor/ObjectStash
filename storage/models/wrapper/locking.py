@@ -1,22 +1,23 @@
 """Models for locking."""
 from datetime import datetime, timedelta
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from config.env import env
+from datamodel.data.model import Data
 from datamodel.timedate import DateTime
+from settings import config
 
 
-class StorageLock(BaseModel):
-    cluster: str = env.cluster.name
+class StorageLock(Data):
+    cluster: str = config.cluster.name
     timestamp: DateTime = Field(default_factory=datetime.utcnow)
-    duration: timedelta = env.locking.storage.duration
+    duration: timedelta = config.storage.locking.duration
 
     def is_expired(self) -> bool:
         return self.timestamp + self.duration < datetime.utcnow()
 
     def is_owned(self) -> bool:
-        return self.cluster == env.cluster.name
+        return self.cluster == config.cluster.name
 
     def valid(self) -> bool:
         if self.is_expired():

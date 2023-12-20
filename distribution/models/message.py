@@ -1,16 +1,17 @@
 """
 Message model for communication between nodes.
 """
-from typing import Union
+from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
+from datamodel.data.model import Data
 from datamodel.timedate import DateTime
 from distribution.models.node import Node
 
 
-class Message(BaseModel):
+class Message(Data):
     timestamp: DateTime = Field(default_factory=DateTime.now)
-    receiver: Union[Node, None] = None
+    receiver: Optional[Node] = None
     sender: Node
     content: str

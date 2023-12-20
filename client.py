@@ -6,10 +6,8 @@ This module contains the main entry point for the Pioneer application.
 """
 import signal
 
-# from config.env import env
-# from config.logger import log
 from database.paradigms.nosql import NoSQL
-from datamodel.data import JSON
+from datamodel.data.model import Data
 from network.superclass.discovery import Coordinator
 from storage.client.local import LocalClient
 from storage.client.memory import MemoryClient
@@ -34,17 +32,17 @@ class GracefulExit:
 
 if __name__ == "__main__":
     # Start discovery and coordination
-    coordinator: Coordinator = Coordinator()
+    coordinator: Coordinator = Coordinator("test_service")
 
     # Handle shutdowns
     flag: GracefulExit = GracefulExit()
 
-    directory: StorageClientInterface = LocalClient(StoragePath("./local_data"))
+    directory: StorageClientInterface = LocalClient(StoragePath(path="./local_data"))
     memory: StorageClientInterface = MemoryClient()
 
     ndb = NoSQL("random_db", directory)
-    ndb.insert("test", JSON.parse_obj({"test": "test"}))
-    indexed = IndexWrapper(directory, memory, [])
+    ndb.insert("test", Data.from_obj({"test": "test"}))
+    indexed = IndexWrapper(directory, memory)
 
     indb = NoSQL("random_db", indexed)
     data = indb.get("test")

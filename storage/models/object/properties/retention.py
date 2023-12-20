@@ -1,7 +1,7 @@
 """Storage models."""
 from enum import Enum
 
-from pydantic import BaseModel
+from datamodel.data.model import Data
 
 
 class RetentionClass(str, Enum):
@@ -11,5 +11,5 @@ class RetentionClass(str, Enum):
     GLACIER = "GLACIER"
 
 
-class RetentionInfo(BaseModel):
+class RetentionInfo(Data):
     storage_class: RetentionClass = RetentionClass.HOT

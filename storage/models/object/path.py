@@ -5,14 +5,13 @@ import os.path
 import re
 from typing import List, Pattern, Union
 
-from pydantic import BaseModel
-
+from datamodel.data.model import Data
 from storage.models.client.key import StorageClientKey
 
 VALID_PATH: Pattern = re.compile(r"^[a-zA-Z0-9_\-\.\/]+$")
 
 
-class StoragePath(BaseModel):
+class StoragePath(Data):
     """
     StoragePath is a model that represents a path to a file or directory in a storage.
     No wildcard, regex or unsafe append, that's handled by the operating system
@@ -70,7 +69,7 @@ class StoragePath(BaseModel):
         return self.path
 
 
-class StorageKey(BaseModel):
+class StorageKey(Data):
     storage: StorageClientKey
     path: StoragePath
 

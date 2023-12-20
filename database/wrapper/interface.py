@@ -1,13 +1,13 @@
 """
 Interface for database wrapper.
 """
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from typing_extensions import Self
 
 from database.models.query import Query
 from database.superclass.client import DatabaseClient
-from datamodel.data import JSON
+from datamodel.data.model import Data
 from network.superclass.wrapping import DistributedObjectProxy
 from storage.interface.client import StorageClientInterface
 
@@ -23,13 +23,13 @@ class DatabaseWrapper(DistributedObjectProxy, StorageClientInterface):
         super().__init__(wrapped)
         self.__wrapped__: DatabaseClient = wrapped  # typing fix
 
-    def insert(self, key: str, value: JSON) -> None:
+    def insert(self, key: str, value: Data) -> None:
         return self.__wrapped__.insert(key, value)
 
-    def get(self, key: str) -> JSON:
-        return self.__wrapped__.get(key)
+    def get(self, key: str, default: Any = None) -> Optional[Data]:
+        return self.__wrapped__.get(key, default)
 
-    def merge(self, key: str, head: JSON, schema: Optional[JSON]) -> None:
+    def merge(self, key: str, head: Data, schema: Optional[Data]) -> None:
         return self.__wrapped__.merge(key, head, schema)
 
     def __contains__(self, key: str) -> bool:
@@ -41,7 +41,7 @@ class DatabaseWrapper(DistributedObjectProxy, StorageClientInterface):
     def items(self, prefix: Optional[str] = None) -> List[str]:
         return self.__wrapped__.items(prefix)
 
-    def query(self, query: Query) -> List[JSON]:
+    def query(self, query: Query) -> List[Data]:
         return self.__wrapped__.query(query)
 
     def namespace(self, name: str) -> Self:

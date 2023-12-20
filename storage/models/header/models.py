@@ -3,23 +3,20 @@ Header model
 """
 from typing import Dict, Tuple
 
-from pydantic import BaseModel
 from typing_extensions import Self
 
+from datamodel.data.model import Data
 from storage.models.object.file.data import FileData
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey
 
 
-class Header(BaseModel):
+class Header(Data):
     key: StorageKey
     objects: Dict[StorageKey, Object]
 
-    def update(self: Self, obj: Object) -> None:
-        self.objects[obj.key] = obj
-
     def create_file(self: Self) -> Tuple[Object, FileData]:
-        encoded = self.json().encode()
+        encoded = self.to_json().encode()
         obj, data = Object.create_file(self.key, encoded)
         return obj, data
 

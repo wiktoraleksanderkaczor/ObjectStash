@@ -4,9 +4,9 @@ This wrapper creates an index of the wrapped storage.
 from typing import List
 
 from database.paradigms.nosql import NoSQL
-from datamodel.data import JSON
+from datamodel.data.model import Data
 from storage.interface.client import StorageClientInterface
-from storage.models.object.file.info import FileData
+from storage.models.object.file.data import FileData
 from storage.models.object.models import Object
 from storage.models.object.path import StorageKey, StoragePath
 from storage.wrapper.interface import StorageWrapper
@@ -21,11 +21,11 @@ class IndexWrapper(StorageWrapper):
         self.index = NoSQL(f"index/{self.__wrapped__.name}", self.storage)
         for item in self.__wrapped__.list(root_path, recursive=True):
             stat = self.__wrapped__.stat(item)
-            self.index.insert(str(item.path), JSON.parse_obj(stat.dict()))
+            self.index.insert(str(item.path), Data.from_obj(stat.to_dict()))
 
     def put(self, obj: Object, data: FileData) -> None:
         self.__wrapped__.put(obj, data)
-        self.index.insert(str(obj.key.path), JSON.parse_obj(obj.dict()))
+        self.index.insert(str(obj.key.path), Data.from_obj(obj.to_dict()))
 
     def remove(self, key: StorageKey) -> None:
         self.__wrapped__.remove(key)
@@ -33,6 +33,9 @@ class IndexWrapper(StorageWrapper):
 
     def stat(self, key: StorageKey) -> Object:
         data = self.index.get(str(key.path))
+        if data is None:
+            data = self.__wrapped__.stat(key)
+            self.index.insert(str(key.path), Data.from_obj(data.to_dict()))
         data = data.to_dict()
         return Object(**data)
 
@@ -43,4 +46,9 @@ class IndexWrapper(StorageWrapper):
         return [StorageKey(storage=self.__wrapped__.name, path=StoragePath(path=item)) for item in items]
 
     def __contains__(self, key: StorageKey) -> bool:
-        return str(key.path) in self.index
+        if str(key.path) in self.index:
+            return True
+        if key in self.__wrapped__:
+            self.index.insert(str(key.path), Data.from_obj(self.__wrapped__.stat(key).to_dict()))
+            return True
+        return False

@@ -3,10 +3,8 @@ from abc import abstractmethod
 from enum import Enum
 from typing import Any, Iterable, List, Optional, Set, Tuple, Union
 
-from pydantic import BaseModel
-
 # from database.interface.client import DatabaseInterface
-from datamodel.data import JSON, FieldPath
+from datamodel.data.model import Data, FieldPath
 
 
 class Operator(str, Enum):
@@ -31,13 +29,13 @@ class Modifier(str, Enum):
 Operand = Union[str, int, float, bool, List[Union[str, int, float, bool, "Operand"]]]
 
 
-class Operation(JSON):
+class Operation(Data):
     field: FieldPath
     operator: Operator
     operand: Optional[Any]
     modifier: Optional[Modifier]
 
-    def __call__(self, item: JSON) -> bool:
+    def __call__(self, item: Data) -> bool:
         value = item.get(self.field)
         result: bool
         # Handle the different operators.
@@ -72,7 +70,7 @@ class Operation(JSON):
             return f"{self.operator}({repr(self.field)}, {repr(self.operand)})"
         return f"{self.operator}({repr(self.field)})"
 
-    def to_json(self) -> str:
+    def to_data(self) -> str:
         if self.operand:
             return f"({self.field} {self.operator} {self.operand})"
         return f"({self.field} {self.operator})"
@@ -95,12 +93,12 @@ class Statement:
             return self.statement(item)
         raise NotImplementedError(f"Statement {self.statement} is not implemented.")
 
-    def to_json(self) -> str:
+    def to_data(self) -> str:
         if isinstance(self.statement, tuple):
             operation, conjunction, statement = self.statement
-            return f"({operation.to_json()} {conjunction} {statement.to_json()})"
+            return f"({operation.to_data()} {conjunction} {statement.to_data()})"
         if isinstance(self.statement, Operation):
-            return self.statement.to_json()
+            return self.statement.to_data()
         raise NotImplementedError(f"Statement {self.statement} is not implemented.")
 
 
@@ -109,7 +107,7 @@ class Condition(Tuple[FieldPath, Statement]):
     def __repr__(self) -> str:
         return f"Condition({repr(self[0])}, {repr(self[1])})"
 
-    def __call__(self, value: JSON) -> bool:
+    def __call__(self, value: Data) -> bool:
         field, statement = self
         return statement(value.get(field))
 
@@ -120,7 +118,7 @@ class Condition(Tuple[FieldPath, Statement]):
 # has its precedence. Like, limit after select, but before order_by, etc.
 # This means repeated calls to the same method will create a new phase.
 # Handle limit, offset, order_by, group_by, distinct, union and intersect
-class Query(BaseModel):
+class Query(Data):
     """
     A Query class for building, representing and manipulating database queries.
 
@@ -133,7 +131,7 @@ class Query(BaseModel):
     Attributes:
     outputs (List[FieldPath]): A list of output field paths for the query.
     conditions (List[Condition]): A list of query conditions.
-    foreign (Optional[List[Tuple[Union[FieldPath, None], Union[JSON, List[JSON]]]]]): A list of join operations, each
+    foreign (Optional[List[Tuple[Optional[FieldPath], Union[JSON, List[JSON]]]]]): A list of join operations, each
     with a field, a client/table, and a query. Can be None if no join is specified.
 
     Methods:
@@ -152,24 +150,28 @@ class Query(BaseModel):
         and other queries.
     fields(self) -> List[FieldPath]: Returns a list of all fields used in the query excluding joins.
     is_valid(self) -> bool: Checks whether the query is valid.
-    to_json(self) -> str: Returns a JSON representation of the query.
+    to_data(self) -> str: Returns a data representation of the query.
     """
 
     outputs: List[FieldPath] = []
     conditions: List[Condition] = []
-    foreign: Optional[List[Tuple[Union[FieldPath, None], Union[JSON, List[JSON]]]]] = None
+    foreign: Optional[List[Tuple[Optional[FieldPath], Union[Data, List[Data]]]]] = None
 
     def __repr__(self) -> str:
         return f"Query(outputs={repr(self.outputs)}, conditions={repr(self.conditions)})"
 
-    def __call__(self, value: JSON) -> Union[JSON, None]:
+    def __call__(self, value: Optional[Data]) -> Optional[Data]:
+        if value is None:
+            return None
+
         # Fill out the foreign data.
         if self.foreign and isinstance(self.foreign, list):
             for new in self.foreign:
                 field, data = new
                 # If field specified, just place the data there.
                 if field:
-                    value.put(field, data)
+                    # TODO: Handle list of data.
+                    value[field] = data
                 else:
                     # Otherwise, update the value with the data.
                     if isinstance(data, list):
@@ -347,7 +349,7 @@ class Query(BaseModel):
         return bool(self.outputs) and bool(self.conditions)
 
     @abstractmethod
-    def to_json(self) -> str:
+    def to_data(self) -> str:
         """
         Returns a JSON representation of the query.
 

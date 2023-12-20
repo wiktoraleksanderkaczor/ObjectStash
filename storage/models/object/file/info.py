@@ -6,8 +6,9 @@ from typing import List, Optional
 import magic
 from hashid import HashID, HashInfo
 from magic import MagicException
-from pydantic import BaseModel, ByteSize, StrictStr
+from pydantic import ByteSize, StrictStr
 
+from datamodel.data.model import Data
 from storage.models.object.file.data import FileData
 from storage.models.object.file.encryption import EncryptionAlgorithm
 
@@ -22,7 +23,7 @@ class TypeDetection(str, Enum):
     EXTENSION = "extension"
 
 
-class SizeInfo(BaseModel):
+class SizeInfo(Data):
     raw_bytes: ByteSize = ByteSize(0)
     compressed_bytes: Optional[ByteSize] = None
 
@@ -31,7 +32,7 @@ class SizeInfo(BaseModel):
         return cls(raw_bytes=ByteSize(len(buffer)))
 
 
-class TypeSignature(BaseModel):
+class TypeSignature(Data):
     mime: StrictStr = "application/octet-stream"
 
     @classmethod
@@ -52,7 +53,7 @@ class TypeSignature(BaseModel):
         return value
 
 
-class HashSignature(BaseModel):
+class HashSignature(Data):
     algorithm: StrictStr = "SHA-256"
     signature: str
 
@@ -70,7 +71,7 @@ class HashSignature(BaseModel):
         return value
 
 
-class ObjectInfo(BaseModel):
+class ObjectInfo(Data):
     size: SizeInfo  # Size of data in bytes or all items in directory
     mime_type: TypeSignature  # MIME type for content
     signature: HashSignature  # Hash for integrity
