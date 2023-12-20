@@ -1,6 +1,6 @@
 """MinIO Storage Client"""
 from io import BytesIO
-from typing import Union
+from typing import Optional
 
 from minio import Minio
 from urllib3.response import BaseHTTPResponse as S3Response
@@ -20,7 +20,7 @@ class S3Client(BaseStorageClient):
         access_key: str,
         secret_key: str,
         secure: bool,
-        region: Union[str, None] = None,
+        region: Optional[str] = None,
     ) -> None:
         super().__init__()
         self.client = Minio(
