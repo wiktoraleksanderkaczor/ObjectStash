@@ -424,6 +424,14 @@ class Data(BaseModel):
             root[path[-1]] = value
         return NestedData(data)
 
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Data):
+            return False
+        return self.to_dict() == other.to_dict()
+
+    def __ne__(self, other: Any) -> bool:
+        return not self == other
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.build().to_dict()})"
 
